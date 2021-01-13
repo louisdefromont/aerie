@@ -16,9 +16,16 @@
 
 package org.eaa690.aerie.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Date;
 import java.util.Objects;
 
+/**
+ * Member.
+ */
+@Entity
+@Table(name = "MEMBER")
 public class Member extends BaseEntity implements Comparable<Member> {
 
     /**

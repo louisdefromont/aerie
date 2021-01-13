@@ -53,7 +53,7 @@ public class WeatherController {
      */
     public static final String INVALID_STATION_MSG =
             "Provided station [%s] is not on the Atlanta sectional chart.  "
-                    + "Please provide an accepted station identifer";
+                    + "Please provide an accepted station identifier";
 
     /**
      * NO_STATION_MSG.

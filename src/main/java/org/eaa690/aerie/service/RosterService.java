@@ -37,12 +37,7 @@ import java.sql.Timestamp;
 import java.sql.SQLException;
 import java.sql.DriverManager;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -225,7 +220,6 @@ public class RosterService {
             getHttpHeaders();
             doLogin();
             getSearchMembersPage();
-            fetchData();
             List<Member> members = parseRecords();
             for (Member member : members) {
                 memberRepository.save(member);
@@ -233,6 +227,21 @@ public class RosterService {
         } catch (ResourceNotFoundException e) {
             LOGGER.error(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Retrieves the member affiliated with the provided RFID.
+     *
+     * @param rfid RFID
+     * @return Member
+     * @throws ResourceNotFoundException when no member matches
+     */
+    public Member getMemberByRFID(String rfid) throws ResourceNotFoundException {
+        Optional<Member> member = memberRepository.findByRfid(rfid);
+        if (member.isPresent()) {
+            return member.get();
+        }
+        throw new ResourceNotFoundException("No member found matching RFID="+rfid);
     }
 
     /**
@@ -288,7 +297,7 @@ public class RosterService {
     /**
      * Fetch's data from EAA's roster management system.
      */
-    private void fetchData() {
+    private String fetchData() {
         final String uriStr = EAA_CHAPTERS_SITE_BASE + "/searchmembers.aspx";
         final String requestBodyStr = buildFetchDataRequestBodyString();
         HttpClient client = HttpClient.newHttpClient();
@@ -302,18 +311,15 @@ public class RosterService {
         }
         final HttpRequest request = builder.build();
 
-        PrintWriter out = null;
+        StringBuilder sb = new StringBuilder();
         try {
             HttpResponse<String> response = client.send(request,
                     HttpResponse.BodyHandlers.ofString());
-            out = new PrintWriter(new BufferedWriter(new FileWriter("../EAAMembersSearch.xls")));
-            out.println(response.body());
-            out.flush();
+            sb.append(response.body());
         } catch (Exception e) {
             System.out.println("[FETCH] Error: " + e.getMessage());
-        } finally {
-            try { out.close(); } catch (Exception e) {}
         }
+        return sb.toString();
     }
 
     private void getHttpHeaders() throws ResourceNotFoundException {
@@ -430,34 +436,13 @@ public class RosterService {
     }
 
     /**
-     * Reads in an Excel spreadsheet.
-     *
-     * @return Excel spreadsheet
-     */
-    private String getData() {
-        final StringBuilder sb = new StringBuilder();
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new FileReader("../EAAMembersSearch.xls"));
-            while (in.ready()) {
-                sb.append(in.readLine());
-            }
-        } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
-        } finally {
-            try { in.close(); } catch (Exception e) {}
-        }
-        return sb.toString();
-    }
-
-    /**
      * Parses select values from Excel spreadsheet.
      *
      * @return list of parsed values
      */
     private List<Member> parseRecords() {
         final List<Member> records = new ArrayList<>();
-        final Document doc = Jsoup.parse(getData());
+        final Document doc = Jsoup.parse(fetchData());
         final Elements tableRecords = doc.getElementsByTag("tr");
         int rowCount = 0;
         for (Element tr : tableRecords) {

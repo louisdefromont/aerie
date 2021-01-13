@@ -14,35 +14,31 @@
  *  limitations under the License.
  */
 
-package org.eaa690.aerie.constant;
+package org.eaa690.aerie.model;
+
+import org.springframework.data.repository.Repository;
+
+import java.util.Optional;
 
 /**
- * Property Key Constants.
+ * MemberRepository.
  */
-public class PropertyKeyConstants {
+public interface MemberRepository extends Repository<Member, Long> {
 
     /**
-     * CHECK_WX_URL_BASE_KEY.
+     * Gets a member.
+     *
+     * @param rfid RFID
+     * @return Member
      */
-    public static final String CHECK_WX_URL_BASE_KEY = "weather.checkwx.url-base";
+    Optional<Member> findByRfid(String rfid);
 
     /**
-     * ATLANTA_ICAO_PROPERTY_KEY.
+     * Saves a member.
+     *
+     * @param member Member
+     * @return Member
      */
-    public static final String ATLANTA_ICAO_CODES_PROPERTY_KEY = "weather.atlanta-icao-codes";
+    Member save(Member member);
 
-    /**
-     * CHECK_WX_API_KEY_KEY.
-     */
-    public static final String CHECK_WX_API_KEY_KEY = "weather.checkwx.api-key";
-
-    /**
-     * ROSTER_USER.
-     */
-    public static final String ROSTER_USER_KEY = "ROSTER_USER";
-
-    /**
-     * ROSTER_PASS.
-     */
-    public static final String ROSTER_PASS_KEY = "ROSTER_PASS";
 }

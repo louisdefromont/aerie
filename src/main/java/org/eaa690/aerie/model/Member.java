@@ -17,13 +17,9 @@
 package org.eaa690.aerie.model;
 
 import java.util.Date;
+import java.util.Objects;
 
-public class Member {
-
-    /**
-     * Database Primary Key.
-     */
-    private Long id;
+public class Member extends BaseEntity implements Comparable<Member> {
 
     /**
      * Roster management system ID.
@@ -54,24 +50,6 @@ public class Member {
      * Membership Expiration.
      */
     private Date expiration;
-
-    /**
-     * Database entry create date.
-     */
-    private Date createDate;
-
-    /**
-     * Database entry update date.
-     */
-    private Date updateDate;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Long getRosterId() {
         return rosterId;
@@ -121,19 +99,32 @@ public class Member {
         this.expiration = expiration;
     }
 
-    public Date getCreateDate() {
-        return createDate;
+    /**
+     * {@inheritDoc} Required implementation.
+     */
+    @Override
+    public int compareTo(final Member other) {
+        if (equals(other)) {
+            return 0;
+        }
+        return 1;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Member member = (Member) o;
+        return Objects.equals(rosterId, member.rosterId) &&
+                Objects.equals(rfid, member.rfid) &&
+                Objects.equals(firstName, member.firstName) &&
+                Objects.equals(lastName, member.lastName) &&
+                Objects.equals(eaaNumber, member.eaaNumber) &&
+                Objects.equals(expiration, member.expiration);
     }
 
-    public Date getUpdateDate() {
-        return updateDate;
-    }
-
-    public void setUpdateDate(Date updateDate) {
-        this.updateDate = updateDate;
+    @Override
+    public int hashCode() {
+        return Objects.hash(rosterId, rfid, firstName, lastName, eaaNumber, expiration);
     }
 }

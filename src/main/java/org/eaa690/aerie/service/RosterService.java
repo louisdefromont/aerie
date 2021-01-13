@@ -44,11 +44,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.eaa690.aerie.constant.PropertyKeyConstants;
+import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
+import org.eaa690.aerie.model.MemberRepository;
+import org.eaa690.aerie.model.WeatherProductRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 
 /**
@@ -58,9 +65,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 public class RosterService {
 
     /**
-     * Used for the CREATED BY and UPDATED BY columns in the database.
+     * Logger.
      */
-    private final static String SCRIPT_NAME = "EAA690DoorDataUpdater";
+    private static final Log LOGGER = LogFactory.getLog(RosterService.class);
 
     /**
      * eaachapters.org username variable.
@@ -168,9 +175,16 @@ public class RosterService {
     private final String EAA_CHAPTERS_SITE_BASE = "https://www.eaachapters.org";
 
     /**
-     * Application properties.
+     * PropertyService.
      */
-    private final Properties properties = new Properties();
+    @Autowired
+    private PropertyService propertyService;
+
+    /**
+     * MemberRepository.
+     */
+    @Autowired
+    private MemberRepository memberRepository;
 
     /**
      * HttpHeaders.
@@ -183,26 +197,23 @@ public class RosterService {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
-     * Database query used to determine if a member is already stored.
+     * Sets PropertyService.
+     *
+     * @param value PropertyService
      */
-    private static final String CHECK_QUERY = "SELECT ID FROM MEMBER WHERE ROSTER_ID = ? ";
+    @Autowired
+    public void setPropertyService(final PropertyService value) {
+        propertyService = value;
+    }
 
     /**
-     * Database query used to insert a new member.
+     * Sets MemberRepository.
+     *
+     * @param mRepository MemberRepository
      */
-    private static final String INSERT_QUERY = "INSERT INTO MEMBER (ROSTER_ID, RFID, FIRST_NAME, LAST_NAME, " +
-            "EAA_NUMBER, EXPIRATION, CREATE_DATE, CREATED_BY) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-    /**
-     * Database query used to update an existing member.
-     */
-    private static final String UPDATE_QUERY = "UPDATE MEMBER SET ROSTER_ID = ?, RFID = ?, FIRST_NAME = ?, " +
-            "LAST_NAME = ?, EAA_NUMBER = ?, EXPIRATION = ?, UPDATE_DATE = ?, UPDATED_BY = ? WHERE ID = ? ";
-
-    /**
-     * Default constructor.
-     */
-    public RosterService() {
+    @Autowired
+    public void setMemberRepository(final MemberRepository mRepository) {
+        memberRepository = mRepository;
     }
 
     /**
@@ -210,19 +221,17 @@ public class RosterService {
      */
     @Scheduled(cron = "0 0 0,6,12,18 * * *")
     public void update() {
-        try (InputStream input = new FileInputStream("../application.properties")) {
-            properties.load(input);
-        } catch (IOException e) {
-            System.out.println("Unable to load application properties");
-        }
-        if (Boolean.valueOf(properties.getProperty("FETCH_DATA", "false"))) {
+        try {
             getHttpHeaders();
             doLogin();
             getSearchMembersPage();
             fetchData();
-        }
-        if (Boolean.valueOf(properties.getProperty("UPDATE_DATA", "false"))) {
-            updateDB(parseRecords(getData()));
+            List<Member> members = parseRecords();
+            for (Member member : members) {
+                memberRepository.save(member);
+            }
+        } catch (ResourceNotFoundException e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -307,7 +316,7 @@ public class RosterService {
         }
     }
 
-    private void getHttpHeaders() {
+    private void getHttpHeaders() throws ResourceNotFoundException {
         final HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(EAA_CHAPTERS_SITE_BASE + "/main.aspx")).GET().build();
         try {
@@ -323,8 +332,8 @@ public class RosterService {
         headers.put(VIEW_STATE, "/wEPDwUKMTY1NDU2MTA1MmRkuOlmdf9IlE5Upbw3feS5bMlNeitv2Tys6h3WSL105GQ=");
         headers.put(VIEW_STATE_GENERATOR, "202EA31B");
         headers.put(EVENT_VALIDATION, "/wEdAAaUkhCi8bB8A8YPK1mx/fN+Ob9NwfdsH6h5T4oBt2E/NC/PSAvxybIG70Gi7lMSo2Ha9mxIS56towErq28lcj7mn+o6oHBHkC8q81Z+42F7hK13DHQbwWPwDXbrtkgbgsBJaWfipkuZE5/MRRQAXrNwOiJp3YGlq4qKyVLK8XZVxQ==");
-        headers.put(USERNAME, properties.getProperty("ROSTER_USER"));
-        headers.put(PASSWORD, properties.getProperty("ROSTER_PASS"));
+        headers.put(USERNAME, propertyService.get(PropertyKeyConstants.ROSTER_USER_KEY).getValue());
+        headers.put(PASSWORD, propertyService.get(PropertyKeyConstants.ROSTER_PASS_KEY).getValue());
         headers.put(BUTTON, "Submit");
         headers.put(USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36");
         headers.put(CONTENT_TYPE, "application/x-www-form-urlencoded");
@@ -444,12 +453,11 @@ public class RosterService {
     /**
      * Parses select values from Excel spreadsheet.
      *
-     * @param excel spreadsheet
      * @return list of parsed values
      */
-    private List<Member> parseRecords(String excel) {
+    private List<Member> parseRecords() {
         final List<Member> records = new ArrayList<>();
-        final Document doc = Jsoup.parse(excel);
+        final Document doc = Jsoup.parse(getData());
         final Elements tableRecords = doc.getElementsByTag("tr");
         int rowCount = 0;
         for (Element tr : tableRecords) {
@@ -489,138 +497,4 @@ public class RosterService {
         return records;
     }
 
-    /**
-     * Updates the local MySQL database with the provided member record data.
-     *
-     * @param members list of members
-     */
-    private void updateDB(List<Member> members) {
-        final Connection con = getDBConnection();
-        PreparedStatement checkPS = null;
-        PreparedStatement insertPS = null;
-        PreparedStatement updatePS = null;
-        try {
-            checkPS = con.prepareStatement(CHECK_QUERY);
-            insertPS = con.prepareStatement(INSERT_QUERY);
-            updatePS = con.prepareStatement(UPDATE_QUERY);
-            for (Member member : members) {
-                if (member != null) {
-                    checkPS.setLong(1, member.getRosterId());
-                    final ResultSet checkRS = checkPS.executeQuery();
-                    if (checkRS.next()) {
-                        member.setId(checkRS.getLong(1));
-                        doUpdate(updatePS, member);
-                    } else {
-                        doInsert(insertPS, member);
-                    }
-                    checkRS.close();
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: " + e.getMessage());
-        } finally {
-            try { checkPS.close(); } catch (Exception e) {}
-            try { updatePS.close(); } catch (Exception e) {}
-            try { insertPS.close(); } catch (Exception e) {}
-            try { con.close(); } catch (Exception e) {}
-        }
-    }
-
-    /**
-     * Performs an insert of a new member.
-     *
-     * @param insertPS insert prepared statement
-     * @param member to be inserted
-     * @throws SQLException when a database error occurs
-     */
-    private void doInsert(PreparedStatement insertPS, Member member) throws SQLException {
-        insertPS.setLong(1, member.getRosterId());
-        if (member.getRfid() != null) {
-            insertPS.setString(2, member.getRfid());
-        } else {
-            insertPS.setNull(2, Types.VARCHAR);
-        }
-        if (member.getFirstName() != null) {
-            insertPS.setString(3, member.getFirstName());
-        } else {
-            insertPS.setNull(3, Types.VARCHAR);
-        }
-        if (member.getLastName() != null) {
-            insertPS.setString(4, member.getLastName());
-        } else {
-            insertPS.setNull(4, Types.VARCHAR);
-        }
-        if (member.getEaaNumber() != null) {
-            insertPS.setString(5, member.getEaaNumber());
-        } else {
-            insertPS.setNull(5, Types.VARCHAR);
-        }
-        if (member.getExpiration() != null) {
-            insertPS.setTimestamp(6, new Timestamp(member.getExpiration().getTime()));
-        } else {
-            insertPS.setNull(6, Types.TIMESTAMP);
-        }
-        insertPS.setTimestamp(7, new Timestamp((new Date()).getTime()));
-        insertPS.setString(8, SCRIPT_NAME);
-        insertPS.executeUpdate();
-    }
-
-    /**
-     * Performs an update of a new member.
-     *
-     * @param updatePS update prepared statement
-     * @param member to be updated
-     * @throws SQLException when a database error occurs
-     */
-    private void doUpdate(PreparedStatement updatePS, Member member) throws SQLException {
-        updatePS.setLong(1, member.getRosterId());
-        if (member.getRfid() != null) {
-            updatePS.setString(2, member.getRfid());
-        } else {
-            updatePS.setNull(2, Types.VARCHAR);
-        }
-        if (member.getFirstName() != null) {
-            updatePS.setString(3, member.getFirstName());
-        } else {
-            updatePS.setNull(3, Types.VARCHAR);
-        }
-        if (member.getLastName() != null) {
-            updatePS.setString(4, member.getLastName());
-        } else {
-            updatePS.setNull(4, Types.VARCHAR);
-        }
-        if (member.getEaaNumber() != null) {
-            updatePS.setString(5, member.getEaaNumber());
-        } else {
-            updatePS.setNull(5, Types.VARCHAR);
-        }
-        if (member.getExpiration() != null) {
-            updatePS.setTimestamp(6, new Timestamp(member.getExpiration().getTime()));
-        } else {
-            updatePS.setNull(6, Types.TIMESTAMP);
-        }
-        updatePS.setTimestamp(7, new Timestamp((new Date()).getTime()));
-        updatePS.setString(8, SCRIPT_NAME);
-        updatePS.setLong(9, member.getId());
-        updatePS.executeUpdate();
-    }
-
-    /**
-     * Gets a connection to the local MySQL database.
-     *
-     * @return Connection
-     */
-    private Connection getDBConnection() {
-        Connection con = null;
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            con = DriverManager.getConnection(
-                    properties.getProperty("DB_URL"),
-                    properties.getProperty("DB_USER"),
-                    properties.getProperty("DB_PASS"));
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-        return con;
-    }
 }

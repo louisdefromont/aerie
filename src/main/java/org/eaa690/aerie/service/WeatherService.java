@@ -307,7 +307,7 @@ public class WeatherService {
         final List<String> validStationsList =
                 Arrays
                         .asList(propertyService
-                                .get(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY)
+                                .get(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY)
                                 .getValue()
                                 .split(","));
         if (validStationsList.contains(station)) {
@@ -555,16 +555,7 @@ public class WeatherService {
     private HttpEntity<String> buildCheckWXHeader() throws ResourceNotFoundException {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        final int hourOfDay = LocalDateTime.now().getHour();
-        if (hourOfDay < CommonConstants.SIX) {
-            headers.set("X-API-Key", propertyService.get(PropertyKeyConstants.CHECK_WX_API_KEY_KEY).getValue());
-        } else if (hourOfDay < CommonConstants.TWELVE) {
-            headers.set("X-API-Key", propertyService.get(PropertyKeyConstants.CHECK_WX_API_KEY_2_KEY).getValue());
-        } else if (hourOfDay < CommonConstants.EIGHTEEN) {
-            headers.set("X-API-Key", propertyService.get(PropertyKeyConstants.CHECK_WX_API_KEY_3_KEY).getValue());
-        } else {
-            headers.set("X-API-Key", propertyService.get(PropertyKeyConstants.CHECK_WX_API_KEY_4_KEY).getValue());
-        }
+        headers.set("X-API-Key", propertyService.get(PropertyKeyConstants.CHECK_WX_API_KEY_KEY).getValue());
         return new HttpEntity<>("parameters", headers);
     }
 

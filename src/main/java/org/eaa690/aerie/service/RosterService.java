@@ -49,6 +49,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.scheduling.annotation.Scheduled;
 
 /**
  * Logs into EAA's roster management system, downloads the EAA 690 records as an Excel spreadsheet.
@@ -203,7 +204,11 @@ public class RosterService {
      */
     public RosterService() {
     }
-    
+
+    /**
+     * Updates every 6 hours.
+     */
+    @Scheduled(cron = "0 0 0,6,12,18 * * *")
     public void update() {
         try (InputStream input = new FileInputStream("../application.properties")) {
             properties.load(input);

@@ -413,6 +413,7 @@ public class WeatherService {
         sslUtilities.trustAllHostnames();
         sslUtilities.trustAllHttpsCertificates();
         try {
+            LOGGER.info(String.format("Calling GET %s with headers: %s", url, headers));
             final ResponseEntity<StationData> data =
                     restTemplate.exchange(url, HttpMethod.GET, headers, StationData.class);
             updateRateLimiter(CommonConstants.STATION_KEY + icaoCode);
@@ -453,6 +454,7 @@ public class WeatherService {
         sslUtilities.trustAllHostnames();
         sslUtilities.trustAllHttpsCertificates();
         try {
+            LOGGER.info(String.format("Calling GET %s with headers: %s", url, headers));
             final ResponseEntity<MetarData> data =
                     restTemplate.exchange(url, HttpMethod.GET, headers, MetarData.class);
             updateRateLimiter(CommonConstants.METAR_KEY + icaoCode);
@@ -495,6 +497,7 @@ public class WeatherService {
         sslUtilities.trustAllHostnames();
         sslUtilities.trustAllHttpsCertificates();
         try {
+            LOGGER.info(String.format("Calling GET %s with headers: %s", url, headers));
             final ResponseEntity<TafData> data =
                     restTemplate.exchange(url, HttpMethod.GET, headers, TafData.class);
             updateRateLimiter(CommonConstants.TAF_KEY + icaoCode);

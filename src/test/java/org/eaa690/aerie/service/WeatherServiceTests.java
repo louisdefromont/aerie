@@ -65,11 +65,6 @@ public class WeatherServiceTests {
     public static final String INVALID_ICAO_CODE = "KBSM";
 
     /**
-     * THREE.
-     */
-    public static final int THREE = 3;
-
-    /**
      * PropertyService.
      */
     @Mock

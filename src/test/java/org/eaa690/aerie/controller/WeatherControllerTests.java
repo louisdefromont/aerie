@@ -156,34 +156,6 @@ public class WeatherControllerTests {
      * @throws Exception when a test error occurs
      */
     @Test
-    public void getAtlantaSectionalMETARs() throws Exception {
-        Mockito
-                .doReturn(atlantaIcaoCodesProperty)
-                .when(propertyService)
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY));
-        final METAR metar = new METAR();
-        metar.setIcao(ICAO_CODE);
-        metar.setRawText(RAW_TEXT);
-        metar.setFlightCategory(FLIGHT_CATEGORY);
-        Mockito.doReturn(Arrays.asList(metar)).when(weatherService).getMETARs(ArgumentMatchers.any());
-
-        Assert.assertNotNull(weatherController.metar(WeatherController.ATLANTA_SECTIONAL, null));
-
-        Mockito
-                .verify(propertyService, Mockito.times(1))
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY));
-        Mockito.verifyNoMoreInteractions(propertyService);
-
-        Mockito.verify(weatherService, Mockito.times(1)).getMETARs(ArgumentMatchers.any());
-        Mockito.verifyNoMoreInteractions(weatherService);
-    }
-
-    /**
-     * Test retrieval of Atlanta area METARs.
-     *
-     * @throws Exception when a test error occurs
-     */
-    @Test
     public void getMETAR() throws Exception {
         final METAR metar = new METAR();
         metar.setIcao(ICAO_CODE);
@@ -290,30 +262,6 @@ public class WeatherControllerTests {
      * @throws Exception when a test error occurs
      */
     @Test
-    public void getAtlantaSectionalTAFs() throws Exception {
-        Mockito
-                .doReturn(atlantaIcaoCodesProperty)
-                .when(propertyService)
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY));
-        Mockito.doReturn(new ArrayList<TAF>()).when(weatherService).getTAFs(ArgumentMatchers.any());
-
-        Assert.assertNotNull(weatherController.taf(WeatherController.ATLANTA_SECTIONAL));
-
-        Mockito
-                .verify(propertyService, Mockito.times(1))
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY));
-        Mockito.verifyNoMoreInteractions(propertyService);
-
-        Mockito.verify(weatherService, Mockito.times(1)).getTAFs(ArgumentMatchers.any());
-        Mockito.verifyNoMoreInteractions(weatherService);
-    }
-
-    /**
-     * Test retrieval of Atlanta area TAFs.
-     *
-     * @throws Exception when a test error occurs
-     */
-    @Test
     public void getTAF() throws Exception {
         final TAF taf = new TAF();
         taf.setIcao(ICAO_CODE);
@@ -374,29 +322,6 @@ public class WeatherControllerTests {
         Mockito
                 .verify(propertyService, Mockito.times(1))
                 .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY));
-        Mockito.verifyNoMoreInteractions(propertyService);
-        Mockito.verify(weatherService, Mockito.times(1)).getStations(ArgumentMatchers.any());
-        Mockito.verifyNoMoreInteractions(weatherService);
-    }
-
-    /**
-     * Test retrieval of Atlanta area Stations.
-     *
-     * @throws Exception when a test error occurs
-     */
-    @Test
-    public void getAtlantaSectionalStation() throws Exception {
-        Mockito
-                .doReturn(atlantaIcaoCodesProperty)
-                .when(propertyService)
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY));
-        Mockito.doReturn(new ArrayList<Station>()).when(weatherService).getStations(ArgumentMatchers.any());
-
-        Assert.assertNotNull(weatherController.station(WeatherController.ATLANTA_SECTIONAL));
-
-        Mockito
-                .verify(propertyService, Mockito.times(1))
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
         Mockito.verify(weatherService, Mockito.times(1)).getStations(ArgumentMatchers.any());
         Mockito.verifyNoMoreInteractions(weatherService);

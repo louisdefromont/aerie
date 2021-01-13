@@ -66,11 +66,6 @@ public class WeatherController {
     public static final String ATLANTA = "atlanta";
 
     /**
-     * ATLANTA Sectional.
-     */
-    public static final String ATLANTA_SECTIONAL = "atlantasectional";
-
-    /**
      * WeatherService.
      */
     private WeatherService weatherService;
@@ -130,12 +125,6 @@ public class WeatherController {
                                                         .get(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY)
                                                         .getValue()
                                                         .split(","))));
-            } else if (ATLANTA_SECTIONAL.equalsIgnoreCase(icao)) {
-                metars.addAll(weatherService.getMETARs(Arrays
-                        .asList(propertyService
-                                .get(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY)
-                                .getValue()
-                                .split(","))));
             } else if (weatherService.isValidStation(icao.toUpperCase())) {
                 metars.addAll(Arrays.asList(weatherService.getMETAR(icao.toUpperCase())));
             }
@@ -171,13 +160,6 @@ public class WeatherController {
                                         .get(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY)
                                         .getValue()
                                         .split(",")));
-            } else if (ATLANTA_SECTIONAL.equalsIgnoreCase(icao)) {
-                return weatherService
-                        .getTAFs(Arrays
-                                .asList(propertyService
-                                        .get(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY)
-                                        .getValue()
-                                        .split(",")));
             } else if (weatherService.isValidStation(icao.toUpperCase())) {
                 return Arrays.asList(weatherService.getTAF(icao.toUpperCase()));
             }
@@ -208,13 +190,6 @@ public class WeatherController {
                         .getStations(Arrays
                                 .asList(propertyService
                                         .get(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY)
-                                        .getValue()
-                                        .split(",")));
-            } else if (ATLANTA_SECTIONAL.equalsIgnoreCase(icao)) {
-                return weatherService
-                        .getStations(Arrays
-                                .asList(propertyService
-                                        .get(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY)
                                         .getValue()
                                         .split(",")));
             } else if (weatherService.isValidStation(icao.toUpperCase())) {

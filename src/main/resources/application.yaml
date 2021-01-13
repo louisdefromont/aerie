@@ -12,3 +12,11 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+
+  FETCH_DATA=false
+  UPDATE_DATA=false
+  ROSTER_USER=user
+  ROSTER_PASS=pass
+  DB_URL=jdbc:mysql://localhost:3306/members
+  DB_USER=user
+  DB_PASS=pass

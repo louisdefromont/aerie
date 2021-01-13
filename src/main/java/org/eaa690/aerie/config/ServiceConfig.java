@@ -20,6 +20,7 @@ import org.eaa690.aerie.constant.CommonConstants;
 import org.eaa690.aerie.model.RateLimitRepository;
 import org.eaa690.aerie.model.WeatherProductRepository;
 import org.eaa690.aerie.service.PropertyService;
+import org.eaa690.aerie.service.RosterService;
 import org.eaa690.aerie.service.WeatherService;
 import org.eaa690.aerie.ssl.SSLUtilities;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -78,6 +79,17 @@ public class ServiceConfig {
         weatherService.setWeatherProductRepository(wpRepository);
         weatherService.setRateLimitRepository(rlRepository);
         return weatherService;
+    }
+
+    /**
+     * RosterService.
+     *
+     * @return RosterService
+     */
+    @Bean
+    public RosterService rosterService() {
+        final RosterService rosterService = new RosterService();
+        return rosterService;
     }
 
     /**

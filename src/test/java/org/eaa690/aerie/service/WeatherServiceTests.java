@@ -140,18 +140,6 @@ public class WeatherServiceTests {
                 .doReturn(checkWXApiKeyProperty)
                 .when(propertyService)
                 .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_KEY));
-        Mockito
-                .doReturn(checkWXApiKeyProperty)
-                .when(propertyService)
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_2_KEY));
-        Mockito
-                .doReturn(checkWXApiKeyProperty)
-                .when(propertyService)
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_3_KEY));
-        Mockito
-                .doReturn(checkWXApiKeyProperty)
-                .when(propertyService)
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_4_KEY));
 
         checkWXUrlBaseProperty =
                 TestDataFactory.getProperty(PropertyKeyConstants.CHECK_WX_URL_BASE_KEY, faker.internet().url());
@@ -236,15 +224,6 @@ public class WeatherServiceTests {
         Mockito
                 .verify(propertyService, Mockito.atMostOnce())
                 .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_2_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_3_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_4_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
 
         Mockito
@@ -287,15 +266,6 @@ public class WeatherServiceTests {
         Mockito
                 .verify(propertyService, Mockito.atMostOnce())
                 .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_2_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_3_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_4_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
 
         Mockito
@@ -393,15 +363,6 @@ public class WeatherServiceTests {
         Mockito
                 .verify(propertyService, Mockito.atMostOnce())
                 .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_2_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_3_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_4_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
 
         Mockito
@@ -629,15 +590,6 @@ public class WeatherServiceTests {
         Mockito
                 .verify(propertyService, Mockito.atMostOnce())
                 .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_2_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_3_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_4_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
 
         Mockito
@@ -680,15 +632,6 @@ public class WeatherServiceTests {
         Mockito
                 .verify(propertyService, Mockito.atMostOnce())
                 .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_2_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_3_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_4_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
 
         Mockito
@@ -785,15 +728,6 @@ public class WeatherServiceTests {
         Mockito
                 .verify(propertyService, Mockito.atMostOnce())
                 .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_2_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_3_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_4_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
         Mockito
                 .verify(restTemplate, Mockito.times(1))
@@ -1026,15 +960,6 @@ public class WeatherServiceTests {
         Mockito
                 .verify(propertyService, Mockito.atMostOnce())
                 .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_2_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_3_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_4_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
         Mockito
                 .verify(restTemplate, Mockito.times(1))
@@ -1075,15 +1000,6 @@ public class WeatherServiceTests {
         Mockito
                 .verify(propertyService, Mockito.atMostOnce())
                 .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_2_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_3_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_4_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
 
         Mockito
@@ -1181,15 +1097,6 @@ public class WeatherServiceTests {
         Mockito
                 .verify(propertyService, Mockito.atMostOnce())
                 .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_2_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_3_KEY));
-        Mockito
-                .verify(propertyService, Mockito.atMostOnce())
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.CHECK_WX_API_KEY_4_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
 
         Mockito
@@ -1395,7 +1302,7 @@ public class WeatherServiceTests {
         Mockito
                 .doReturn(atlantaICAOCodesProperty)
                 .when(propertyService)
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY));
+                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY));
 
         final boolean valid = weatherService.isValidStation(ICAO_CODE);
 
@@ -1403,7 +1310,7 @@ public class WeatherServiceTests {
 
         Mockito
                 .verify(propertyService, Mockito.times(1))
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY));
+                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
 
         Mockito.verifyNoInteractions(sslUtilities, restTemplate);
@@ -1427,14 +1334,14 @@ public class WeatherServiceTests {
         Mockito
                 .doReturn(atlantaICAOCodesProperty)
                 .when(propertyService)
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY));
+                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY));
 
         final boolean valid = weatherService.isValidStation(null);
 
         Assert.assertFalse(valid);
         Mockito
                 .verify(propertyService, Mockito.times(1))
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY));
+                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
         Mockito.verifyNoInteractions(sslUtilities, restTemplate);
 
@@ -1457,14 +1364,14 @@ public class WeatherServiceTests {
         Mockito
                 .doReturn(atlantaICAOCodesProperty)
                 .when(propertyService)
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY));
+                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY));
 
         final boolean valid = weatherService.isValidStation(INVALID_ICAO_CODE);
 
         Assert.assertFalse(valid);
         Mockito
                 .verify(propertyService, Mockito.times(1))
-                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_SECTIONAL_ICAO_CODES_PROPERTY_KEY));
+                .get(ArgumentMatchers.eq(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY));
         Mockito.verifyNoMoreInteractions(propertyService);
         Mockito.verifyNoInteractions(sslUtilities, restTemplate);
 

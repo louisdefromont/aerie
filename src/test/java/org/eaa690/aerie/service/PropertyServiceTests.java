@@ -64,7 +64,7 @@ public class PropertyServiceTests {
         MockitoAnnotations.initMocks(this);
 
         notificationGCPStorageProperty = TestDataFactory
-                .getProperty(PropertyKeyConstants.NOTIFICATION_GCP_STORAGE_URL_BASE_KEY, CommonConstants.ID);
+                .getProperty(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY, CommonConstants.ID);
 
         Mockito
                 .doReturn(Optional.of(notificationGCPStorageProperty))
@@ -82,7 +82,7 @@ public class PropertyServiceTests {
      */
     @Test
     public void get() throws Exception {
-        Assert.assertNotNull(propertyService.get(PropertyKeyConstants.NOTIFICATION_GCP_STORAGE_URL_BASE_KEY));
+        Assert.assertNotNull(propertyService.get(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY));
 
         Mockito.verify(propertyRepository, Mockito.times(1)).findByKey(ArgumentMatchers.anyString());
         Mockito.verifyNoMoreInteractions(propertyRepository);
@@ -95,7 +95,7 @@ public class PropertyServiceTests {
      */
     @Test
     public void getNotCached() throws Exception {
-        Assert.assertNotNull(propertyService.get(PropertyKeyConstants.NOTIFICATION_GCP_STORAGE_URL_BASE_KEY));
+        Assert.assertNotNull(propertyService.get(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY));
 
         Mockito.verify(propertyRepository, Mockito.times(1)).findByKey(ArgumentMatchers.anyString());
         Mockito.verifyNoMoreInteractions(propertyRepository);
@@ -110,7 +110,7 @@ public class PropertyServiceTests {
     public void getNotFound() throws Exception {
         Mockito.doReturn(Optional.empty()).when(propertyRepository).findByKey(ArgumentMatchers.anyString());
 
-        propertyService.get(PropertyKeyConstants.NOTIFICATION_GCP_STORAGE_URL_BASE_KEY);
+        propertyService.get(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY);
 
         Mockito.verify(propertyRepository, Mockito.times(1)).findByKey(ArgumentMatchers.anyString());
         Mockito.verifyNoMoreInteractions(propertyRepository);

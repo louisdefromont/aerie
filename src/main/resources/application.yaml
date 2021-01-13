@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    username: aerie
+    password: <<HIDDEN>>
+  cloud:
+    gcp:
+      sql:
+        database-name: aerie_test
+        instance-connection-name: aerie-sa:us-east1:aerie
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL57Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update

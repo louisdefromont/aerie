@@ -21,8 +21,6 @@ import java.util.regex.Pattern;
 
 /**
  * Common Application Constants.
- *
- * @author brianmichael
  */
 public class CommonConstants {
 

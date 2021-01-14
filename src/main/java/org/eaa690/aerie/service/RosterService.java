@@ -220,8 +220,12 @@ public class RosterService {
             getHttpHeaders();
             doLogin();
             getSearchMembersPage();
-            List<Member> members = parseRecords();
+            final List<Member> members = parseRecords();
             for (Member member : members) {
+                if (member.getCreatedAt() == null) {
+                    member.setCreatedAt(new Date());
+                }
+                member.setUpdatedAt(new Date());
                 memberRepository.save(member);
             }
         } catch (ResourceNotFoundException e) {

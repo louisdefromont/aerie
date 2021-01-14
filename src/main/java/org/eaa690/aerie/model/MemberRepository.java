@@ -34,6 +34,14 @@ public interface MemberRepository extends Repository<Member, Long> {
     Optional<Member> findByRfid(String rfid);
 
     /**
+     * Gets a member.
+     *
+     * @param rosterId RosterID
+     * @return Member
+     */
+    Optional<Member> findByRosterId(Long rosterId);
+
+    /**
      * Saves a member.
      *
      * @param member Member

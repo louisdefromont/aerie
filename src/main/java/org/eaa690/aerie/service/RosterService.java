@@ -222,6 +222,10 @@ public class RosterService {
             getSearchMembersPage();
             final List<Member> members = parseRecords();
             for (Member member : members) {
+                final Optional<Member> existingMemberOpt = memberRepository.findByRosterId(member.getRosterId());
+                if (existingMemberOpt.isPresent()) {
+                    member.setId(existingMemberOpt.get().getId());
+                }
                 if (member.getCreatedAt() == null) {
                     member.setCreatedAt(new Date());
                 }

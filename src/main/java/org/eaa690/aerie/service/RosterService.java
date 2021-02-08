@@ -37,7 +37,12 @@ import java.sql.Timestamp;
 import java.sql.SQLException;
 import java.sql.DriverManager;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -176,6 +181,12 @@ public class RosterService {
     private PropertyService propertyService;
 
     /**
+     * EmailService.
+     */
+    @Autowired
+    private EmailService emailService;
+
+    /**
      * MemberRepository.
      */
     @Autowired
@@ -237,6 +248,26 @@ public class RosterService {
         }
     }
 
+    @Scheduled(cron = "0 0 9 * * *")
+    public void sendMembershipRenewalMessages() {
+        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        final String thirtyDaysAgo = sdf.format(Date.from(Instant.now().minus(30, ChronoUnit.DAYS)));
+        final Optional<List<Member>> membersOpt = memberRepository.findAll();
+        if (membersOpt.isPresent()) {
+            membersOpt.get().stream().filter(member -> {
+                final String expirationDate = sdf.format(member.getExpiration());
+                if (expirationDate.equals(thirtyDaysAgo)) {
+                    return true;
+                }
+                return false;
+            }).forEach(member -> {
+                emailService.sendRenewMembershipMsg(member);
+                // TODO: send SMS message
+                // TODO: send Slack message
+            });
+        }
+    }
+
     /**
      * Retrieves the member affiliated with the provided RFID.
      *
@@ -245,7 +276,7 @@ public class RosterService {
      * @throws ResourceNotFoundException when no member matches
      */
     public Member getMemberByRFID(String rfid) throws ResourceNotFoundException {
-        Optional<Member> member = memberRepository.findByRfid(rfid);
+        final Optional<Member> member = memberRepository.findByRfid(rfid);
         if (member.isPresent()) {
             return member.get();
         }
@@ -472,11 +503,20 @@ public class RosterService {
                         if (columnCount == 4) {
                             member.setLastName(column.text().trim());
                         }
+                        if (columnCount == 7) {
+                            member.setEmail(column.text().trim());
+                        }
+                        if (columnCount == 16) {
+                            member.setCellPhone(column.text().trim());
+                        }
                         if (columnCount == 18) {
                             member.setEaaNumber(column.text().trim());
                         }
                         if (columnCount == 21) {
                             member.setExpiration(SDF.parse(column.text().trim()));
+                        }
+                        if (columnCount == 22) {
+                            member.setOtherInfo(column.text().trim());
                         }
                         columnCount++;
                     }

@@ -45,4 +45,26 @@ public class PropertyKeyConstants {
      * ROSTER_PASS.
      */
     public static final String ROSTER_PASS_KEY = "ROSTER_PASS";
+
+    /**
+     * SEND_EMAIL_GRID_API_KEY.
+     */
+    public static final String SEND_GRID_EMAIL_API_KEY = "SEND_GRID_EMAIL_API_KEY";
+
+    /**
+     * SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID.
+     */
+    public static final String SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID =
+            "SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID";
+
+    /**
+     * SEND_GRID_FROM_ADDRESS_KEY.
+     */
+    public static final String SEND_GRID_FROM_ADDRESS_KEY = "SEND_GRID_FROM_ADDRESS_KEY";
+
+    /**
+     * SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY.
+     */
+    public static final String SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY =
+            "SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY";
 }

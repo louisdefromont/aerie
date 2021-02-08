@@ -54,6 +54,21 @@ public class Member extends BaseEntity implements Comparable<Member> {
     private String eaaNumber;
 
     /**
+     * Email.
+     */
+    private String email;
+
+    /**
+     * Cell Phone.
+     */
+    private String cellPhone;
+
+    /**
+     * Other Info.
+     */
+    private String otherInfo;
+
+    /**
      * Membership Expiration.
      */
     private Date expiration;
@@ -96,6 +111,30 @@ public class Member extends BaseEntity implements Comparable<Member> {
 
     public void setEaaNumber(String eaaNumber) {
         this.eaaNumber = eaaNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getCellPhone() {
+        return cellPhone;
+    }
+
+    public void setCellPhone(String cellPhone) {
+        this.cellPhone = cellPhone;
+    }
+
+    public String getOtherInfo() {
+        return otherInfo;
+    }
+
+    public void setOtherInfo(String otherInfo) {
+        this.otherInfo = otherInfo;
     }
 
     public Date getExpiration() {

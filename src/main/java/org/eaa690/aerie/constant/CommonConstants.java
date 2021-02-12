@@ -16,6 +16,8 @@
 
 package org.eaa690.aerie.constant;
 
+import java.util.regex.Pattern;
+
 /**
  * Common Application Constants.
  */
@@ -25,6 +27,11 @@ public class CommonConstants {
      * ID.
      */
     public static final String ID = "ID";
+
+    /**
+     * TN_PATTERN.
+     */
+    public static final Pattern TN_PATTERN = Pattern.compile(".*\\+1(\\d{10}).*");
 
     /**
      * TEN.

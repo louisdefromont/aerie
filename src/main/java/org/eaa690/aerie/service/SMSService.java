@@ -21,7 +21,10 @@ import java.util.Date;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import org.eaa690.aerie.constant.CommonConstants;
+import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
+import org.eaa690.aerie.model.SMSMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,8 +88,8 @@ public class SMSService {
     /**
      * {@inheritDoc} Required implementation.
      */
-    @Override
     public void sendRenewMembershipMsg(final Member member) {
+        /* TODO: Implement this!
         final Map<String, Object> model = TemplateUtil.getModel(person, null, null, null, null, null);
         try {
             final Message message = buildMessage(
@@ -98,13 +101,14 @@ public class SMSService {
         } catch (IOException | TemplateException | ResourceNotFoundException e) {
             LOGGER.error(e.getMessage(), e);
         }
+        */
     }
 
     /**
      * {@inheritDoc} Required implementation.
      */
-    @Override
     public String receiveMessage(final SMSMessage message) {
+        /* TODO Implement this!
         String response = null;
         try {
             ResponseValidator.validate(message.getBody());
@@ -115,6 +119,8 @@ public class SMSService {
         messageProcessorService
                 .processUserResponse(stripCountryCode(message.getFrom()), message.getBody(), NotificationType.SMS);
         return response;
+        */
+        return null;
     }
 
     /**
@@ -146,18 +152,22 @@ public class SMSService {
      */
     private String getTemplatedMessage(final Map<String, Object> model, final String templateName) throws IOException,
             TemplateException {
+        /* TODO: Implement this!
         initFreemarkerConfiguration();
         return FreeMarkerTemplateUtils
                 .processTemplateIntoString(
                         freemarkerConfig
                                 .getTemplate(templateName + NotificationConstants.FTL_FILE_EXTENSION),
                         model);
+        */
+        return null;
     }
 
     /**
      * Initializes Freemarker Configuration.
      */
     private void initFreemarkerConfiguration() {
+        /* TODO: Implement this!
         if (!freemarkerConfigurationInitialized) {
             try {
                 TemplateLoader templateLoader = new TemplateLoader(
@@ -169,6 +179,7 @@ public class SMSService {
                 LOGGER.error(rnfe.getMessage(), rnfe);
             }
         }
+        */
     }
 
     /**
@@ -180,10 +191,11 @@ public class SMSService {
      * @return Message
      * @throws ResourceNotFoundException when SMS address is not found
      */
-    private Message buildMessage(
+    private void buildMessage(/*
             final Person person,
             final NotificationEventType notificationEventType,
-            final String messageText) throws ResourceNotFoundException {
+            final String messageText */) throws ResourceNotFoundException {
+        /* TODO: Implement this!
         final Message message = new Message();
         message.setPersonId(person.getId());
         message.setTo(personService.getNotificationValue(person.getId(), NotificationType.SMS));
@@ -192,6 +204,7 @@ public class SMSService {
         message.setNotificationEventType(notificationEventType);
         message.setText(messageText);
         return message;
+        */
     }
 
     /**
@@ -203,6 +216,7 @@ public class SMSService {
      * @throws ResourceNotFoundException when SMS properties are not found
      */
     public void sendSMSMessage(final String to, final String from, final String text) throws ResourceNotFoundException {
+        /* TODO: Implement this!
         if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_ENABLED).getValue())) {
             if (!twilioInitialized) {
                 Twilio
@@ -214,5 +228,6 @@ public class SMSService {
                     .creator(new PhoneNumber(to), new PhoneNumber(from), text)
                     .create();
         }
+        */
     }
 }

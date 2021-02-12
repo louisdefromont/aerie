@@ -19,6 +19,7 @@ package org.eaa690.aerie.service;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +85,7 @@ public class SlackService {
      * {@inheritDoc} Required implementation.
      */
     public void sendRenewMembershipMsg(final Member member) {
+        /* TODO Implement this!
         final Map<String, Object> model = TemplateUtil.getModel(person, null, null, null, null, null);
         try {
             if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue())
@@ -96,15 +98,7 @@ public class SlackService {
         } catch (IOException | TemplateException | ResourceNotFoundException e) {
             LOGGER.error(e.getMessage(), e);
         }
-    }
-
-    /**
-     * {@inheritDoc} Required implementation.
-     */
-    @Override
-    public String receiveMessage(final SMSMessage message) {
-        // Not implemented
-        return null;
+        */
     }
 
     /**
@@ -113,6 +107,7 @@ public class SlackService {
      * @throws ResourceNotFoundException when properties are not found
      */
     private void initFreemarkerConfiguration() throws ResourceNotFoundException {
+        /* TODO Implement this!
         if (!freemarkerConfigurationInitialized) {
             TemplateLoader templateLoader = new TemplateLoader(
                     propertyService.get(PropertyKeyConstants.NOTIFICATION_GCP_STORAGE_URL_BASE_KEY).getValue(),
@@ -120,6 +115,7 @@ public class SlackService {
             freemarkerConfig.setTemplateLoader(templateLoader);
             freemarkerConfigurationInitialized = true;
         }
+        */
     }
 
     /**
@@ -134,12 +130,15 @@ public class SlackService {
      */
     private String getTemplatedMessage(final Map<String, Object> model, final String templateName) throws IOException,
             TemplateException, ResourceNotFoundException {
+        /* TODO: Implement this!
         initFreemarkerConfiguration();
         return FreeMarkerTemplateUtils
                 .processTemplateIntoString(
                         freemarkerConfig
                                 .getTemplate(templateName + NotificationConstants.FTL_FILE_EXTENSION),
                         model);
+        */
+        return null;
     }
 
     /**
@@ -150,6 +149,7 @@ public class SlackService {
      * @throws ResourceNotFoundException when properties are not found
      */
     public void sendAerieSlackMessage(final String msg, final String channel) throws ResourceNotFoundException {
+        /* TODO Implement this!
         if (aerieSlackSession == null || !aerieSlackSession.isConnected()) {
             aerieSlackSession = SlackSessionFactory
                     .createWebSocketSlackSession(
@@ -162,5 +162,6 @@ public class SlackService {
             }
         }
         aerieSlackSession.sendMessageToUser(channel, msg, null);
+        */
     }
 }

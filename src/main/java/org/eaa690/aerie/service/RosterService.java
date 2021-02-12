@@ -555,15 +555,9 @@ public class RosterService {
     }
 
     private void sendNewMemberMessage(final Member member) {
-        if (member.emailEnabled()) {
-            emailService.sendNewMembershipMsg(member);
-        }
-        if (member.smsEnabled()) {
-            smsService.sendNewMembershipMsg(member);
-        }
-        if (member.slackEnabled()) {
-            slackService.sendNewMembershipMsg(member);
-        }
+        emailService.sendNewMembershipMsg(member);
+        smsService.sendNewMembershipMsg(member);
+        slackService.sendNewMembershipMsg(member);
     }
 
 }

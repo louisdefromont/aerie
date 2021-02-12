@@ -106,12 +106,13 @@ public class EmailService {
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
-            response = sendGrid.api(request);
+            if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
+                response = sendGrid.api(request);
+                LOGGER.info(String.format("Response... statusCode [%s]; body [%s]; headers [%s]",
+                        response.getStatusCode(), response.getBody(), response.getHeaders()));
+            }
         } catch (IOException | ResourceNotFoundException ex) {
             LOGGER.error(ex.getMessage());
-        } finally {
-            LOGGER.info(String.format("Response... statusCode [%s]; body [%s]; headers [%s]",
-                    response.getStatusCode(), response.getBody(), response.getHeaders()));
         }
     }
 

@@ -50,6 +50,7 @@ import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
+import org.eaa690.aerie.model.OtherInfo;
 import org.eaa690.aerie.model.WeatherProductRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -187,6 +188,18 @@ public class RosterService {
     private EmailService emailService;
 
     /**
+     * SMSService.
+     */
+    @Autowired
+    private SMSService smsService;
+
+    /**
+     * SlackService.
+     */
+    @Autowired
+    private SlackService slackService;
+
+    /**
      * MemberRepository.
      */
     @Autowired
@@ -261,9 +274,15 @@ public class RosterService {
                 }
                 return false;
             }).forEach(member -> {
-                emailService.sendRenewMembershipMsg(member);
-                // TODO: send SMS message
-                // TODO: send Slack message
+                if (member.emailEnabled()) {
+                    emailService.sendRenewMembershipMsg(member);
+                }
+                if (member.smsEnabled()) {
+                    smsService.sendRenewMembershipMsg(member);
+                }
+                if (member.slackEnabled()) {
+                    slackService.sendRenewMembershipMsg(member);
+                }
             });
         }
     }
@@ -494,8 +513,8 @@ public class RosterService {
                         if (columnCount == 0) {
                             member.setRosterId(Long.parseLong(column.text().trim()));
                         }
-                        if (columnCount == 2) {
-                            member.setRfid(column.text().trim());
+                        if (columnCount == 1) {
+                            member.setMemberType(column.text().trim());
                         }
                         if (columnCount == 3) {
                             member.setFirstName(column.text().trim());
@@ -516,7 +535,9 @@ public class RosterService {
                             member.setExpiration(SDF.parse(column.text().trim()));
                         }
                         if (columnCount == 22) {
-                            member.setOtherInfo(column.text().trim());
+                            final OtherInfo otherInfo = new OtherInfo(column.text().trim());
+                            member.setRfid(otherInfo.getRfid());
+                            member.setSlack(otherInfo.getSlack());
                         }
                         columnCount++;
                     }

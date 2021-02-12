@@ -67,4 +67,19 @@ public class PropertyKeyConstants {
      */
     public static final String SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY =
             "SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY";
+
+    /**
+     * EMAIL_ENABLED_KEY.
+     */
+    public static final String EMAIL_ENABLED_KEY = "EMAIL_ENABLED_KEY";
+
+    /**
+     * SMS_ENABLED_KEY.
+     */
+    public static final String SMS_ENABLED_KEY = "SMS_ENABLED_KEY";
+
+    /**
+     * SLACK_ENABLED_KEY.
+     */
+    public static final String SLACK_ENABLED_KEY = "SLACK_ENABLED_KEY";
 }

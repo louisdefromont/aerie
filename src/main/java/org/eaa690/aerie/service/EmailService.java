@@ -116,4 +116,7 @@ public class EmailService {
         }
     }
 
+    public void sendNewMembershipMsg(final Member member) {
+        LOGGER.info(String.format("Sending new membership email... toAddress [%s];", member.getEmail()));
+    }
 }

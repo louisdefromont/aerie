@@ -164,4 +164,8 @@ public class SlackService {
         aerieSlackSession.sendMessageToUser(channel, msg, null);
         */
     }
+
+    public void sendNewMembershipMsg(final Member member) {
+        LOGGER.info(String.format("Sending new membership Slack message... toAddress [%s];", member.getSlack()));
+    }
 }

@@ -230,4 +230,8 @@ public class SMSService {
         }
         */
     }
+
+    public void sendNewMembershipMsg(final Member member) {
+        LOGGER.info(String.format("Sending new membership SMS... toAddress [%s];", member.getCellPhone()));
+    }
 }

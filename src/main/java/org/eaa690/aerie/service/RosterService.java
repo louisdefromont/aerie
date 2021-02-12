@@ -57,6 +57,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 
 /**
@@ -249,6 +250,8 @@ public class RosterService {
                 final Optional<Member> existingMemberOpt = memberRepository.findByRosterId(member.getRosterId());
                 if (existingMemberOpt.isPresent()) {
                     member.setId(existingMemberOpt.get().getId());
+                } else {
+                    sendNewMemberMessage(member);
                 }
                 if (member.getCreatedAt() == null) {
                     member.setCreatedAt(new Date());
@@ -549,6 +552,18 @@ public class RosterService {
             rowCount++;
         }
         return records;
+    }
+
+    private void sendNewMemberMessage(final Member member) {
+        if (member.emailEnabled()) {
+            emailService.sendNewMembershipMsg(member);
+        }
+        if (member.smsEnabled()) {
+            smsService.sendNewMembershipMsg(member);
+        }
+        if (member.slackEnabled()) {
+            slackService.sendNewMembershipMsg(member);
+        }
     }
 
 }

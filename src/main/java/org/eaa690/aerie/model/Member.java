@@ -69,11 +69,6 @@ public class Member extends BaseEntity implements Comparable<Member> {
     private String cellPhone;
 
     /**
-     * Other Info.
-     */
-    private String otherInfo;
-
-    /**
      * Member Type.
      */
     private String memberType;
@@ -160,14 +155,6 @@ public class Member extends BaseEntity implements Comparable<Member> {
 
     public void setCellPhone(String cellPhone) {
         this.cellPhone = cellPhone;
-    }
-
-    public String getOtherInfo() {
-        return otherInfo;
-    }
-
-    public void setOtherInfo(String otherInfo) {
-        this.otherInfo = otherInfo;
     }
 
     public String getMemberType() {

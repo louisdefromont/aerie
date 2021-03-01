@@ -49,13 +49,19 @@ public class PropertyKeyConstants {
     /**
      * SEND_EMAIL_GRID_API_KEY.
      */
-    public static final String SEND_GRID_EMAIL_API_KEY = "SEND_GRID_EMAIL_API_KEY";
+    public static final String SEND_GRID_EMAIL_API_KEY = "email.sendgrid.api-key";
 
     /**
      * SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID.
      */
     public static final String SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID =
             "SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID";
+
+    /**
+     * SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID.
+     */
+    public static final String SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID =
+            "SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID";
 
     /**
      * SEND_GRID_FROM_ADDRESS_KEY.
@@ -67,6 +73,12 @@ public class PropertyKeyConstants {
      */
     public static final String SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY =
             "SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY";
+
+    /**
+     * SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY.
+     */
+    public static final String SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY =
+            "SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY";
 
     /**
      * EMAIL_ENABLED_KEY.

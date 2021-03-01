@@ -118,5 +118,33 @@ public class EmailService {
 
     public void sendNewMembershipMsg(final Member member) {
         LOGGER.info(String.format("Sending new membership email... toAddress [%s];", member.getEmail()));
+        Response response = null;
+        try {
+            final Mail mail =
+                    new Mail(new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()),
+                            propertyService.get(PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY).getValue(),
+                            new Email(member.getEmail()), new Content("text/html", ""));
+            mail.personalization.get(0).addSubstitution("-firstName-", member.getFirstName());
+            mail.personalization.get(0).addSubstitution("-lastName-", member.getLastName());
+            mail.personalization.get(0).addSubstitution("-expirationDate-", sdf.format(member.getExpiration()));
+            mail.setTemplateId(propertyService.get(
+                    PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID).getValue());
+
+            if (!sendgridInitialized) {
+                sendGrid = new SendGrid(propertyService.get(PropertyKeyConstants.SEND_GRID_EMAIL_API_KEY).getValue());
+                sendgridInitialized = true;
+            }
+            final Request request = new Request();
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
+                response = sendGrid.api(request);
+                LOGGER.info(String.format("Response... statusCode [%s]; body [%s]; headers [%s]",
+                        response.getStatusCode(), response.getBody(), response.getHeaders()));
+            }
+        } catch (IOException | ResourceNotFoundException ex) {
+            LOGGER.error(ex.getMessage());
+        }
     }
 }

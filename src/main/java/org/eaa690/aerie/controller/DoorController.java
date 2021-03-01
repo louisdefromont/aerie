@@ -77,7 +77,9 @@ public class DoorController {
     /**
      * Determine is access is granted to the door.
      *
-     * @param cmd command from door reader
+     * @param cmds command from door reader
+     * @param modes modes
+     * @param uids uids
      * @return response to door reader
      */
     @GetMapping(path = {

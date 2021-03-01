@@ -253,6 +253,43 @@ public class RosterService {
     }
 
     /**
+     * Retrieves the member affiliated with the provided ID.
+     *
+     * @param id Member ID
+     * @return Member
+     * @throws ResourceNotFoundException when no member matches
+     */
+    public Member getMemberByID(Long id) throws ResourceNotFoundException {
+        Optional<Member> member = memberRepository.findByRosterId(id);
+        if (member.isPresent()) {
+            return member.get();
+        }
+        throw new ResourceNotFoundException("No member found matching ID="+id);
+    }
+
+    /**
+     * Gets all members.
+     *
+     * @return list of Member
+     */
+    public List<Member> getAllMembers() {
+        return memberRepository.findAll();
+    }
+
+    /**
+     * Updates a member's RFID to the provided value.
+     *
+     * @param id Member ID
+     * @param rfid new RFID value
+     * @throws ResourceNotFoundException when no member matches
+     */
+    public void updateMemberRFID(final Long id, final String rfid) throws ResourceNotFoundException {
+        final Member member = getMemberByID(id);
+        member.setRfid(rfid);
+        memberRepository.save(member);
+    }
+
+    /**
      * Performs login to EAA's roster management system.
      */
     private void doLogin() {

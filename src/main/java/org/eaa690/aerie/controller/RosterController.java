@@ -16,9 +16,17 @@
 
 package org.eaa690.aerie.controller;
 
+import org.eaa690.aerie.exception.ResourceNotFoundException;
+import org.eaa690.aerie.model.MemberData;
+import org.eaa690.aerie.model.FindByRFIDResponse;
+import org.eaa690.aerie.model.Member;
+import org.eaa690.aerie.model.RFIDRequest;
 import org.eaa690.aerie.service.RosterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * RosterController.
@@ -55,4 +63,71 @@ public class RosterController {
         rosterService.update();
     }
 
+    /**
+     * Get member's data.
+     *
+     * @param memberId Member's Roster ID
+     * @return MemberData
+     * @throws ResourceNotFoundException when no member data is found
+     */
+    @GetMapping(path = {"/{memberId}/expiration"})
+    public MemberData getMemberData(@PathVariable("memberId") final Long memberId)
+            throws ResourceNotFoundException {
+        final Member member = rosterService.getMemberByID(memberId);
+        final MemberData record = new MemberData();
+        record.setId(member.getId());
+        record.setExpirationDate(member.getExpiration());
+        record.setRfid(member.getRfid());
+        record.setName(member.getFirstName() + " " + member.getLastName());
+        return record;
+    }
+
+    /**
+     * Updates a member's RFID.
+     *
+     * @param memberId Member's Roster ID
+     * @param rfidRequest RFIDRequest
+     * @throws ResourceNotFoundException when no member data is found
+     */
+    @PutMapping(path = {"/{memberId}/rfid"})
+    public void updateRFID(@PathVariable("memberId") final Long memberId, @RequestBody RFIDRequest rfidRequest)
+            throws ResourceNotFoundException {
+        rosterService.updateMemberRFID(memberId, rfidRequest.getRfid());
+    }
+
+    /**
+     * Retrieves a member's ID (and whether or not they are an admin) from the provided RFID.
+     *
+     * @param rfidRequest RFIDRequest
+     * @return FindByRFIDResponse
+     * @throws ResourceNotFoundException
+     */
+    @PostMapping(path = {"/find-by-id"})
+    public FindByRFIDResponse findByRFID(@RequestBody RFIDRequest rfidRequest) throws ResourceNotFoundException {
+        final Member member = rosterService.getMemberByRFID(rfidRequest.getRfid());
+        final FindByRFIDResponse rfidResponse = new FindByRFIDResponse();
+        rfidResponse.setId(member.getId());
+        rfidResponse.setAdmin(Boolean.FALSE); // TODO
+        return rfidResponse;
+    }
+
+    /**
+     * Gets all member's RFID data.
+     *
+     * @return list of MemberData
+     */
+    @GetMapping(path = {"/all-rfid"})
+    public List<MemberData> allMemberRFIDData() {
+        final List<MemberData> records = new ArrayList<>();
+        final List<Member> members = rosterService.getAllMembers();
+        for (Member member : members) {
+            final MemberData record = new MemberData();
+            record.setId(member.getId());
+            record.setExpirationDate(member.getExpiration());
+            record.setRfid(member.getRfid());
+            record.setName(member.getFirstName() + " " + member.getLastName());
+            records.add(record);
+        }
+        return records;
+    }
 }

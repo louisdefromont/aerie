@@ -18,6 +18,7 @@ package org.eaa690.aerie.model;
 
 import org.springframework.data.repository.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -40,6 +41,13 @@ public interface MemberRepository extends Repository<Member, Long> {
      * @return Member
      */
     Optional<Member> findByRosterId(Long rosterId);
+
+    /**
+     * Gets all members.
+     *
+     * @return list of Member
+     */
+    List<Member> findAll();
 
     /**
      * Saves a member.

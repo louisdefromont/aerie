@@ -19,6 +19,7 @@ package org.eaa690.aerie.config;
 import org.eaa690.aerie.constant.CommonConstants;
 import org.eaa690.aerie.model.RateLimitRepository;
 import org.eaa690.aerie.model.WeatherProductRepository;
+import org.eaa690.aerie.service.JotFormService;
 import org.eaa690.aerie.service.PropertyService;
 import org.eaa690.aerie.service.RosterService;
 import org.eaa690.aerie.service.WeatherService;
@@ -88,8 +89,17 @@ public class ServiceConfig {
      */
     @Bean
     public RosterService rosterService() {
-        final RosterService rosterService = new RosterService();
-        return rosterService;
+        return new RosterService();
+    }
+
+    /**
+     * JotFormService.
+     *
+     * @return JotFormService
+     */
+    @Bean
+    public JotFormService jotFormService() {
+        return new JotFormService();
     }
 
     /**

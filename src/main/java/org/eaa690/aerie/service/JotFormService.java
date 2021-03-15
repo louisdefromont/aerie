@@ -18,35 +18,21 @@ package org.eaa690.aerie.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.LoadingCache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.JotForm;
 import org.eaa690.aerie.model.Member;
-import org.eaa690.aerie.model.MemberRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -64,11 +50,9 @@ public class JotFormService {
      */
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
 
-    private String NEW_MEMBER_FORM_ID = "203084910640145";
+    //private String NEW_MEMBER_FORM_ID = "203084910640145";
 
-    private String RENEW_MEMBER_FORM_ID = "203205658119150";
-
-    private String MEMBER_SUBSCRIPTION_FORM_ID = "210335742062143";
+    //private String RENEW_MEMBER_FORM_ID = "203205658119150";
 
     static Cache<String, String> submissionsCache =
             CacheBuilder.newBuilder().expireAfterWrite(36, TimeUnit.HOURS).build();
@@ -115,20 +99,17 @@ public class JotFormService {
             final String dateStr = sdf.format(new Date());
             final JotForm client = new JotForm(propertyService.get(PropertyKeyConstants.JOTFORM_API_KEY_KEY).getValue());
             final HashMap<String, String> submissionFilter = new HashMap<String, String>();
-            submissionFilter.put("id:gt", NEW_MEMBER_FORM_ID);
+            submissionFilter.put("id:gt",
+                    propertyService.get(PropertyKeyConstants.JOTFORM_NEW_MEMBER_FORM_ID_KEY).getValue());
             submissionFilter.put("created_at:gt", dateStr);
             final Map<String, Member> membersMap = new HashMap<>();
             LOGGER.info("Querying for new member form submissions after " + dateStr);
             parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
-            submissionFilter.put("id:gt", RENEW_MEMBER_FORM_ID);
+            submissionFilter.put("id:gt",
+                    propertyService.get(PropertyKeyConstants.JOTFORM_MEMBER_RENEWAL_FORM_ID_KEY).getValue());
             submissionFilter.put("created_at:gt", dateStr);
             LOGGER.info("Querying for member renewal form submissions after " + dateStr);
-            parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
-
-            submissionFilter.put("id:gt", MEMBER_SUBSCRIPTION_FORM_ID);
-            submissionFilter.put("created_at:gt", dateStr);
-            LOGGER.info("Querying for member subscription form submissions after " + dateStr);
             parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
             if (!membersMap.isEmpty()) {

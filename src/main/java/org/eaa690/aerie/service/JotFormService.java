@@ -102,11 +102,11 @@ public class JotFormService {
      *
      * second, minute, hour, day of month, month, day(s) of week
      */
-    @Scheduled(cron = "0 0,10,20,30,40,50 * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void getSubmissions() {
         LOGGER.info("Called");
         try {
-            final String dateStr = "2021-03-13 00:00:00"; //sdf.format(new Date());
+            final String dateStr = sdf.format(new Date());
             final JotForm client = new JotForm(propertyService.get(PropertyKeyConstants.JOTFORM_API_KEY_KEY).getValue());
             final HashMap<String, String> submissionFilter = new HashMap<String, String>();
             submissionFilter.put("id:gt",

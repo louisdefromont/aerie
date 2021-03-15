@@ -146,7 +146,7 @@ public class JotFormService {
             final JSONObject addressAnswer = address.getJSONObject("answer");
             member.setAddressLine1(addressAnswer.getString("addr_line1"));
             member.setCity(addressAnswer.getString("city"));
-            //member.setState(State.valueOf(addressAnswer.getString("state").toUpperCase()));
+            member.setState(deriveState(addressAnswer.getString("state"));
             member.setZipCode(addressAnswer.getString("postal"));
             final JSONObject phone = answers.getJSONObject("5");
             final JSONObject phoneAnswer = phone.getJSONObject("answer");
@@ -159,6 +159,7 @@ public class JotFormService {
             otherInfoBuilder.setAdditionalInfo(additionalInfo.getString("answer"));
             JSONObject eaaNumber = answers.getJSONObject("15");
             member.setEaaNumber(eaaNumber.getString("answer"));
+            // TODO
             //JSONObject membershipType = answers.getJSONObject("16");
             //member.setMemberType();
             JSONObject numOfFamily = answers.getJSONObject("17");
@@ -183,7 +184,7 @@ public class JotFormService {
             final JSONObject addressAnswer = address.getJSONObject("answer");
             member.setAddressLine1(addressAnswer.getString("addr_line1"));
             member.setCity(addressAnswer.getString("city"));
-            //member.setState(State.valueOf(addressAnswer.getString("state").toUpperCase()));
+            member.setState(deriveState(addressAnswer.getString("state"));
             member.setZipCode(addressAnswer.getString("postal"));
             final JSONObject phone = answers.getJSONObject("5");
             final JSONObject phoneAnswer = phone.getJSONObject("answer");
@@ -196,6 +197,7 @@ public class JotFormService {
             otherInfoBuilder.setAdditionalInfo(additionalInfo.getString("answer"));
             JSONObject eaaNumber = answers.getJSONObject("15");
             member.setEaaNumber(eaaNumber.getString("answer"));
+            // TODO
             //JSONObject membershipType = answers.getJSONObject("16");
             //member.setMemberType();
             JSONObject numOfFamily = answers.getJSONObject("17");
@@ -205,5 +207,19 @@ public class JotFormService {
         }
     }
 
+    private State deriveState(String state) {
+        if ("AL".equalsIgnoreCase(state)) {
+            return State.ALABAMA;
+        } else if ("FL".equalsIgnoreCase(state)) {
+            return State.FLORIDA;
+        } else if ("NC".equalsIgnoreCase(state)) {
+            return State.NORTH_CAROLINA;
+        } else if ("SC".equalsIgnoreCase(state)) {
+            return State.SOUTH_CAROLINA;
+        } else if ("TN".equalsIgnoreCase(state)) {
+            return State.TENNESSEE;
+        }
+        return State.GEORGIA;
+    }
 
 }

@@ -506,4 +506,45 @@ public class Member extends BaseEntity implements Comparable<Member> {
     public int hashCode() {
         return Objects.hash(rosterId, rfid, firstName, lastName, eaaNumber, expiration);
     }
+
+    @Override
+    public String toString() {
+        return "Member{" +
+                "rosterId=" + rosterId +
+                ", rfid='" + rfid + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", spouse='" + spouse + '\'' +
+                ", gender=" + gender +
+                ", memberType=" + memberType +
+                ", status=" + status +
+                ", webAdminAccess=" + webAdminAccess +
+                ", addressLine1='" + addressLine1 + '\'' +
+                ", addressLine2='" + addressLine2 + '\'' +
+                ", city='" + city + '\'' +
+                ", state=" + state +
+                ", zipCode='" + zipCode + '\'' +
+                ", country=" + country +
+                ", birthDate='" + birthDate + '\'' +
+                ", joined='" + joined + '\'' +
+                ", otherInfo='" + otherInfo + '\'' +
+                ", homePhone='" + homePhone + '\'' +
+                ", cellPhone='" + cellPhone + '\'' +
+                ", email='" + email + '\'' +
+                ", ratings='" + ratings + '\'' +
+                ", aircraftOwned='" + aircraftOwned + '\'' +
+                ", aircraftProject='" + aircraftProject + '\'' +
+                ", aircraftBuilt='" + aircraftBuilt + '\'' +
+                ", imcClub=" + imcClub +
+                ", vmcClub=" + vmcClub +
+                ", yePilot=" + yePilot +
+                ", yeVolunteer=" + yeVolunteer +
+                ", eaglePilot=" + eaglePilot +
+                ", eagleVolunteer=" + eagleVolunteer +
+                ", eaaNumber='" + eaaNumber + '\'' +
+                ", expiration=" + expiration +
+                '}';
+    }
+
 }

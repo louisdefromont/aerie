@@ -531,6 +531,7 @@ public class RosterService {
 
     public void saveMember(Member member) {
         // TODO: do something
+        LOGGER.info("Saving: " + member);
         // If new member, send new member notifications
         // If renewing member, send member renewal notifications
     }

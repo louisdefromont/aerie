@@ -25,6 +25,7 @@ import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.JotForm;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.roster.OtherInfoBuilder;
+import org.eaa690.aerie.model.roster.State;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,16 +102,20 @@ public class JotFormService {
             submissionFilter.put("id:gt",
                     propertyService.get(PropertyKeyConstants.JOTFORM_NEW_MEMBER_FORM_ID_KEY).getValue());
             submissionFilter.put("created_at:gt", dateStr);
-            final Map<String, Member> membersMap = new HashMap<>();
+            final Map<String, Member> newMembersMap = new HashMap<>();
             LOGGER.info("Querying for new member form submissions after " + dateStr);
-            parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
+            parseNewMember(newMembersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
+            final Map<String, Member> renewMembersMap = new HashMap<>();
             submissionFilter.put("id:gt",
                     propertyService.get(PropertyKeyConstants.JOTFORM_MEMBER_RENEWAL_FORM_ID_KEY).getValue());
             submissionFilter.put("created_at:gt", dateStr);
             LOGGER.info("Querying for member renewal form submissions after " + dateStr);
-            parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
+            parseRenewingMember(renewMembersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
+            final Map<String, Member> membersMap = new HashMap<>();
+            membersMap.putAll(newMembersMap);
+            membersMap.putAll(renewMembersMap);
             if (!membersMap.isEmpty()) {
                 LOGGER.info("MembersMap size is " + membersMap.size());
                 for (String key : membersMap.keySet()) {
@@ -126,30 +131,79 @@ public class JotFormService {
         LOGGER.info("Finished");
     }
 
-    private void parseMembers(Map<String, Member> membersMap, JSONObject submission) {
-        JSONArray content = submission.getJSONArray("content");
+    private void parseNewMember(Map<String, Member> membersMap, JSONObject submission) {
+        final JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
-            JSONObject object = content.getJSONObject(i);
-            JSONObject answers = object.getJSONObject("answers");
-            LOGGER.info("Parsing: " + answers);
-            Member member = new Member();
-            //member.setFirstName();
-            //member.setLastName();
-            //member.setAddressLine1();
-            //member.setHomePhone();
-            //member.setEmail();
-            OtherInfoBuilder otherInfoBuilder = new OtherInfoBuilder();
-            //otherInfoBuilder.setAdditionalFamily();
-            //otherInfoBuilder.setNumberOfFamily();
-            //otherInfoBuilder.setSlack();
-            //otherInfoBuilder.setAdditionalInfo();
-            //otherInfoBuilder.setRfid();
-            member.setOtherInfo(otherInfoBuilder.getRaw());
-            //member.setEaaNumber();
+            final Member member = new Member();
+            final OtherInfoBuilder otherInfoBuilder = new OtherInfoBuilder();
+            final JSONObject object = content.getJSONObject(i);
+            final JSONObject answers = object.getJSONObject("answers");
+            final JSONObject fullName = answers.getJSONObject("3");
+            final JSONObject fullNameAnswer = fullName.getJSONObject("answer");
+            member.setFirstName(fullNameAnswer.getString("first"));
+            member.setLastName(fullNameAnswer.getString("last"));
+            final JSONObject address = answers.getJSONObject("4");
+            final JSONObject addressAnswer = address.getJSONObject("answer");
+            member.setAddressLine1(addressAnswer.getString("addr_line1"));
+            member.setCity(addressAnswer.getString("city"));
+            //member.setState(State.valueOf(addressAnswer.getString("state").toUpperCase()));
+            member.setZipCode(addressAnswer.getString("postal"));
+            final JSONObject phone = answers.getJSONObject("5");
+            final JSONObject phoneAnswer = phone.getJSONObject("answer");
+            member.setHomePhone(phoneAnswer.getString("full"));
+            final JSONObject email = answers.getJSONObject("6");
+            member.setEmail(email.getString("answer"));
+            final JSONObject additionalFamily = answers.getJSONObject("9");
+            otherInfoBuilder.setAdditionalFamily(additionalFamily.getString("answer"));
+            JSONObject additionalInfo = answers.getJSONObject("11");
+            otherInfoBuilder.setAdditionalInfo(additionalInfo.getString("answer"));
+            JSONObject eaaNumber = answers.getJSONObject("15");
+            member.setEaaNumber(eaaNumber.getString("answer"));
+            //JSONObject membershipType = answers.getJSONObject("16");
             //member.setMemberType();
-            //member.setEaaNumber();
+            JSONObject numOfFamily = answers.getJSONObject("17");
+            otherInfoBuilder.setNumberOfFamily(numOfFamily.getString("answer"));
+            member.setOtherInfo(otherInfoBuilder.getRaw());
             membersMap.put((String)object.get("id"), member);
         }
     }
+
+    private void parseRenewingMember(Map<String, Member> membersMap, JSONObject submission) {
+        final JSONArray content = submission.getJSONArray("content");
+        for (int i = 0; i < content.length(); i++) {
+            final Member member = new Member();
+            final OtherInfoBuilder otherInfoBuilder = new OtherInfoBuilder();
+            final JSONObject object = content.getJSONObject(i);
+            final JSONObject answers = object.getJSONObject("answers");
+            final JSONObject fullName = answers.getJSONObject("3");
+            final JSONObject fullNameAnswer = fullName.getJSONObject("answer");
+            member.setFirstName(fullNameAnswer.getString("first"));
+            member.setLastName(fullNameAnswer.getString("last"));
+            final JSONObject address = answers.getJSONObject("4");
+            final JSONObject addressAnswer = address.getJSONObject("answer");
+            member.setAddressLine1(addressAnswer.getString("addr_line1"));
+            member.setCity(addressAnswer.getString("city"));
+            //member.setState(State.valueOf(addressAnswer.getString("state").toUpperCase()));
+            member.setZipCode(addressAnswer.getString("postal"));
+            final JSONObject phone = answers.getJSONObject("5");
+            final JSONObject phoneAnswer = phone.getJSONObject("answer");
+            member.setHomePhone(phoneAnswer.getString("full"));
+            final JSONObject email = answers.getJSONObject("6");
+            member.setEmail(email.getString("answer"));
+            final JSONObject additionalFamily = answers.getJSONObject("9");
+            otherInfoBuilder.setAdditionalFamily(additionalFamily.getString("answer"));
+            JSONObject additionalInfo = answers.getJSONObject("11");
+            otherInfoBuilder.setAdditionalInfo(additionalInfo.getString("answer"));
+            JSONObject eaaNumber = answers.getJSONObject("15");
+            member.setEaaNumber(eaaNumber.getString("answer"));
+            //JSONObject membershipType = answers.getJSONObject("16");
+            //member.setMemberType();
+            JSONObject numOfFamily = answers.getJSONObject("17");
+            otherInfoBuilder.setNumberOfFamily(numOfFamily.getString("answer"));
+            member.setOtherInfo(otherInfoBuilder.getRaw());
+            membersMap.put((String)object.get("id"), member);
+        }
+    }
+
 
 }

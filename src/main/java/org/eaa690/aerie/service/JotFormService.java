@@ -146,7 +146,7 @@ public class JotFormService {
             final JSONObject addressAnswer = address.getJSONObject("answer");
             member.setAddressLine1(addressAnswer.getString("addr_line1"));
             member.setCity(addressAnswer.getString("city"));
-            member.setState(deriveState(addressAnswer.getString("state"));
+            member.setState(deriveState(addressAnswer.getString("state")));
             member.setZipCode(addressAnswer.getString("postal"));
             final JSONObject phone = answers.getJSONObject("5");
             final JSONObject phoneAnswer = phone.getJSONObject("answer");
@@ -184,7 +184,7 @@ public class JotFormService {
             final JSONObject addressAnswer = address.getJSONObject("answer");
             member.setAddressLine1(addressAnswer.getString("addr_line1"));
             member.setCity(addressAnswer.getString("city"));
-            member.setState(deriveState(addressAnswer.getString("state"));
+            member.setState(deriveState(addressAnswer.getString("state")));
             member.setZipCode(addressAnswer.getString("postal"));
             final JSONObject phone = answers.getJSONObject("5");
             final JSONObject phoneAnswer = phone.getJSONObject("answer");

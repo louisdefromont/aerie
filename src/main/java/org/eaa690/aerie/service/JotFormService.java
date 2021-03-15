@@ -64,11 +64,6 @@ public class JotFormService {
      */
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
 
-    /**
-     * Jot Form API Key
-     */
-    private String API_KEY = "";
-
     private String NEW_MEMBER_FORM_ID = "203084910640145";
 
     private String RENEW_MEMBER_FORM_ID = "203205658119150";
@@ -115,36 +110,42 @@ public class JotFormService {
      */
     @Scheduled(cron = "0 0 * * * *")
     public void getSubmissions() {
-        final JotForm client = new JotForm(API_KEY);
-        final HashMap<String, String> submissionFilter = new HashMap<String, String>();
-        submissionFilter.put("id:gt", NEW_MEMBER_FORM_ID);
-        submissionFilter.put("created_at:gt", sdf.format(new Date()));
-        final Map<String, Member> membersMap = new HashMap<>();
-        parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
+        LOGGER.info("Called");
+        try {
+            final JotForm client = new JotForm(propertyService.get(PropertyKeyConstants.JOTFORM_API_KEY_KEY).getValue());
+            final HashMap<String, String> submissionFilter = new HashMap<String, String>();
+            submissionFilter.put("id:gt", NEW_MEMBER_FORM_ID);
+            submissionFilter.put("created_at:gt", sdf.format(new Date()));
+            final Map<String, Member> membersMap = new HashMap<>();
+            parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
-        submissionFilter.put("id:gt", RENEW_MEMBER_FORM_ID);
-        submissionFilter.put("created_at:gt", sdf.format(new Date()));
-        parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
+            submissionFilter.put("id:gt", RENEW_MEMBER_FORM_ID);
+            submissionFilter.put("created_at:gt", sdf.format(new Date()));
+            parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
-        submissionFilter.put("id:gt", MEMBER_SUBSCRIPTION_FORM_ID);
-        submissionFilter.put("created_at:gt", sdf.format(new Date()));
-        parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
+            submissionFilter.put("id:gt", MEMBER_SUBSCRIPTION_FORM_ID);
+            submissionFilter.put("created_at:gt", sdf.format(new Date()));
+            parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
-        if (!membersMap.isEmpty()) {
-            for (String key : membersMap.keySet()) {
-                if (submissionsCache.getIfPresent(key) == null) {
-                    submissionsCache.put(key, key);
-                    rosterService.saveMember(membersMap.get(key));
+            if (!membersMap.isEmpty()) {
+                for (String key : membersMap.keySet()) {
+                    if (submissionsCache.getIfPresent(key) == null) {
+                        submissionsCache.put(key, key);
+                        rosterService.saveMember(membersMap.get(key));
+                    }
                 }
             }
+        } catch (ResourceNotFoundException rnfe) {
+            LOGGER.error(rnfe);
         }
+        LOGGER.info("Finished");
     }
 
     private void parseMembers(Map<String, Member> membersMap, JSONObject submission) {
         JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
             JSONObject object = content.getJSONObject(i);
-            System.out.println(object.get("id"));
+            LOGGER.info(object.get("id"));
         }
     }
 

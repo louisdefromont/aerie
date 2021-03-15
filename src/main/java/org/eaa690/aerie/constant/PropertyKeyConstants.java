@@ -37,6 +37,11 @@ public class PropertyKeyConstants {
     public static final String CHECK_WX_API_KEY_KEY = "weather.checkwx.api-key";
 
     /**
+     * JOTFORM_API_KEY.
+     */
+    public static final String JOTFORM_API_KEY_KEY = "jotform.api-key";
+
+    /**
      * ROSTER_USER.
      */
     public static final String ROSTER_USER_KEY = "ROSTER_USER";

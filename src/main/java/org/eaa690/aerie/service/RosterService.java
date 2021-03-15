@@ -197,7 +197,7 @@ public class RosterService {
     /**
      * Members cache.  Used when determining if a member is new or renewing.
      */
-    static Cache<Long, Member> membersCache =
+    static Cache<String, Member> membersCache =
             CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.MINUTES).build();
 
     /**
@@ -540,9 +540,16 @@ public class RosterService {
 
     public void saveMember(Member member) {
         if (membersCache.size() == 0) {
-            memberRepository.findAll().stream().forEach(m -> membersCache.put(member.getId(), m));
+            memberRepository
+                    .findAll()
+                    .stream()
+                    .forEach(m -> membersCache.put(
+                            m.getEmail().toUpperCase() + m.getFirstName().toUpperCase() +
+                                    m.getLastName().toUpperCase(), m));
         }
-        if (membersCache.getAllPresent(Arrays.asList(member)) != null) {
+        if (membersCache.getAllPresent(
+                Arrays.asList(member.getEmail().toUpperCase() + member.getFirstName().toUpperCase() +
+                        member.getLastName().toUpperCase())) != null) {
             LOGGER.info("Saving new member: " + member);
             // If new member, send new member notifications
             return;

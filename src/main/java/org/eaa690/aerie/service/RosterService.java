@@ -531,7 +531,6 @@ public class RosterService {
 
     public void saveMember(Member member) {
         // TODO: do something
-        // Update roster management system
         // If new member, send new member notifications
         // If renewing member, send member renewal notifications
     }

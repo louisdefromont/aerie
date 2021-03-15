@@ -24,6 +24,7 @@ import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.JotForm;
 import org.eaa690.aerie.model.Member;
+import org.eaa690.aerie.model.roster.OtherInfoBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,11 +127,28 @@ public class JotFormService {
     }
 
     private void parseMembers(Map<String, Member> membersMap, JSONObject submission) {
-        LOGGER.info("Parsing: " + submission);
         JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
             JSONObject object = content.getJSONObject(i);
-            LOGGER.info(object.get("id"));
+            JSONObject answers = object.getJSONObject("answers");
+            LOGGER.info("Parsing: " + answers);
+            Member member = new Member();
+            //member.setFirstName();
+            //member.setLastName();
+            //member.setAddressLine1();
+            //member.setHomePhone();
+            //member.setEmail();
+            OtherInfoBuilder otherInfoBuilder = new OtherInfoBuilder();
+            //otherInfoBuilder.setAdditionalFamily();
+            //otherInfoBuilder.setNumberOfFamily();
+            //otherInfoBuilder.setSlack();
+            //otherInfoBuilder.setAdditionalInfo();
+            //otherInfoBuilder.setRfid();
+            member.setOtherInfo(otherInfoBuilder.getRaw());
+            //member.setEaaNumber();
+            //member.setMemberType();
+            //member.setEaaNumber();
+            membersMap.put((String)object.get("id"), member);
         }
     }
 

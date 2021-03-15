@@ -48,6 +48,16 @@ public class JotFormService {
     private static final Log LOGGER = LogFactory.getLog(JotFormService.class);
 
     /**
+     * Answers.
+     */
+    private static final String ANSWERS = "answers";
+
+    /**
+     * Answer.
+     */
+    private static final String ANSWER = "answer";
+
+    /**
      * Used to filter form submissions retrieval.
      */
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
@@ -137,35 +147,121 @@ public class JotFormService {
             final Member member = new Member();
             final OtherInfoBuilder otherInfoBuilder = new OtherInfoBuilder();
             final JSONObject object = content.getJSONObject(i);
-            final JSONObject answers = object.getJSONObject("answers");
-            final JSONObject fullName = answers.getJSONObject("3");
-            final JSONObject fullNameAnswer = fullName.getJSONObject("answer");
-            member.setFirstName(fullNameAnswer.getString("first"));
-            member.setLastName(fullNameAnswer.getString("last"));
-            final JSONObject address = answers.getJSONObject("4");
-            final JSONObject addressAnswer = address.getJSONObject("answer");
-            member.setAddressLine1(addressAnswer.getString("addr_line1"));
-            member.setCity(addressAnswer.getString("city"));
-            member.setState(deriveState(addressAnswer.getString("state")));
-            member.setZipCode(addressAnswer.getString("postal"));
-            final JSONObject phone = answers.getJSONObject("5");
-            final JSONObject phoneAnswer = phone.getJSONObject("answer");
-            member.setHomePhone(phoneAnswer.getString("full"));
-            final JSONObject email = answers.getJSONObject("6");
-            member.setEmail(email.getString("answer"));
-            final JSONObject additionalFamily = answers.getJSONObject("9");
-            otherInfoBuilder.setAdditionalFamily(additionalFamily.getString("answer"));
-            JSONObject additionalInfo = answers.getJSONObject("11");
-            otherInfoBuilder.setAdditionalInfo(additionalInfo.getString("answer"));
-            JSONObject eaaNumber = answers.getJSONObject("15");
-            member.setEaaNumber(eaaNumber.getString("answer"));
+            if (object.has(ANSWERS)) {
+                final JSONObject answers = object.getJSONObject(ANSWERS);
+                parseName(member, answers);
+                parseAddress(member, answers);
+                parsePhone(member, answers);
+                parseEmail(member, answers);
+                parseAdditionalFamily(otherInfoBuilder, answers);
+                parseAdditionalInfo(otherInfoBuilder, answers);
+                parseEAANumber(member, answers);
+                parseMembershipType(member, answers);
+                parseNumOfFamily(otherInfoBuilder, answers);
+                member.setOtherInfo(otherInfoBuilder.getRaw());
+            }
+            membersMap.put((String)object.get("id"), member);
+        }
+    }
+
+    private void parseNumOfFamily(OtherInfoBuilder otherInfoBuilder, JSONObject answers) {
+        if (answers.has("17")) {
+            JSONObject numOfFamily = answers.getJSONObject("17");
+            if (numOfFamily.has(ANSWER)) {
+                otherInfoBuilder.setNumberOfFamily(numOfFamily.getString(ANSWER));
+            }
+        }
+    }
+
+    private void parseMembershipType(Member member, JSONObject answers) {
+        if (answers.has("16")) {
             // TODO
             //JSONObject membershipType = answers.getJSONObject("16");
             //member.setMemberType();
-            JSONObject numOfFamily = answers.getJSONObject("17");
-            otherInfoBuilder.setNumberOfFamily(numOfFamily.getString("answer"));
-            member.setOtherInfo(otherInfoBuilder.getRaw());
-            membersMap.put((String)object.get("id"), member);
+        }
+    }
+
+    private void parseEAANumber(Member member, JSONObject answers) {
+        if (answers.has("15")) {
+            JSONObject eaaNumber = answers.getJSONObject("15");
+            if (eaaNumber.has(ANSWER)) {
+                member.setEaaNumber(eaaNumber.getString(ANSWER));
+            }
+        }
+    }
+
+    private void parseAdditionalInfo(OtherInfoBuilder otherInfoBuilder, JSONObject answers) {
+        if (answers.has("11")) {
+            JSONObject additionalInfo = answers.getJSONObject("11");
+            if (additionalInfo.has(ANSWER)) {
+                otherInfoBuilder.setAdditionalInfo(additionalInfo.getString(ANSWER));
+            }
+        }
+    }
+
+    private void parseAdditionalFamily(OtherInfoBuilder otherInfoBuilder, JSONObject answers) {
+        if (answers.has("9")) {
+            final JSONObject additionalFamily = answers.getJSONObject("9");
+            if (additionalFamily.has(ANSWER)) {
+                otherInfoBuilder.setAdditionalFamily(additionalFamily.getString(ANSWER));
+            }
+        }
+    }
+
+    private void parseEmail(Member member, JSONObject answers) {
+        if (answers.has("6")) {
+            final JSONObject email = answers.getJSONObject("6");
+            if (email.has(ANSWER)) {
+                member.setEmail(email.getString(ANSWER));
+            }
+        }
+    }
+
+    private void parsePhone(Member member, JSONObject answers) {
+        if (answers.has("5")) {
+            final JSONObject phone = answers.getJSONObject("5");
+            if (phone.has(ANSWER)) {
+                final JSONObject phoneAnswer = phone.getJSONObject(ANSWER);
+                if (phoneAnswer.has("full")) {
+                    member.setHomePhone(phoneAnswer.getString("full"));
+                }
+            }
+        }
+    }
+
+    private void parseAddress(Member member, JSONObject answers) {
+        if (answers.has("4")) {
+            final JSONObject address = answers.getJSONObject("4");
+            if (address.has(ANSWER)) {
+                final JSONObject addressAnswer = address.getJSONObject(ANSWER);
+                if (addressAnswer.has("addr_line1")) {
+                    member.setAddressLine1(addressAnswer.getString("addr_line1"));
+                }
+                if (addressAnswer.has("city")) {
+                    member.setCity(addressAnswer.getString("city"));
+                }
+                if (addressAnswer.has("state")) {
+                    member.setState(deriveState(addressAnswer.getString("state")));
+                }
+                if (addressAnswer.has("postal")) {
+                    member.setZipCode(addressAnswer.getString("postal"));
+                }
+            }
+        }
+    }
+
+    private void parseName(Member member, JSONObject answers) {
+        if (answers.has("3")) {
+            final JSONObject fullName = answers.getJSONObject("3");
+            if (fullName.has(ANSWER)) {
+                final JSONObject fullNameAnswer = fullName.getJSONObject(ANSWER);
+                if (fullNameAnswer.has("first")) {
+                    member.setFirstName(fullNameAnswer.getString("first"));
+                }
+                if (fullNameAnswer.has("last")) {
+                    member.setLastName(fullNameAnswer.getString("last"));
+                }
+            }
         }
     }
 
@@ -175,34 +271,19 @@ public class JotFormService {
             final Member member = new Member();
             final OtherInfoBuilder otherInfoBuilder = new OtherInfoBuilder();
             final JSONObject object = content.getJSONObject(i);
-            final JSONObject answers = object.getJSONObject("answers");
-            final JSONObject fullName = answers.getJSONObject("3");
-            final JSONObject fullNameAnswer = fullName.getJSONObject("answer");
-            member.setFirstName(fullNameAnswer.getString("first"));
-            member.setLastName(fullNameAnswer.getString("last"));
-            final JSONObject address = answers.getJSONObject("4");
-            final JSONObject addressAnswer = address.getJSONObject("answer");
-            member.setAddressLine1(addressAnswer.getString("addr_line1"));
-            member.setCity(addressAnswer.getString("city"));
-            member.setState(deriveState(addressAnswer.getString("state")));
-            member.setZipCode(addressAnswer.getString("postal"));
-            final JSONObject phone = answers.getJSONObject("5");
-            final JSONObject phoneAnswer = phone.getJSONObject("answer");
-            member.setHomePhone(phoneAnswer.getString("full"));
-            final JSONObject email = answers.getJSONObject("6");
-            member.setEmail(email.getString("answer"));
-            final JSONObject additionalFamily = answers.getJSONObject("9");
-            otherInfoBuilder.setAdditionalFamily(additionalFamily.getString("answer"));
-            JSONObject additionalInfo = answers.getJSONObject("11");
-            otherInfoBuilder.setAdditionalInfo(additionalInfo.getString("answer"));
-            JSONObject eaaNumber = answers.getJSONObject("15");
-            member.setEaaNumber(eaaNumber.getString("answer"));
-            // TODO
-            //JSONObject membershipType = answers.getJSONObject("16");
-            //member.setMemberType();
-            JSONObject numOfFamily = answers.getJSONObject("17");
-            otherInfoBuilder.setNumberOfFamily(numOfFamily.getString("answer"));
-            member.setOtherInfo(otherInfoBuilder.getRaw());
+            if (object.has(ANSWERS)) {
+                final JSONObject answers = object.getJSONObject(ANSWERS);
+                parseName(member, answers);
+                parseAddress(member, answers);
+                parsePhone(member, answers);
+                parseEmail(member, answers);
+                parseAdditionalFamily(otherInfoBuilder, answers);
+                parseAdditionalInfo(otherInfoBuilder, answers);
+                parseEAANumber(member, answers);
+                parseMembershipType(member, answers);
+                parseNumOfFamily(otherInfoBuilder, answers);
+                member.setOtherInfo(otherInfoBuilder.getRaw());
+            }
             membersMap.put((String)object.get("id"), member);
         }
     }

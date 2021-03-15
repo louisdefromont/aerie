@@ -112,22 +112,27 @@ public class JotFormService {
     public void getSubmissions() {
         LOGGER.info("Called");
         try {
+            final String dateStr = sdf.format(new Date());
             final JotForm client = new JotForm(propertyService.get(PropertyKeyConstants.JOTFORM_API_KEY_KEY).getValue());
             final HashMap<String, String> submissionFilter = new HashMap<String, String>();
             submissionFilter.put("id:gt", NEW_MEMBER_FORM_ID);
-            submissionFilter.put("created_at:gt", sdf.format(new Date()));
+            submissionFilter.put("created_at:gt", dateStr);
             final Map<String, Member> membersMap = new HashMap<>();
+            LOGGER.info("Querying for new member form submissions after " + dateStr);
             parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
             submissionFilter.put("id:gt", RENEW_MEMBER_FORM_ID);
-            submissionFilter.put("created_at:gt", sdf.format(new Date()));
+            submissionFilter.put("created_at:gt", dateStr);
+            LOGGER.info("Querying for member renewal form submissions after " + dateStr);
             parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
             submissionFilter.put("id:gt", MEMBER_SUBSCRIPTION_FORM_ID);
-            submissionFilter.put("created_at:gt", sdf.format(new Date()));
+            submissionFilter.put("created_at:gt", dateStr);
+            LOGGER.info("Querying for member subscription form submissions after " + dateStr);
             parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
             if (!membersMap.isEmpty()) {
+                LOGGER.info("MembersMap size is " + membersMap.size());
                 for (String key : membersMap.keySet()) {
                     if (submissionsCache.getIfPresent(key) == null) {
                         submissionsCache.put(key, key);
@@ -142,6 +147,7 @@ public class JotFormService {
     }
 
     private void parseMembers(Map<String, Member> membersMap, JSONObject submission) {
+        LOGGER.info("Parsing: " + submission);
         JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
             JSONObject object = content.getJSONObject(i);

@@ -26,6 +26,7 @@ import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.JotForm;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -74,7 +75,8 @@ public class JotFormService {
 
     private String MEMBER_SUBSCRIPTION_FORM_ID = "210335742062143";
 
-    static Cache<String, String> submissionsCache = CacheBuilder.newBuilder().expireAfterWrite(36, TimeUnit.HOURS).build();
+    static Cache<String, String> submissionsCache =
+            CacheBuilder.newBuilder().expireAfterWrite(36, TimeUnit.HOURS).build();
 
     /**
      * PropertyService.
@@ -117,24 +119,33 @@ public class JotFormService {
         final HashMap<String, String> submissionFilter = new HashMap<String, String>();
         submissionFilter.put("id:gt", NEW_MEMBER_FORM_ID);
         submissionFilter.put("created_at:gt", sdf.format(new Date()));
-        final JSONObject newMemberSubmissions = client.getSubmissions("0", "1000", submissionFilter, "created_at");
-        final List<Member> newMembers = buildMembers(newMemberSubmissions);
-        for (Member member : newMembers) {
-            submissionsCache.put();
-            rosterService.newMember(member);
-        }
+        final Map<String, Member> membersMap = new HashMap<>();
+        parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
         submissionFilter.put("id:gt", RENEW_MEMBER_FORM_ID);
         submissionFilter.put("created_at:gt", sdf.format(new Date()));
-        final JSONObject renewMemberSubmissions = client.getSubmissions("0", "1000", submissionFilter, "created_at");
+        parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
         submissionFilter.put("id:gt", MEMBER_SUBSCRIPTION_FORM_ID);
         submissionFilter.put("created_at:gt", sdf.format(new Date()));
-        final JSONObject memberSubscriptionSubmissions = client.getSubmissions("0", "1000", submissionFilter, "created_at");
+        parseMembers(membersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
+        if (!membersMap.isEmpty()) {
+            for (String key : membersMap.keySet()) {
+                if (submissionsCache.getIfPresent(key) == null) {
+                    submissionsCache.put(key, key);
+                    rosterService.saveMember(membersMap.get(key));
+                }
+            }
+        }
+    }
 
-        rosterService.renewMember(renewMemberSubmissions);
-        System.out.println(memberSubscriptionSubmissions);
+    private void parseMembers(Map<String, Member> membersMap, JSONObject submission) {
+        JSONArray content = submission.getJSONArray("content");
+        for (int i = 0; i < content.length(); i++) {
+            JSONObject object = content.getJSONObject(i);
+            System.out.println(object.get("id"));
+        }
     }
 
 }

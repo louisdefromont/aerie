@@ -50,10 +50,6 @@ public class JotFormService {
      */
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
 
-    //private String NEW_MEMBER_FORM_ID = "203084910640145";
-
-    //private String RENEW_MEMBER_FORM_ID = "203205658119150";
-
     static Cache<String, String> submissionsCache =
             CacheBuilder.newBuilder().expireAfterWrite(36, TimeUnit.HOURS).build();
 

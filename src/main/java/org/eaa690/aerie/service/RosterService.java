@@ -38,7 +38,10 @@ import java.sql.SQLException;
 import java.sql.DriverManager;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
@@ -190,6 +193,12 @@ public class RosterService {
      * Date formatter.
      */
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
+
+    /**
+     * Members cache.  Used when determining if a member is new or renewing.
+     */
+    static Cache<Long, Member> membersCache =
+            CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.MINUTES).build();
 
     /**
      * Sets PropertyService.
@@ -530,9 +539,16 @@ public class RosterService {
     }
 
     public void saveMember(Member member) {
-        // TODO: do something
-        LOGGER.info("Saving: " + member);
-        // If new member, send new member notifications
+        if (membersCache.size() == 0) {
+            memberRepository.findAll().stream().forEach(m -> membersCache.put(member.getId(), m));
+        }
+        if (membersCache.getAllPresent(Arrays.asList(member)) != null) {
+            LOGGER.info("Saving new member: " + member);
+            // If new member, send new member notifications
+            return;
+        }
+        LOGGER.info("Saving renewing member: " + member);
         // If renewing member, send member renewal notifications
     }
+
 }

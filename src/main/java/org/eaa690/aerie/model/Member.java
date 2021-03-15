@@ -495,11 +495,9 @@ public class Member extends BaseEntity implements Comparable<Member> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Member member = (Member) o;
-        return Objects.equals(rosterId, member.rosterId) &&
-                Objects.equals(rfid, member.rfid) &&
+        return Objects.equals(email, member.email) &&
                 Objects.equals(firstName, member.firstName) &&
-                Objects.equals(lastName, member.lastName) &&
-                Objects.equals(eaaNumber, member.eaaNumber);
+                Objects.equals(lastName, member.lastName);
     }
 
     @Override

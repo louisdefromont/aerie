@@ -213,6 +213,8 @@ public class RosterService {
 
     /**
      * Updates every 6 hours.
+     *
+     * second, minute, hour, day of month, month, day(s) of week
      */
     @Scheduled(cron = "0 0 0,6,12,18 * * *")
     public void update() {

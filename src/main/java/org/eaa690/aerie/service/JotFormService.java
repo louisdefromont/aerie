@@ -87,8 +87,10 @@ public class JotFormService {
 
     /**
      * Retrieves JotForm submissions.
+     *
+     * second, minute, hour, day of month, month, day(s) of week
      */
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 0,10,20,30,40,50 * * * *")
     public void getSubmissions() {
         LOGGER.info("Called");
         try {

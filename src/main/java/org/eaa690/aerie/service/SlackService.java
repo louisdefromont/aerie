@@ -17,24 +17,24 @@
 package org.eaa690.aerie.service;
 
 import java.io.IOException;
-import java.util.Map;
 
+import com.ullink.slack.simpleslackapi.SlackSession;
+import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
+import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
+import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener;
+import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-
-import freemarker.template.Configuration;
-import freemarker.template.TemplateException;
 
 /**
  * SlackService.
  */
 @Service("aerieSlackService")
-public class SlackService {
+public class SlackService implements SlackMessagePostedListener {
 
     /**
      * Logger.
@@ -42,34 +42,14 @@ public class SlackService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SlackService.class);
 
     /**
-     * SLACK_DIR.
-     */
-    public static final String SLACK_DIR = "slack";
-
-    /**
      * PropertyService.
      */
     private PropertyService propertyService;
 
     /**
-     * FreeMarker Configuration.
+     * SlackSession
      */
-    private Configuration freemarkerConfig;
-
-    /**
-     * Flag to indicate if Freemarker Configuration has been initialized.
-     */
-    private boolean freemarkerConfigurationInitialized = false;
-
-    /**
-     * Sets Configuration.
-     *
-     * @param value Configuration
-     */
-    @Autowired
-    public void setFreemarkerConfiguration(final Configuration value) {
-        freemarkerConfig = value;
-    }
+    private SlackSession slackSession = null;
 
     /**
      * Sets PropertyService.
@@ -81,91 +61,74 @@ public class SlackService {
         propertyService = value;
     }
 
-    /**
-     * {@inheritDoc} Required implementation.
-     */
-    public void sendRenewMembershipMsg(final Member member) {
-        /* TODO Implement this!
-        final Map<String, Object> model = TemplateUtil.getModel(person, null, null, null, null, null);
+    public void sendNewMembershipMsg(final Member member) {
         try {
-            if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue())
-                    && EventType.GROUNDSCHOOL.equals(event.getEventType())) {
-                final String msg = getTemplatedMessage(model, NotificationConstants.GS_EVENT_UPCOMING);
-                final String channel = personService.getNotificationValue(person.getId(), NotificationType.SLACK);
-                messageDeliveryService.sendGroundSchoolSlackMessage(msg, channel);
-                storeSlackMsgSentMsg(person, event, null, null, msg, NotificationEventType.EVENT_UPCOMING, channel);
+            String to = member.getSlack();
+            if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_ENABLED_KEY).getValue())) {
+                to = propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_RECIPIENT_KEY).getValue();
             }
-        } catch (IOException | TemplateException | ResourceNotFoundException e) {
-            LOGGER.error(e.getMessage(), e);
+            final String qualifier = Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue()) ? "S" : "Not s";
+            LOGGER.info(String.format("%sending new membership slack message... toAddress [%s];", qualifier, to));
+            if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue())) {
+                sendMessage(String.format("Welcome %s to EAA 690!", member.getFirstName()), member.getSlack());
+            }
+        } catch (ResourceNotFoundException ex) {
+            LOGGER.error(ex.getMessage());
         }
-        */
     }
 
-    /**
-     * Initializes Freemarker configuration.
-     *
-     * @throws ResourceNotFoundException when properties are not found
-     */
-    private void initFreemarkerConfiguration() throws ResourceNotFoundException {
-        /* TODO Implement this!
-        if (!freemarkerConfigurationInitialized) {
-            TemplateLoader templateLoader = new TemplateLoader(
-                    propertyService.get(PropertyKeyConstants.NOTIFICATION_GCP_STORAGE_URL_BASE_KEY).getValue(),
-                    NotificationType.SLACK);
-            freemarkerConfig.setTemplateLoader(templateLoader);
-            freemarkerConfigurationInitialized = true;
+    public void sendRenewMembershipMsg(final Member member) {
+        try {
+            String to = member.getSlack();
+            if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_ENABLED_KEY).getValue())) {
+                to = propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_RECIPIENT_KEY).getValue();
+            }
+            final String qualifier = Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue()) ? "S" : "Not s";
+            LOGGER.info(String.format("%sending membership renewal slack message... toAddress [%s];", qualifier, to));
+            if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue())) {
+                sendMessage(String.format("Hi %s, please be sure to renew your chapter membership before %s!",
+                        member.getFirstName(), member.getExpiration()), member.getSlack());
+            }
+        } catch (ResourceNotFoundException ex) {
+            LOGGER.error(ex.getMessage());
         }
-        */
+    }
+
+    @Override
+    public void onEvent(SlackMessagePosted event, SlackSession session) {
+        // Ignore bot user messages
+        if (session.sessionPersona().getId().equals(event.getSender().getId())) {
+            return;
+        }
+        final String message = event.getMessageContent();
+        final String user = event.getUser().getUserName();
+        final String msg = String.format(
+                "Slack message received: user [%s]; message [%s]",
+                user,
+                message);
+        LOGGER.info(msg);
     }
 
     /**
-     * Gets message based upon provided template.
-     *
-     * @param model Map<String, Object>
-     * @param templateName Template name
-     * @return message
-     * @throws IOException when an error occurs
-     * @throws TemplateException when an error occurs
-     * @throws ResourceNotFoundException when properties are not found
-     */
-    private String getTemplatedMessage(final Map<String, Object> model, final String templateName) throws IOException,
-            TemplateException, ResourceNotFoundException {
-        /* TODO: Implement this!
-        initFreemarkerConfiguration();
-        return FreeMarkerTemplateUtils
-                .processTemplateIntoString(
-                        freemarkerConfig
-                                .getTemplate(templateName + NotificationConstants.FTL_FILE_EXTENSION),
-                        model);
-        */
-        return null;
-    }
-
-    /**
-     * Sends a message via the Aerie Slack bot.
+     * Sends a message via the Slack bot.
      *
      * @param msg message to be sent
-     * @param channel Slack channel
+     * @param slackUserName Slack User Name
      * @throws ResourceNotFoundException when properties are not found
      */
-    public void sendAerieSlackMessage(final String msg, final String channel) throws ResourceNotFoundException {
-        /* TODO Implement this!
-        if (aerieSlackSession == null || !aerieSlackSession.isConnected()) {
-            aerieSlackSession = SlackSessionFactory
+    private void sendMessage(final String msg, final String slackUserName) throws ResourceNotFoundException {
+        if (slackSession == null || !slackSession.isConnected()) {
+            slackSession = SlackSessionFactory
                     .createWebSocketSlackSession(
-                            propertyService.get(PropertyKeyConstants.SLACK_AERIE_TOKEN_KEY).getValue());
+                            propertyService.get(PropertyKeyConstants.SLACK_TOKEN_KEY).getValue());
             try {
-                aerieSlackSession.connect();
-                aerieSlackSession.addMessagePostedListener(this);
+                slackSession.connect();
+                slackSession.addMessagePostedListener(this);
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);
             }
         }
-        aerieSlackSession.sendMessageToUser(channel, msg, null);
-        */
+        slackSession.sendMessageToUser(slackSession.findUserByUserName(slackUserName), msg, null);
     }
 
-    public void sendNewMembershipMsg(final Member member) {
-        LOGGER.info(String.format("Sending new membership Slack message... toAddress [%s];", member.getSlack()));
-    }
 }

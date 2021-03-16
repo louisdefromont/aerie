@@ -21,29 +21,29 @@ public enum MemberType {
     /**
      * Regular.
      */
-    REGULAR,
+    Regular,
     /**
      * Family.
      */
-    FAMILY,
+    Family,
     /**
      * Lifetime.
      */
-    LIFETIME,
+    Lifetime,
     /**
      * Honorary.
      */
-    HONORARY,
+    Honorary,
     /**
      * Student.
      */
-    STUDENT,
+    Student,
     /**
      * Prospect.
      */
-    PROSPECT,
+    Prospect,
     /**
      * Non-member.
      */
-    NONMEMBER
+    Non_member
 }

@@ -23,6 +23,7 @@ import com.sendgrid.SendGrid;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
+import org.eaa690.aerie.model.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,13 +86,17 @@ public class EmailService {
      * {@inheritDoc} Required implementation.
      */
     public void sendRenewMembershipMsg(final Member member) {
-        LOGGER.info(String.format("Sending membership renewal email... toAddress [%s];", member.getEmail()));
         Response response = null;
         try {
+            String to = member.getEmail();
+            if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_ENABLED_KEY).getValue())) {
+                to = propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue();
+            }
+            LOGGER.info(String.format("Sending membership renewal email... toAddress [%s];", to));
             final Mail mail =
                     new Mail(new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()),
                     propertyService.get(PropertyKeyConstants.SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY).getValue(),
-                            new Email(member.getEmail()), new Content("text/html", ""));
+                            new Email(to), new Content("text/html", ""));
             mail.personalization.get(0).addSubstitution("-firstName-", member.getFirstName());
             mail.personalization.get(0).addSubstitution("-lastName-", member.getLastName());
             mail.personalization.get(0).addSubstitution("-expirationDate-", sdf.format(member.getExpiration()));
@@ -110,6 +115,8 @@ public class EmailService {
                 response = sendGrid.api(request);
                 LOGGER.info(String.format("Response... statusCode [%s]; body [%s]; headers [%s]",
                         response.getStatusCode(), response.getBody(), response.getHeaders()));
+            } else {
+                LOGGER.info("Not sending email due to enabled flag set to false.");
             }
         } catch (IOException | ResourceNotFoundException ex) {
             LOGGER.error(ex.getMessage());

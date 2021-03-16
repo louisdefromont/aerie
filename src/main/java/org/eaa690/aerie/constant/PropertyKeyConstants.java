@@ -109,4 +109,34 @@ public class PropertyKeyConstants {
      * SLACK_ENABLED_KEY.
      */
     public static final String SLACK_ENABLED_KEY = "SLACK_ENABLED_KEY";
+
+    /**
+     * EMAIL_ENABLED_KEY.
+     */
+    public static final String EMAIL_TEST_MODE_ENABLED_KEY = "EMAIL_TEST_MODE_ENABLED_KEY";
+
+    /**
+     * SMS_ENABLED_KEY.
+     */
+    public static final String SMS_TEST_MODE_ENABLED_KEY = "SMS_TEST_MODE_ENABLED_KEY";
+
+    /**
+     * SLACK_ENABLED_KEY.
+     */
+    public static final String SLACK_TEST_MODE_ENABLED_KEY = "SLACK_TEST_MODE_ENABLED_KEY";
+
+    /**
+     * EMAIL_ENABLED_KEY.
+     */
+    public static final String EMAIL_TEST_MODE_RECIPIENT_KEY = "EMAIL_TEST_MODE_RECIPIENT_KEY";
+
+    /**
+     * SMS_ENABLED_KEY.
+     */
+    public static final String SMS_TEST_MODE_RECIPIENT_KEY = "SMS_TEST_MODE_RECIPIENT_KEY";
+
+    /**
+     * SLACK_ENABLED_KEY.
+     */
+    public static final String SLACK_TEST_MODE_RECIPIENT_KEY = "SLACK_TEST_MODE_RECIPIENT_KEY";
 }

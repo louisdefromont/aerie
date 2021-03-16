@@ -21,37 +21,30 @@ public enum MemberType {
     /**
      * Regular.
      */
-    REGULAR("Regular"),
     Regular("Regular"),
     /**
      * Family.
      */
-    FAMILY("Family"),
     Family("Family"),
     /**
      * Lifetime.
      */
-    LIFETIME("Lifetime"),
     Lifetime("Lifetime"),
     /**
      * Honorary.
      */
-    HONORARY("Honorary"),
     Honorary("Honorary"),
     /**
      * Student.
      */
-    STUDENT("Student"),
     Student("Student"),
     /**
      * Prospect.
      */
-    PROSPECT("Prospect"),
     Prospect("Prospect"),
     /**
      * Non-member.
      */
-    NONMEMBER("Non-Member"),
     NonMember("Non-Member");
 
     private final String value;

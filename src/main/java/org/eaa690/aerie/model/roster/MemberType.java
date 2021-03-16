@@ -57,4 +57,12 @@ public enum MemberType {
         return value;
     }
 
+    public static MemberType fromString(String text) {
+        for (MemberType b : MemberType.values()) {
+            if (b.value.equalsIgnoreCase(text)) {
+                return b;
+            }
+        }
+        return null;
+    }
 }

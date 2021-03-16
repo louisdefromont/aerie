@@ -21,29 +21,48 @@ public enum MemberType {
     /**
      * Regular.
      */
-    REGULAR,
+    Regular("Regular"),
     /**
      * Family.
      */
-    FAMILY,
+    Family("Family"),
     /**
      * Lifetime.
      */
-    LIFETIME,
+    Lifetime("Lifetime"),
     /**
      * Honorary.
      */
-    HONORARY,
+    Honorary("Honorary"),
     /**
      * Student.
      */
-    STUDENT,
+    Student("Student"),
     /**
      * Prospect.
      */
-    PROSPECT,
+    Prospect("Prospect"),
     /**
      * Non-member.
      */
-    NONMEMBER
+    NonMember("Non-Member");
+
+    private final String value;
+
+    private MemberType(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public static MemberType fromString(String text) {
+        for (MemberType b : MemberType.values()) {
+            if (b.value.equalsIgnoreCase(text)) {
+                return b;
+            }
+        }
+        return null;
+    }
 }

@@ -60,4 +60,88 @@ public class PropertyKeyConstants {
      * ROSTER_PASS.
      */
     public static final String ROSTER_PASS_KEY = "ROSTER_PASS";
+
+    /**
+     * SEND_EMAIL_GRID_API_KEY.
+     */
+    public static final String SEND_GRID_EMAIL_API_KEY = "email.sendgrid.api-key";
+
+    /**
+     * SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID.
+     */
+    public static final String SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID =
+            "SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID";
+
+    /**
+     * SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID.
+     */
+    public static final String SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID =
+            "SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID";
+
+    /**
+     * SEND_GRID_FROM_ADDRESS_KEY.
+     */
+    public static final String SEND_GRID_FROM_ADDRESS_KEY = "SEND_GRID_FROM_ADDRESS_KEY";
+
+    /**
+     * SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY.
+     */
+    public static final String SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY =
+            "SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY";
+
+    /**
+     * SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY.
+     */
+    public static final String SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY =
+            "SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY";
+
+    /**
+     * EMAIL_ENABLED_KEY.
+     */
+    public static final String EMAIL_ENABLED_KEY = "EMAIL_ENABLED_KEY";
+
+    /**
+     * EMAIL_BCC_KEY.
+     */
+    public static final String EMAIL_BCC_KEY = "EMAIL_BCC_KEY";
+
+    /**
+     * SMS_ENABLED_KEY.
+     */
+    public static final String SMS_ENABLED_KEY = "SMS_ENABLED_KEY";
+
+    /**
+     * SLACK_ENABLED_KEY.
+     */
+    public static final String SLACK_ENABLED_KEY = "SLACK_ENABLED_KEY";
+
+    /**
+     * EMAIL_TEST_MODE_ENABLED_KEY.
+     */
+    public static final String EMAIL_TEST_MODE_ENABLED_KEY = "EMAIL_TEST_MODE_ENABLED_KEY";
+
+    /**
+     * SMS_TEST_MODE_ENABLED_KEY.
+     */
+    public static final String SMS_TEST_MODE_ENABLED_KEY = "SMS_TEST_MODE_ENABLED_KEY";
+
+    /**
+     * SLACK_TEST_MODE_ENABLED_KEY.
+     */
+    public static final String SLACK_TEST_MODE_ENABLED_KEY = "SLACK_TEST_MODE_ENABLED_KEY";
+
+    /**
+     * EMAIL_TEST_MODE_RECIPIENT_KEY.
+     */
+    public static final String EMAIL_TEST_MODE_RECIPIENT_KEY = "EMAIL_TEST_MODE_RECIPIENT_KEY";
+
+    /**
+     * SMS_TEST_MODE_RECIPIENT_KEY.
+     */
+    public static final String SMS_TEST_MODE_RECIPIENT_KEY = "SMS_TEST_MODE_RECIPIENT_KEY";
+
+    /**
+     * SLACK_TEST_MODE_RECIPIENT_KEY.
+     */
+    public static final String SLACK_TEST_MODE_RECIPIENT_KEY = "SLACK_TEST_MODE_RECIPIENT_KEY";
 }

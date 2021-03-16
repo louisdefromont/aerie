@@ -104,7 +104,6 @@ public class JotFormService {
      */
     @Scheduled(cron = "0 0 * * * *")
     public void getSubmissions() {
-        LOGGER.info("Called");
         try {
             final String dateStr = sdf.format(new Date());
             final JotForm client = new JotForm(propertyService.get(PropertyKeyConstants.JOTFORM_API_KEY_KEY).getValue());
@@ -138,7 +137,6 @@ public class JotFormService {
         } catch (ResourceNotFoundException rnfe) {
             LOGGER.error(rnfe);
         }
-        LOGGER.info("Finished");
     }
 
     private void parseNewMember(Map<String, Member> membersMap, JSONObject submission) {

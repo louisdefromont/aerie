@@ -45,9 +45,9 @@ public interface MemberRepository extends Repository<Member, Long> {
     /**
      * Gets all members.
      *
-     * @return list of Member
+     * @return all members
      */
-    List<Member> findAll();
+    Optional<List<Member>> findAll();
 
     /**
      * Saves a member.

@@ -17,7 +17,10 @@
 package org.eaa690.aerie.service;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +55,9 @@ public class PropertyService {
         propertyRepository = pRepository;
     }
 
+    static Cache<String, Property> propertyCache =
+            CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
+
     /**
      * Gets a property.
      *
@@ -60,9 +66,13 @@ public class PropertyService {
      * @throws ResourceNotFoundException when no property is found
      */
     public Property get(final String key) throws ResourceNotFoundException {
+        if (propertyCache.getIfPresent(key) != null) {
+            return propertyCache.getIfPresent(key);
+        }
         final Optional<Property> propertyOpt = propertyRepository.findByKey(key);
         if (propertyOpt.isPresent()) {
             final Property property = propertyOpt.get();
+            propertyCache.put(key, property);
             return property;
         }
         throw new ResourceNotFoundException(String.format(NO_PROPERTY_FOUND, key));

@@ -46,6 +46,11 @@ public class Member extends BaseEntity implements Comparable<Member> {
     private String rfid;
 
     /**
+     * Slack handle.
+     */
+    private String slack;
+
+    /**
      * First Name.
      */
     private String firstName;
@@ -138,16 +143,6 @@ public class Member extends BaseEntity implements Comparable<Member> {
     private String homePhone;
 
     /**
-     * Cell Phone.
-     */
-    private String cellPhone;
-
-    /**
-     * Email.
-     */
-    private String email;
-
-    /**
      * Ratings.
      */
     private String ratings;
@@ -203,9 +198,34 @@ public class Member extends BaseEntity implements Comparable<Member> {
     private String eaaNumber;
 
     /**
+     * Email.
+     */
+    private String email;
+
+    /**
+     * Cell Phone.
+     */
+    private String cellPhone;
+
+    /**
      * Membership Expiration.
      */
     private Date expiration;
+
+    /**
+     * Email Enabled Flag.
+     */
+    private boolean emailEnabled = false;
+
+    /**
+     * SMS Enabled Flag.
+     */
+    private boolean smsEnabled = false;
+
+    /**
+     * Slack Enabled Flag.
+     */
+    private boolean slackEnabled = false;
 
     public Long getRosterId() {
         return rosterId;
@@ -221,6 +241,14 @@ public class Member extends BaseEntity implements Comparable<Member> {
 
     public void setRfid(String rfid) {
         this.rfid = rfid;
+    }
+
+    public String getSlack() {
+        return slack;
+    }
+
+    public void setSlack(String slack) {
+        this.slack = slack;
     }
 
     public String getFirstName() {
@@ -253,6 +281,30 @@ public class Member extends BaseEntity implements Comparable<Member> {
 
     public void setExpiration(Date expiration) {
         this.expiration = expiration;
+    }
+
+    public void setSmsEnabled(boolean enabled) {
+        smsEnabled = enabled;
+    }
+
+    public boolean smsEnabled() {
+        return smsEnabled;
+    }
+
+    public void setSlackEnabled(boolean enabled) {
+        slackEnabled = enabled;
+    }
+
+    public boolean slackEnabled() {
+        return slackEnabled;
+    }
+
+    public void setEmailEnabled(boolean enabled) {
+        emailEnabled = enabled;
+    }
+
+    public boolean emailEnabled() {
+        return emailEnabled;
     }
 
     public String getNickname() {

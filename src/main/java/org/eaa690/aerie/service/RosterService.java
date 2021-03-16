@@ -16,27 +16,14 @@
 
 package org.eaa690.aerie.service;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.PrintWriter;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.sql.Types;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
-import java.sql.SQLException;
-import java.sql.DriverManager;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +35,8 @@ import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
-import org.eaa690.aerie.model.WeatherProductRepository;
+import org.eaa690.aerie.model.OtherInfo;
+import org.eaa690.aerie.model.roster.MemberType;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -179,6 +167,24 @@ public class RosterService {
     private PropertyService propertyService;
 
     /**
+     * EmailService.
+     */
+    @Autowired
+    private EmailService emailService;
+
+    /**
+     * SMSService.
+     */
+    @Autowired
+    private SMSService smsService;
+
+    /**
+     * SlackService.
+     */
+    @Autowired
+    private SlackService slackService;
+
+    /**
      * MemberRepository.
      */
     @Autowired
@@ -236,6 +242,9 @@ public class RosterService {
                 final Optional<Member> existingMemberOpt = memberRepository.findByRosterId(member.getRosterId());
                 if (existingMemberOpt.isPresent()) {
                     member.setId(existingMemberOpt.get().getId());
+                } else if (member.getMemberType() == MemberType.Regular ||
+                        member.getMemberType() == MemberType.Family) {
+                    sendNewMemberMessage(member);
                 }
                 if (member.getCreatedAt() == null) {
                     member.setCreatedAt(new Date());
@@ -248,6 +257,39 @@ public class RosterService {
         }
     }
 
+    @Scheduled(cron = "0 0 9 * * *")
+    public void sendMembershipRenewalMessages() {
+        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        final String thirtyDaysAgo = sdf.format(Date.from(Instant.now().minus(30, ChronoUnit.DAYS)));
+        final Optional<List<Member>> membersOpt = memberRepository.findAll();
+        if (membersOpt.isPresent()) {
+            membersOpt
+                    .get()
+                    .stream()
+                    .filter(member -> member.getMemberType() == MemberType.Regular ||
+                            member.getMemberType() == MemberType.Family ||
+                            member.getMemberType() == MemberType.Student)
+                    .filter(member -> {
+                        final String expirationDate = sdf.format(member.getExpiration());
+                        if (expirationDate.equals(thirtyDaysAgo)) {
+                            return true;
+                        }
+                        return false;
+                    })
+                    .forEach(member -> {
+                if (member.emailEnabled()) {
+                    emailService.sendRenewMembershipMsg(member);
+                }
+                if (member.smsEnabled()) {
+                    smsService.sendRenewMembershipMsg(member);
+                }
+                if (member.slackEnabled()) {
+                    slackService.sendRenewMembershipMsg(member);
+                }
+            });
+        }
+    }
+
     /**
      * Retrieves the member affiliated with the provided RFID.
      *
@@ -256,7 +298,7 @@ public class RosterService {
      * @throws ResourceNotFoundException when no member matches
      */
     public Member getMemberByRFID(String rfid) throws ResourceNotFoundException {
-        Optional<Member> member = memberRepository.findByRfid(rfid);
+        final Optional<Member> member = memberRepository.findByRfid(rfid);
         if (member.isPresent()) {
             return member.get();
         }
@@ -284,7 +326,7 @@ public class RosterService {
      * @return list of Member
      */
     public List<Member> getAllMembers() {
-        return memberRepository.findAll();
+        return memberRepository.findAll().get();
     }
 
     /**
@@ -511,8 +553,8 @@ public class RosterService {
                         if (columnCount == 0) {
                             member.setRosterId(Long.parseLong(column.text().trim()));
                         }
-                        if (columnCount == 2) {
-                            member.setRfid(column.text().trim());
+                        if (columnCount == 1) {
+                            member.setMemberType(MemberType.valueOf(column.text().trim().replaceAll("-", "")));
                         }
                         if (columnCount == 3) {
                             member.setFirstName(column.text().trim());
@@ -520,11 +562,22 @@ public class RosterService {
                         if (columnCount == 4) {
                             member.setLastName(column.text().trim());
                         }
+                        if (columnCount == 7) {
+                            member.setEmail(column.text().trim());
+                        }
+                        if (columnCount == 16) {
+                            member.setCellPhone(column.text().trim());
+                        }
                         if (columnCount == 18) {
                             member.setEaaNumber(column.text().trim());
                         }
                         if (columnCount == 21) {
                             member.setExpiration(SDF.parse(column.text().trim()));
+                        }
+                        if (columnCount == 22) {
+                            final OtherInfo otherInfo = new OtherInfo(column.text().trim());
+                            member.setRfid(otherInfo.getRfid());
+                            member.setSlack(otherInfo.getSlack());
                         }
                         columnCount++;
                     }
@@ -538,10 +591,17 @@ public class RosterService {
         return records;
     }
 
+    private void sendNewMemberMessage(final Member member) {
+        emailService.sendNewMembershipMsg(member);
+        smsService.sendNewMembershipMsg(member);
+        slackService.sendNewMembershipMsg(member);
+    }
+
     public void saveMember(Member member) {
         if (membersCache.size() == 0) {
             memberRepository
                     .findAll()
+                    .get()
                     .stream()
                     .forEach(m -> membersCache.put(
                             m.getEmail().toUpperCase() + m.getFirstName().toUpperCase() +
@@ -551,7 +611,7 @@ public class RosterService {
                 Arrays.asList(member.getEmail().toUpperCase() + member.getFirstName().toUpperCase() +
                         member.getLastName().toUpperCase())) != null) {
             LOGGER.info("Saving new member: " + member);
-            // If new member, send new member notifications
+            // If new member, notification will be sent upon update from roster management system
             return;
         }
         LOGGER.info("Saving renewing member: " + member);

@@ -14,47 +14,31 @@
  *  limitations under the License.
  */
 
-package org.eaa690.aerie.model;
+package org.eaa690.aerie.model.roster;
 
-import org.springframework.data.repository.Repository;
-
-import java.util.List;
-import java.util.Optional;
-
-/**
- * MemberRepository.
- */
-public interface MemberRepository extends Repository<Member, Long> {
-
+public enum State {
     /**
-     * Gets a member.
-     *
-     * @param rfid RFID
-     * @return Member
+     * Alabama.
      */
-    Optional<Member> findByRfid(String rfid);
-
+    ALABAMA,
     /**
-     * Gets a member.
-     *
-     * @param rosterId RosterID
-     * @return Member
+     * Georgia.
      */
-    Optional<Member> findByRosterId(Long rosterId);
-
+    GEORGIA,
     /**
-     * Gets all members.
-     *
-     * @return all members
+     * Florida.
      */
-    Optional<List<Member>> findAll();
-
+    FLORIDA,
     /**
-     * Saves a member.
-     *
-     * @param member Member
-     * @return Member
+     * North Carolina.
      */
-    Member save(Member member);
-
+    NORTH_CAROLINA,
+    /**
+     * South Carolina.
+     */
+    SOUTH_CAROLINA,
+    /**
+     * Tennessee.
+     */
+    TENNESSEE
 }

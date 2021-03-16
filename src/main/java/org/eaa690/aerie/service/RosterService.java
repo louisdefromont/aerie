@@ -16,34 +16,19 @@
 
 package org.eaa690.aerie.service;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.PrintWriter;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.sql.Types;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
-import java.sql.SQLException;
-import java.sql.DriverManager;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
@@ -51,13 +36,11 @@ import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
 import org.eaa690.aerie.model.OtherInfo;
-import org.eaa690.aerie.model.WeatherProductRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 
 /**
@@ -217,6 +200,12 @@ public class RosterService {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
+     * Members cache.  Used when determining if a member is new or renewing.
+     */
+    static Cache<String, Member> membersCache =
+            CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.MINUTES).build();
+
+    /**
      * Sets PropertyService.
      *
      * @param value PropertyService
@@ -238,6 +227,8 @@ public class RosterService {
 
     /**
      * Updates every 6 hours.
+     *
+     * second, minute, hour, day of month, month, day(s) of week
      */
     @Scheduled(cron = "0 0 0,6,12,18 * * *")
     public void update() {
@@ -303,6 +294,43 @@ public class RosterService {
             return member.get();
         }
         throw new ResourceNotFoundException("No member found matching RFID="+rfid);
+    }
+
+    /**
+     * Retrieves the member affiliated with the provided ID.
+     *
+     * @param id Member ID
+     * @return Member
+     * @throws ResourceNotFoundException when no member matches
+     */
+    public Member getMemberByID(Long id) throws ResourceNotFoundException {
+        Optional<Member> member = memberRepository.findByRosterId(id);
+        if (member.isPresent()) {
+            return member.get();
+        }
+        throw new ResourceNotFoundException("No member found matching ID="+id);
+    }
+
+    /**
+     * Gets all members.
+     *
+     * @return list of Member
+     */
+    public List<Member> getAllMembers() {
+        return memberRepository.findAll().get();
+    }
+
+    /**
+     * Updates a member's RFID to the provided value.
+     *
+     * @param id Member ID
+     * @param rfid new RFID value
+     * @throws ResourceNotFoundException when no member matches
+     */
+    public void updateMemberRFID(final Long id, final String rfid) throws ResourceNotFoundException {
+        final Member member = getMemberByID(id);
+        member.setRfid(rfid);
+        memberRepository.save(member);
     }
 
     /**
@@ -558,6 +586,26 @@ public class RosterService {
         emailService.sendNewMembershipMsg(member);
         smsService.sendNewMembershipMsg(member);
         slackService.sendNewMembershipMsg(member);
+    }
+
+    public void saveMember(Member member) {
+        if (membersCache.size() == 0) {
+            memberRepository
+                    .findAll()
+                    .stream()
+                    .forEach(m -> membersCache.put(
+                            m.getEmail().toUpperCase() + m.getFirstName().toUpperCase() +
+                                    m.getLastName().toUpperCase(), m));
+        }
+        if (membersCache.getAllPresent(
+                Arrays.asList(member.getEmail().toUpperCase() + member.getFirstName().toUpperCase() +
+                        member.getLastName().toUpperCase())) != null) {
+            LOGGER.info("Saving new member: " + member);
+            // If new member, send new member notifications
+            return;
+        }
+        LOGGER.info("Saving renewing member: " + member);
+        // If renewing member, send member renewal notifications
     }
 
 }

@@ -70,7 +70,7 @@ public class SlackService implements SlackMessagePostedListener {
             final String qualifier = Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue()) ? "S" : "Not s";
             LOGGER.info(String.format("%sending new membership slack message... toAddress [%s];", qualifier, to));
             if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue())) {
-                sendMessage(String.format("Welcome %s to EAA 690!", member.getFirstName()), member.getSlack());
+                sendMessage(String.format("Welcome %s to EAA 690!", member.getFirstName()), to);
             }
         } catch (ResourceNotFoundException ex) {
             LOGGER.error(ex.getMessage());
@@ -87,7 +87,7 @@ public class SlackService implements SlackMessagePostedListener {
             LOGGER.info(String.format("%sending membership renewal slack message... toAddress [%s];", qualifier, to));
             if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue())) {
                 sendMessage(String.format("Hi %s, please be sure to renew your chapter membership before %s!",
-                        member.getFirstName(), member.getExpiration()), member.getSlack());
+                        member.getFirstName(), member.getExpiration()), to);
             }
         } catch (ResourceNotFoundException ex) {
             LOGGER.error(ex.getMessage());

@@ -92,7 +92,8 @@ public class EmailService {
             if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_ENABLED_KEY).getValue())) {
                 to = propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue();
             }
-            LOGGER.info(String.format("Sending membership renewal email... toAddress [%s];", to));
+            final String qualifier = Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue()) ? "" : "Not ";
+            LOGGER.info(String.format("%sSending membership renewal email... toAddress [%s];", qualifier, to));
             final Mail mail =
                     new Mail(new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()),
                     propertyService.get(PropertyKeyConstants.SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY).getValue(),
@@ -112,9 +113,11 @@ public class EmailService {
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
             if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
-                response = sendGrid.api(request);
+                //response = sendGrid.api(request);
                 LOGGER.info(String.format("Response... statusCode [%s]; body [%s]; headers [%s]",
-                        response.getStatusCode(), response.getBody(), response.getHeaders()));
+                        //response.getStatusCode(), response.getBody(), response.getHeaders()
+                        null, null, null
+                ));
             } else {
                 LOGGER.info("Not sending email due to enabled flag set to false.");
             }

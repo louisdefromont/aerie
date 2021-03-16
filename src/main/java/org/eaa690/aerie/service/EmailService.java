@@ -87,6 +87,9 @@ public class EmailService {
      * {@inheritDoc} Required implementation.
      */
     public void sendRenewMembershipMsg(final Member member) {
+        if (member.getEmail() == null) {
+            return;
+        }
         Response response = null;
         try {
             String to = member.getEmail();
@@ -129,6 +132,9 @@ public class EmailService {
     }
 
     public void sendNewMembershipMsg(final Member member) {
+        if (member.getEmail() == null) {
+            return;
+        }
         Response response = null;
         try {
             String to = member.getEmail();

@@ -62,6 +62,9 @@ public class SlackService implements SlackMessagePostedListener {
     }
 
     public void sendNewMembershipMsg(final Member member) {
+        if (member.getSlack() == null) {
+            return;
+        }
         try {
             String to = member.getSlack();
             if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_ENABLED_KEY).getValue())) {
@@ -78,6 +81,9 @@ public class SlackService implements SlackMessagePostedListener {
     }
 
     public void sendRenewMembershipMsg(final Member member) {
+        if (member.getSlack() == null) {
+            return;
+        }
         try {
             String to = member.getSlack();
             if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_ENABLED_KEY).getValue())) {

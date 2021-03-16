@@ -546,7 +546,7 @@ public class RosterService {
                             member.setRosterId(Long.parseLong(column.text().trim()));
                         }
                         if (columnCount == 1) {
-                            member.setMemberType(MemberType.valueOf(column.text().trim()));
+                            member.setMemberType(MemberType.valueOf(column.text().trim().replaceAll("-", "")));
                         }
                         if (columnCount == 3) {
                             member.setFirstName(column.text().trim());

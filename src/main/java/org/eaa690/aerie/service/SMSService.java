@@ -89,6 +89,7 @@ public class SMSService {
      * {@inheritDoc} Required implementation.
      */
     public void sendRenewMembershipMsg(final Member member) {
+        LOGGER.info(String.format("Sending membership renewal SMS... toAddress [%s];", member.getCellPhone()));
         /* TODO: Implement this!
         final Map<String, Object> model = TemplateUtil.getModel(person, null, null, null, null, null);
         try {

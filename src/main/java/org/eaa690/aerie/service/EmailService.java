@@ -113,11 +113,9 @@ public class EmailService {
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
             if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
-                //response = sendGrid.api(request);
+                response = sendGrid.api(request);
                 LOGGER.info(String.format("Response... statusCode [%s]; body [%s]; headers [%s]",
-                        //response.getStatusCode(), response.getBody(), response.getHeaders()
-                        null, null, null
-                ));
+                        response.getStatusCode(), response.getBody(), response.getHeaders()));
             } else {
                 LOGGER.info("Not sending email due to enabled flag set to false.");
             }
@@ -154,11 +152,9 @@ public class EmailService {
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
             if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
-                //response = sendGrid.api(request);
+                response = sendGrid.api(request);
                 LOGGER.info(String.format("Response... statusCode [%s]; body [%s]; headers [%s]",
-                        //response.getStatusCode(), response.getBody(), response.getHeaders()
-                        null, null, null
-                ));
+                        response.getStatusCode(), response.getBody(), response.getHeaders()));
             } else {
                 LOGGER.info("Not sending email due to enabled flag set to false.");
             }

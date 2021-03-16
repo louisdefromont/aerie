@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import com.sendgrid.SendGrid;
+import com.sendgrid.helpers.mail.objects.Personalization;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
@@ -94,15 +95,18 @@ public class EmailService {
             }
             final String qualifier = Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue()) ? "S" : "Not s";
             LOGGER.info(String.format("%sending membership renewal email... toAddress [%s];", qualifier, to));
-            final Mail mail =
-                    new Mail(new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()),
-                    propertyService.get(PropertyKeyConstants.SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY).getValue(),
-                            new Email(to), new Content("text/html", ""));
-            mail.personalization.get(0).addSubstitution("-firstName-", member.getFirstName());
-            mail.personalization.get(0).addSubstitution("-lastName-", member.getLastName());
-            mail.personalization.get(0).addSubstitution("-expirationDate-", sdf.format(member.getExpiration()));
+            final Mail mail = new Mail();
+            mail.setSubject(propertyService.get(PropertyKeyConstants.SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY).getValue());
+            mail.setFrom(new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()));
+            final Personalization personalization = new Personalization();
+            personalization.addTo(new Email(to));
+            personalization.addBcc(new Email(propertyService.get(PropertyKeyConstants.EMAIL_BCC_KEY).getValue()));
+            personalization.addDynamicTemplateData("firstName", member.getFirstName());
+            personalization.addDynamicTemplateData("lastName", member.getLastName());
+            personalization.addDynamicTemplateData("expirationDate", sdf.format(member.getExpiration()));
             mail.setTemplateId(propertyService.get(
                     PropertyKeyConstants.SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID).getValue());
+            mail.addPersonalization(personalization);
 
             if (!sendgridInitialized) {
                 sendGrid = new SendGrid(propertyService.get(PropertyKeyConstants.SEND_GRID_EMAIL_API_KEY).getValue());
@@ -133,15 +137,18 @@ public class EmailService {
             }
             final String qualifier = Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue()) ? "S" : "Not s";
             LOGGER.info(String.format("%sending new membership email... toAddress [%s];", qualifier, to));
-            final Mail mail =
-                    new Mail(new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()),
-                            propertyService.get(PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY).getValue(),
-                            new Email(to), new Content("text/html", ""));
-            mail.personalization.get(0).addSubstitution("-firstName-", member.getFirstName());
-            mail.personalization.get(0).addSubstitution("-lastName-", member.getLastName());
-            mail.personalization.get(0).addSubstitution("-expirationDate-", sdf.format(member.getExpiration()));
+            final Mail mail = new Mail();
+            mail.setSubject(propertyService.get(PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY).getValue());
+            mail.setFrom(new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()));
+            final Personalization personalization = new Personalization();
+            personalization.addTo(new Email(to));
+            personalization.addBcc(new Email(propertyService.get(PropertyKeyConstants.EMAIL_BCC_KEY).getValue()));
+            personalization.addDynamicTemplateData("firstName", member.getFirstName());
+            personalization.addDynamicTemplateData("lastName", member.getLastName());
+            personalization.addDynamicTemplateData("expirationDate", sdf.format(member.getExpiration()));
             mail.setTemplateId(propertyService.get(
                     PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID).getValue());
+            mail.addPersonalization(personalization);
 
             if (!sendgridInitialized) {
                 sendGrid = new SendGrid(propertyService.get(PropertyKeyConstants.SEND_GRID_EMAIL_API_KEY).getValue());

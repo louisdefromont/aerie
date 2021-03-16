@@ -116,6 +116,21 @@ public class PropertyKeyConstants {
     public static final String SMS_ENABLED_KEY = "SMS_ENABLED_KEY";
 
     /**
+     * SMS_ACCOUNT_SID_KEY.
+     */
+    public static final String SMS_ACCOUNT_SID_KEY = "SMS_ACCOUNT_SID_KEY";
+
+    /**
+     * SMS_AUTH_ID_KEY.
+     */
+    public static final String SMS_AUTH_ID_KEY = "SMS_AUTH_ID_KEY";
+
+    /**
+     * SMS_FROM_ADDRESS_KEY.
+     */
+    public static final String SMS_FROM_ADDRESS_KEY = "SMS_FROM_ADDRESS_KEY";
+
+    /**
      * SLACK_ENABLED_KEY.
      */
     public static final String SLACK_ENABLED_KEY = "SLACK_ENABLED_KEY";

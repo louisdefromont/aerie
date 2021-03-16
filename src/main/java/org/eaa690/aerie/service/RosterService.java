@@ -242,7 +242,8 @@ public class RosterService {
                 final Optional<Member> existingMemberOpt = memberRepository.findByRosterId(member.getRosterId());
                 if (existingMemberOpt.isPresent()) {
                     member.setId(existingMemberOpt.get().getId());
-                } else {
+                } else if (member.getMemberType() == MemberType.Regular ||
+                        member.getMemberType() == MemberType.Family) {
                     sendNewMemberMessage(member);
                 }
                 if (member.getCreatedAt() == null) {
@@ -262,13 +263,20 @@ public class RosterService {
         final String thirtyDaysAgo = sdf.format(Date.from(Instant.now().minus(30, ChronoUnit.DAYS)));
         final Optional<List<Member>> membersOpt = memberRepository.findAll();
         if (membersOpt.isPresent()) {
-            membersOpt.get().stream().filter(member -> {
-                final String expirationDate = sdf.format(member.getExpiration());
-                if (expirationDate.equals(thirtyDaysAgo)) {
-                    return true;
-                }
-                return false;
-            }).forEach(member -> {
+            membersOpt
+                    .get()
+                    .stream()
+                    .filter(member -> member.getMemberType() == MemberType.Regular ||
+                            member.getMemberType() == MemberType.Family ||
+                            member.getMemberType() == MemberType.Student)
+                    .filter(member -> {
+                        final String expirationDate = sdf.format(member.getExpiration());
+                        if (expirationDate.equals(thirtyDaysAgo)) {
+                            return true;
+                        }
+                        return false;
+                    })
+                    .forEach(member -> {
                 if (member.emailEnabled()) {
                     emailService.sendRenewMembershipMsg(member);
                 }
@@ -603,7 +611,7 @@ public class RosterService {
                 Arrays.asList(member.getEmail().toUpperCase() + member.getFirstName().toUpperCase() +
                         member.getLastName().toUpperCase())) != null) {
             LOGGER.info("Saving new member: " + member);
-            // If new member, send new member notifications
+            // If new member, notification will be sent upon update from roster management system
             return;
         }
         LOGGER.info("Saving renewing member: " + member);

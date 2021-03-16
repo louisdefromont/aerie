@@ -36,6 +36,7 @@ import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
 import org.eaa690.aerie.model.OtherInfo;
+import org.eaa690.aerie.model.roster.MemberType;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -545,7 +546,7 @@ public class RosterService {
                             member.setRosterId(Long.parseLong(column.text().trim()));
                         }
                         if (columnCount == 1) {
-                            member.setMemberType(column.text().trim());
+                            member.setMemberType(MemberType.valueOf(column.text().trim()));
                         }
                         if (columnCount == 3) {
                             member.setFirstName(column.text().trim());
@@ -592,6 +593,7 @@ public class RosterService {
         if (membersCache.size() == 0) {
             memberRepository
                     .findAll()
+                    .get()
                     .stream()
                     .forEach(m -> membersCache.put(
                             m.getEmail().toUpperCase() + m.getFirstName().toUpperCase() +

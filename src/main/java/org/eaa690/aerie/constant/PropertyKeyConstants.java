@@ -42,6 +42,21 @@ public class PropertyKeyConstants {
     public static final String JOTFORM_API_KEY_KEY = "jotform.api-key";
 
     /**
+     * MAILCHIMP_API_KEY.
+     */
+    public static final String MAILCHIMP_API_KEY = "MAILCHIMP_API_KEY";
+
+    /**
+     * MAILCHIMP_MEMBERS_LIST_ID_KEY.
+     */
+    public static final String MAILCHIMP_MEMBERS_LIST_ID_KEY = "MAILCHIMP_MEMBERS_LIST_ID_KEY";
+
+    /**
+     * MAILCHIMP_NON_MEMBERS_LIST_ID_KEY.
+     */
+    public static final String MAILCHIMP_NON_MEMBERS_LIST_ID_KEY = "MAILCHIMP_NON_MEMBERS_LIST_ID_KEY";
+
+    /**
      * JOTFORM_NEW_MEMBER_FORM_ID_KEY.
      */
     public static final String JOTFORM_NEW_MEMBER_FORM_ID_KEY = "jotform.new-member-form-id";

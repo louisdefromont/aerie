@@ -39,7 +39,6 @@ import java.util.Map;
 /**
  * MailChimpService.
  */
-@Service
 public class MailChimpService {
 
     /**

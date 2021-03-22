@@ -46,7 +46,7 @@ public class SlackService implements SlackMessagePostedListener {
     /**
      * SimpleDateFormat.
      */
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d, yyyy");
 
     /**
      * PropertyService.

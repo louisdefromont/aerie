@@ -43,7 +43,7 @@ public class SMSService {
     /**
      * SimpleDateFormat.
      */
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d, yyyy");
 
     /**
      * PropertyService.

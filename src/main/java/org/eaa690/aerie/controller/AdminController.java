@@ -25,6 +25,8 @@ import org.eaa690.aerie.service.SlackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * AdminController.
  */
@@ -153,6 +155,14 @@ public class AdminController {
     @PostMapping(path = {"/slack/new-membership"})
     public void testNewMembershipSlack(@RequestBody Member member) {
         slackService.sendNewMembershipMsg(member);
+    }
+
+    /**
+     * Gets all Slack users.
+     */
+    @GetMapping(path = {"/slack/users"})
+    public List<String> getAllSlackUsers() {
+        return slackService.allSlackUsers();
     }
 
     /**

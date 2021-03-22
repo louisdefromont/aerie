@@ -18,9 +18,13 @@ package org.eaa690.aerie.service;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import com.ullink.slack.simpleslackapi.SlackSession;
+import com.ullink.slack.simpleslackapi.SlackUser;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
 import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener;
@@ -126,6 +130,20 @@ public class SlackService implements SlackMessagePostedListener {
                 user,
                 message);
         LOGGER.info(msg);
+    }
+
+    /**
+     * Gets all Slack users.
+     *
+     * @return list of users
+     */
+    public List<String> allSlackUsers() {
+        final List<String> users = new ArrayList<>();
+        slackSession
+                .getUsers()
+                .stream()
+                .forEach(user -> users.add(user.getUserName() + "|" + user.getRealName()));
+        return users;
     }
 
     /**

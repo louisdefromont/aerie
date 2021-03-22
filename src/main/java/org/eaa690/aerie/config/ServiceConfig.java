@@ -20,6 +20,7 @@ import org.eaa690.aerie.constant.CommonConstants;
 import org.eaa690.aerie.model.RateLimitRepository;
 import org.eaa690.aerie.model.WeatherProductRepository;
 import org.eaa690.aerie.service.JotFormService;
+import org.eaa690.aerie.service.MailChimpService;
 import org.eaa690.aerie.service.PropertyService;
 import org.eaa690.aerie.service.RosterService;
 import org.eaa690.aerie.service.WeatherService;
@@ -100,6 +101,16 @@ public class ServiceConfig {
     @Bean
     public JotFormService jotFormService() {
         return new JotFormService();
+    }
+
+    /**
+     * MailChimpService.
+     *
+     * @return MailChimpService
+     */
+    @Bean
+    public MailChimpService mailChimpService() {
+        return new MailChimpService();
     }
 
     /**

@@ -17,8 +17,14 @@
 package org.eaa690.aerie.service;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 import com.ullink.slack.simpleslackapi.SlackSession;
+import com.ullink.slack.simpleslackapi.SlackUser;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
 import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener;
@@ -40,6 +46,11 @@ public class SlackService implements SlackMessagePostedListener {
      * Logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(SlackService.class);
+
+    /**
+     * SimpleDateFormat.
+     */
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy (EEEE)");
 
     /**
      * PropertyService.
@@ -70,7 +81,9 @@ public class SlackService implements SlackMessagePostedListener {
             if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_ENABLED_KEY).getValue())) {
                 to = propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_RECIPIENT_KEY).getValue();
             }
-            final String qualifier = Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue()) ? "S" : "Not s";
+            final String qualifier =
+                    Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue()) ?
+                            "S" : "Not s";
             LOGGER.info(String.format("%sending new membership slack message... toAddress [%s];", qualifier, to));
             if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue())) {
                 sendMessage(String.format("Welcome %s to EAA 690!", member.getFirstName()), to);
@@ -85,15 +98,19 @@ public class SlackService implements SlackMessagePostedListener {
             return;
         }
         try {
+            final String expiration = member.getExpiration() != null ?
+                    sdf.format(member.getExpiration()) : sdf.format(new Date());
             String to = member.getSlack();
             if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_ENABLED_KEY).getValue())) {
                 to = propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_RECIPIENT_KEY).getValue();
             }
-            final String qualifier = Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue()) ? "S" : "Not s";
+            final String qualifier =
+                    Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue()) ?
+                            "S" : "Not s";
             LOGGER.info(String.format("%sending membership renewal slack message... toAddress [%s];", qualifier, to));
             if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue())) {
                 sendMessage(String.format("Hi %s, please be sure to renew your chapter membership before %s!",
-                        member.getFirstName(), member.getExpiration()), to);
+                        member.getFirstName(), expiration), to);
             }
         } catch (ResourceNotFoundException ex) {
             LOGGER.error(ex.getMessage());
@@ -116,6 +133,21 @@ public class SlackService implements SlackMessagePostedListener {
     }
 
     /**
+     * Gets all Slack users.
+     *
+     * @return list of users
+     */
+    public List<String> allSlackUsers() throws ResourceNotFoundException {
+        init();
+        final List<String> users = new ArrayList<>();
+        slackSession
+                .getUsers()
+                .stream()
+                .forEach(user -> users.add(user.getUserName() + "|" + user.getRealName()));
+        return users;
+    }
+
+    /**
      * Sends a message via the Slack bot.
      *
      * @param msg message to be sent
@@ -123,6 +155,11 @@ public class SlackService implements SlackMessagePostedListener {
      * @throws ResourceNotFoundException when properties are not found
      */
     private void sendMessage(final String msg, final String slackUserName) throws ResourceNotFoundException {
+        init();
+        slackSession.sendMessageToUser(slackSession.findUserByUserName(slackUserName), msg, null);
+    }
+
+    private void init() throws ResourceNotFoundException {
         if (slackSession == null || !slackSession.isConnected()) {
             slackSession = SlackSessionFactory
                     .createWebSocketSlackSession(
@@ -134,7 +171,5 @@ public class SlackService implements SlackMessagePostedListener {
                 LOGGER.error(e.getMessage(), e);
             }
         }
-        slackSession.sendMessageToUser(slackSession.findUserByUserName(slackUserName), msg, null);
     }
-
 }

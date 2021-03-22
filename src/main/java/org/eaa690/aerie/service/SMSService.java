@@ -26,6 +26,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * SMSService.
  */
@@ -36,6 +39,11 @@ public class SMSService {
      * Logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(SMSService.class);
+
+    /**
+     * SimpleDateFormat.
+     */
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy (EEEE)");
 
     /**
      * PropertyService.
@@ -63,7 +71,9 @@ public class SMSService {
             if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
                 to = propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_RECIPIENT_KEY).getValue();
             }
-            final String qualifier = Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue()) ? "S" : "Not s";
+            final String qualifier =
+                    Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue()) ?
+                            "S" : "Not s";
             LOGGER.info(String.format("%sending new membership SMS message... toAddress [%s];", qualifier, to));
             sendSMSMessage(to, propertyService.get(PropertyKeyConstants.SMS_FROM_ADDRESS_KEY).getValue(),
                     String.format("Welcome %s to EAA 690!", member.getFirstName()));
@@ -77,15 +87,19 @@ public class SMSService {
             return;
         }
         try {
+            final String expiration = member.getExpiration() != null ?
+                    sdf.format(member.getExpiration()) : sdf.format(new Date());
             String to = member.getCellPhone() != null ? member.getCellPhone() : member.getHomePhone();
             if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
                 to = propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_RECIPIENT_KEY).getValue();
             }
-            final String qualifier = Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue()) ? "S" : "Not s";
+            final String qualifier =
+                    Boolean.valueOf(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue()) ?
+                            "S" : "Not s";
             LOGGER.info(String.format("%sending new membership SMS message... toAddress [%s];", qualifier, to));
             sendSMSMessage(to, propertyService.get(PropertyKeyConstants.SMS_FROM_ADDRESS_KEY).getValue(),
                     String.format("Hi %s, please be sure to renew your EAA 690 chapter membership before %s!",
-                    member.getFirstName(), member.getExpiration()));
+                    member.getFirstName(), expiration));
         } catch (ResourceNotFoundException e) {
             LOGGER.error(e.getMessage(), e);
         }

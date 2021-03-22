@@ -18,6 +18,7 @@ package org.eaa690.aerie.service;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.objects.Personalization;
@@ -106,7 +107,11 @@ public class EmailService {
             personalization.addBcc(new Email(propertyService.get(PropertyKeyConstants.EMAIL_BCC_KEY).getValue()));
             personalization.addDynamicTemplateData("firstName", member.getFirstName());
             personalization.addDynamicTemplateData("lastName", member.getLastName());
-            personalization.addDynamicTemplateData("expirationDate", sdf.format(member.getExpiration()));
+            if (member.getExpiration() == null) {
+                personalization.addDynamicTemplateData("expirationDate", sdf.format(new Date()));
+            } else {
+                personalization.addDynamicTemplateData("expirationDate", sdf.format(member.getExpiration()));
+            }
             mail.setTemplateId(propertyService.get(
                     PropertyKeyConstants.SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID).getValue());
             mail.addPersonalization(personalization);
@@ -151,7 +156,11 @@ public class EmailService {
             personalization.addBcc(new Email(propertyService.get(PropertyKeyConstants.EMAIL_BCC_KEY).getValue()));
             personalization.addDynamicTemplateData("firstName", member.getFirstName());
             personalization.addDynamicTemplateData("lastName", member.getLastName());
-            personalization.addDynamicTemplateData("expirationDate", sdf.format(member.getExpiration()));
+            if (member.getExpiration() == null) {
+                personalization.addDynamicTemplateData("expirationDate", sdf.format(new Date()));
+            } else {
+                personalization.addDynamicTemplateData("expirationDate", sdf.format(member.getExpiration()));
+            }
             mail.setTemplateId(propertyService.get(
                     PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID).getValue());
             mail.addPersonalization(personalization);

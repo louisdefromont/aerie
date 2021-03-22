@@ -52,7 +52,7 @@ public class EmailService {
     /**
      * SimpleDateFormat.
      */
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 
     /**
      * SendGrid Initialized.
@@ -97,10 +97,14 @@ public class EmailService {
             if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_ENABLED_KEY).getValue())) {
                 to = propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue();
             }
-            final String qualifier = Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue()) ? "S" : "Not s";
+            final String qualifier =
+                    Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue()) ?
+                            "S" : "Not s";
             LOGGER.info(String.format("%sending membership renewal email... toAddress [%s];", qualifier, to));
             final Mail mail = new Mail();
-            mail.setSubject(propertyService.get(PropertyKeyConstants.SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY).getValue());
+            mail.setSubject(propertyService
+                    .get(PropertyKeyConstants.SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY)
+                    .getValue());
             mail.setFrom(new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()));
             final Personalization personalization = new Personalization();
             personalization.addTo(new Email(to));
@@ -146,10 +150,14 @@ public class EmailService {
             if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_ENABLED_KEY).getValue())) {
                 to = propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue();
             }
-            final String qualifier = Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue()) ? "S" : "Not s";
+            final String qualifier =
+                    Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue()) ?
+                            "S" : "Not s";
             LOGGER.info(String.format("%sending new membership email... toAddress [%s];", qualifier, to));
             final Mail mail = new Mail();
-            mail.setSubject(propertyService.get(PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY).getValue());
+            mail.setSubject(propertyService
+                    .get(PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY)
+                    .getValue());
             mail.setFrom(new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()));
             final Personalization personalization = new Personalization();
             personalization.addTo(new Email(to));

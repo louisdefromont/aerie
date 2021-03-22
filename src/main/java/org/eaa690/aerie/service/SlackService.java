@@ -137,7 +137,8 @@ public class SlackService implements SlackMessagePostedListener {
      *
      * @return list of users
      */
-    public List<String> allSlackUsers() {
+    public List<String> allSlackUsers() throws ResourceNotFoundException {
+        init();
         final List<String> users = new ArrayList<>();
         slackSession
                 .getUsers()
@@ -154,6 +155,11 @@ public class SlackService implements SlackMessagePostedListener {
      * @throws ResourceNotFoundException when properties are not found
      */
     private void sendMessage(final String msg, final String slackUserName) throws ResourceNotFoundException {
+        init();
+        slackSession.sendMessageToUser(slackSession.findUserByUserName(slackUserName), msg, null);
+    }
+
+    private void init() throws ResourceNotFoundException {
         if (slackSession == null || !slackSession.isConnected()) {
             slackSession = SlackSessionFactory
                     .createWebSocketSlackSession(
@@ -165,7 +171,5 @@ public class SlackService implements SlackMessagePostedListener {
                 LOGGER.error(e.getMessage(), e);
             }
         }
-        slackSession.sendMessageToUser(slackSession.findUserByUserName(slackUserName), msg, null);
     }
-
 }

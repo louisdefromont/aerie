@@ -161,7 +161,7 @@ public class AdminController {
      * Gets all Slack users.
      */
     @GetMapping(path = {"/slack/users"})
-    public List<String> getAllSlackUsers() {
+    public List<String> getAllSlackUsers() throws ResourceNotFoundException {
         return slackService.allSlackUsers();
     }
 

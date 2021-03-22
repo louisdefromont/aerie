@@ -592,9 +592,9 @@ public class RosterService {
     }
 
     private void sendNewMemberMessage(final Member member) {
-        emailService.sendNewMembershipMsg(member);
-        smsService.sendNewMembershipMsg(member);
-        slackService.sendNewMembershipMsg(member);
+        //emailService.sendNewMembershipMsg(member);
+        //smsService.sendNewMembershipMsg(member);
+        //slackService.sendNewMembershipMsg(member);
     }
 
     public void saveMember(Member member) {

@@ -19,15 +19,21 @@ package org.eaa690.aerie.service;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.objects.Personalization;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
+import org.eaa690.aerie.model.MemberRepository;
+import org.eaa690.aerie.model.QueuedEmail;
+import org.eaa690.aerie.model.QueuedEmailRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.sendgrid.Method;
@@ -63,9 +69,24 @@ public class EmailService {
     private PropertyService propertyService;
 
     /**
+     * MemberRepository.
+     */
+    private MemberRepository memberRepository;
+
+    /**
+     * QueuedEmailRepository.
+     */
+    private QueuedEmailRepository queuedEmailRepository;
+
+    /**
      * SendGrid.
      */
     private SendGrid sendGrid;
+
+    /**
+     * Count of manually sent messages.
+     */
+    private long manualMsgSentCount = 0;
 
     /**
      * Sets PropertyService.
@@ -75,6 +96,85 @@ public class EmailService {
     @Autowired
     public void setPropertyService(final PropertyService value) {
         propertyService = value;
+    }
+
+    /**
+     * Sets MemberRepository.
+     *
+     * @param mRepository MemberRepository
+     */
+    @Autowired
+    public void setMemberRepository(final MemberRepository mRepository) {
+        memberRepository = mRepository;
+    }
+
+    /**
+     * Sets QueuedEmailRepository.
+     *
+     * @param qeRepository QueuedEmailRepository
+     */
+    @Autowired
+    public void setQueuedEmailRepository(final QueuedEmailRepository qeRepository) {
+        queuedEmailRepository = qeRepository;
+    }
+
+    /**
+     * Queues email to be sent.
+     *
+     * @param templateIdKey template ID
+     * @param subjectKey subject
+     * @param member Member
+     */
+    public void queueMsg(final String templateIdKey, final String subjectKey, final Member member) {
+        queuedEmailRepository.save(new QueuedEmail(templateIdKey, subjectKey, member.getId()));
+    }
+
+    /**
+     * Gets the count of the number of queued messages.
+     *
+     * @return queued message count
+     */
+    public int getQueuedMsgCount() {
+        return queuedEmailRepository.findAll().map(List::size).orElse(0);
+    }
+
+    public void incrementManualMessageCount() {
+        manualMsgSentCount++;
+    }
+
+    /**
+     * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
+     */
+    @Scheduled(cron = "0 0 2 * * *")
+    private void clearManualMessageCount() {
+        manualMsgSentCount = 0;
+    }
+
+    /**
+     * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
+     */
+    @Scheduled(cron = "0 0 10 * * *")
+    private void processQueue() {
+        final Optional<List<QueuedEmail>> allQueuedMessages = queuedEmailRepository.findAll();
+        if (allQueuedMessages.isPresent()) {
+            try {
+                final long sendGridLimit = Long.parseLong(
+                        propertyService.get(PropertyKeyConstants.SEND_GRID_LIMIT).getValue());
+                allQueuedMessages
+                        .get()
+                        .stream()
+                        .limit(sendGridLimit - manualMsgSentCount)
+                        .forEach(qe -> {
+                            final Optional<Member> memberOpt = memberRepository.findById(qe.getMemberId());
+                            if (memberOpt.isPresent()) {
+                                sendMsg(qe.getTemplateIdKey(), qe.getSubjectKey(), memberOpt.get());
+                                queuedEmailRepository.delete(qe);
+                            }
+                        });
+            } catch (ResourceNotFoundException e) {
+                LOGGER.error("Error", e);
+            }
+        }
     }
 
     /**
@@ -118,7 +218,7 @@ public class EmailService {
      * @return Personalization
      * @throws ResourceNotFoundException when property is not found
      */
-    private Personalization personalize(Member member, String to) throws ResourceNotFoundException {
+    private Personalization personalize(final Member member, final String to) throws ResourceNotFoundException {
         final Personalization personalization = new Personalization();
         personalization.addTo(new Email(to));
         personalization.addBcc(new Email(propertyService.get(PropertyKeyConstants.EMAIL_BCC_KEY).getValue()));
@@ -139,7 +239,7 @@ public class EmailService {
      * @throws ResourceNotFoundException when property is not found
      * @throws IOException upon message delivery failure
      */
-    private void sendEmail(Mail mail) throws ResourceNotFoundException, IOException {
+    private void sendEmail(final Mail mail) throws ResourceNotFoundException, IOException {
         if (!sendgridInitialized) {
             sendGrid = new SendGrid(propertyService
                     .get(PropertyKeyConstants.SEND_GRID_EMAIL_API_KEY).getValue());

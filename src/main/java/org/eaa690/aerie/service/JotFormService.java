@@ -21,6 +21,7 @@ import com.google.common.cache.CacheBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
+import org.eaa690.aerie.exception.ResourceExistsException;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.JotForm;
 import org.eaa690.aerie.model.Member;
@@ -78,6 +79,12 @@ public class JotFormService {
     private RosterService rosterService;
 
     /**
+     * EmailService.
+     */
+    @Autowired
+    private EmailService emailService;
+
+    /**
      * Sets PropertyService.
      *
      * @param value PropertyService
@@ -95,6 +102,16 @@ public class JotFormService {
     @Autowired
     public void setRosterService(final RosterService value) {
         rosterService = value;
+    }
+
+    /**
+     * Sets EmailService.
+     *
+     * @param value EmailService
+     */
+    @Autowired
+    public void setEmailService(final EmailService value) {
+        emailService = value;
     }
 
     /**
@@ -121,7 +138,8 @@ public class JotFormService {
      * @param client JotFormClient
      * @throws ResourceNotFoundException when property is not found
      */
-    private void processRenewingMemberSubmissions(String dateStr, JotForm client) throws ResourceNotFoundException {
+    private void processRenewingMemberSubmissions(final String dateStr, final JotForm client)
+            throws ResourceNotFoundException {
         final HashMap<String, String> submissionFilter = new HashMap<>();
         final Map<String, Member> renewMembersMap = new HashMap<>();
         submissionFilter.put("id:gt",
@@ -148,7 +166,8 @@ public class JotFormService {
      * @param client JotFormClient
      * @throws ResourceNotFoundException when property is not found
      */
-    private void processNewMemberSubmissions(String dateStr, JotForm client) throws ResourceNotFoundException {
+    private void processNewMemberSubmissions(final String dateStr, final JotForm client)
+            throws ResourceNotFoundException {
         final HashMap<String, String> submissionFilter = new HashMap<>();
         submissionFilter.put("id:gt",
                 propertyService.get(PropertyKeyConstants.JOTFORM_NEW_MEMBER_FORM_ID_KEY).getValue());
@@ -161,8 +180,16 @@ public class JotFormService {
             LOGGER.info("NewMembersMap size is " + newMembersMap.size());
             for (String key : newMembersMap.keySet()) {
                 if (submissionsCache.getIfPresent(key) == null) {
-                    submissionsCache.put(key, key);
-                    rosterService.saveNewMember(newMembersMap.get(key));
+                    try {
+                        final Member member = rosterService.saveNewMember(newMembersMap.get(key));
+                        submissionsCache.put(key, key);
+                        emailService.queueMsg(
+                                PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID,
+                                PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY,
+                                member);
+                    } catch (ResourceExistsException e) {
+                        LOGGER.error("Error", e);
+                    }
                 }
             }
         }
@@ -174,7 +201,7 @@ public class JotFormService {
      * @param membersMap map of new members
      * @param submission JotForm
      */
-    private void parseNewMember(Map<String, Member> membersMap, JSONObject submission) {
+    private void parseNewMember(final Map<String, Member> membersMap, final JSONObject submission) {
         final JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
             final Member member = new Member();
@@ -203,7 +230,7 @@ public class JotFormService {
      * @param membersMap map of new members
      * @param submission JotForm
      */
-    private void parseRenewingMember(Map<String, Member> membersMap, JSONObject submission) {
+    private void parseRenewingMember(final Map<String, Member> membersMap, final JSONObject submission) {
         final JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
             final Member member = new Member();
@@ -232,7 +259,7 @@ public class JotFormService {
      * @param otherInfoBuilder OtherInfoBuilder
      * @param answers JotForm
      */
-    private void parseNumOfFamily(OtherInfoBuilder otherInfoBuilder, JSONObject answers) {
+    private void parseNumOfFamily(final OtherInfoBuilder otherInfoBuilder, final JSONObject answers) {
         if (answers.has("17")) {
             JSONObject numOfFamily = answers.getJSONObject("17");
             if (numOfFamily.has(ANSWER)) {
@@ -247,7 +274,7 @@ public class JotFormService {
      * @param member Member
      * @param answers JotForm
      */
-    private void parseMembershipType(Member member, JSONObject answers) {
+    private void parseMembershipType(final Member member, final JSONObject answers) {
         if (answers.has("16")) {
             // TODO
             //JSONObject membershipType = answers.getJSONObject("16");
@@ -261,7 +288,7 @@ public class JotFormService {
      * @param member Member
      * @param answers JotForm
      */
-    private void parseEAANumber(Member member, JSONObject answers) {
+    private void parseEAANumber(final Member member, final JSONObject answers) {
         if (answers.has("15")) {
             JSONObject eaaNumber = answers.getJSONObject("15");
             if (eaaNumber.has(ANSWER)) {
@@ -276,7 +303,7 @@ public class JotFormService {
      * @param otherInfoBuilder OtherInfoBuilder
      * @param answers JotForm
      */
-    private void parseAdditionalInfo(OtherInfoBuilder otherInfoBuilder, JSONObject answers) {
+    private void parseAdditionalInfo(final OtherInfoBuilder otherInfoBuilder, final JSONObject answers) {
         if (answers.has("11")) {
             JSONObject additionalInfo = answers.getJSONObject("11");
             if (additionalInfo.has(ANSWER)) {
@@ -291,7 +318,7 @@ public class JotFormService {
      * @param otherInfoBuilder OtherInfoBuilder
      * @param answers JotForm
      */
-    private void parseAdditionalFamily(OtherInfoBuilder otherInfoBuilder, JSONObject answers) {
+    private void parseAdditionalFamily(final OtherInfoBuilder otherInfoBuilder, final JSONObject answers) {
         if (answers.has("9")) {
             final JSONObject additionalFamily = answers.getJSONObject("9");
             if (additionalFamily.has(ANSWER)) {
@@ -306,7 +333,7 @@ public class JotFormService {
      * @param member Member
      * @param answers JotForm
      */
-    private void parseEmail(Member member, JSONObject answers) {
+    private void parseEmail(final Member member, final JSONObject answers) {
         if (answers.has("6")) {
             final JSONObject email = answers.getJSONObject("6");
             if (email.has(ANSWER)) {
@@ -321,7 +348,7 @@ public class JotFormService {
      * @param member Member
      * @param answers JotForm
      */
-    private void parsePhone(Member member, JSONObject answers) {
+    private void parsePhone(final Member member, final JSONObject answers) {
         if (answers.has("5")) {
             final JSONObject phone = answers.getJSONObject("5");
             if (phone.has(ANSWER)) {
@@ -339,7 +366,7 @@ public class JotFormService {
      * @param member Member
      * @param answers JotForm
      */
-    private void parseAddress(Member member, JSONObject answers) {
+    private void parseAddress(final Member member, final JSONObject answers) {
         if (answers.has("4")) {
             final JSONObject address = answers.getJSONObject("4");
             if (address.has(ANSWER)) {
@@ -366,7 +393,7 @@ public class JotFormService {
      * @param member Member
      * @param answers JotForm
      */
-    private void parseName(Member member, JSONObject answers) {
+    private void parseName(final Member member, final JSONObject answers) {
         if (answers.has("3")) {
             final JSONObject fullName = answers.getJSONObject("3");
             if (fullName.has(ANSWER)) {
@@ -387,7 +414,7 @@ public class JotFormService {
      * @param state String
      * @return enum
      */
-    private State deriveState(String state) {
+    private State deriveState(final String state) {
         if ("AL".equalsIgnoreCase(state)) {
             return State.ALABAMA;
         } else if ("FL".equalsIgnoreCase(state)) {

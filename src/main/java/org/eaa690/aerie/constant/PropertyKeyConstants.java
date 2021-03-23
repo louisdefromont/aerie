@@ -122,6 +122,11 @@ public class PropertyKeyConstants {
     public static final String SEND_GRID_FROM_ADDRESS_KEY = "SEND_GRID_FROM_ADDRESS_KEY";
 
     /**
+     * SEND_GRID_LIMIT.
+     */
+    public static final String SEND_GRID_LIMIT = "SEND_GRID_LIMIT";
+
+    /**
      * SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY.
      */
     public static final String SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY =

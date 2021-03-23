@@ -16,6 +16,7 @@
 
 package org.eaa690.aerie.controller;
 
+import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.service.EmailService;
@@ -100,27 +101,51 @@ public class AdminController {
     /**
      * Sends a renew membership email to the provided address.
      *
-     * @param Member member
+     * @param member Member
      */
-    @PostMapping(path = {"/email/renew-membership"})
-    public void testRenewMembershipEmail(@RequestBody Member member) {
-        emailService.sendRenewMembershipMsg(member);
+    @PostMapping(path = {"/email/renew-membership/{order}"})
+    public void testRenewMembershipEmail(@PathVariable("order") final String order, @RequestBody final Member member) {
+        switch (order) {
+            case "first":
+                emailService.sendMsg(
+                        PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
+                        PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
+                        member);
+                break;
+            case "second":
+                emailService.sendMsg(
+                        PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
+                        PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
+                        member);
+                break;
+            case "third":
+                emailService.sendMsg(
+                        PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
+                        PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
+                        member);
+                break;
+            default:
+                // Do nothing
+        }
     }
 
     /**
      * Sends a new membership email to the provided address.
      *
-     * @param Member member
+     * @param member Member
      */
     @PostMapping(path = {"/email/new-membership"})
     public void testNewMembershipEmail(@RequestBody Member member) {
-        emailService.sendNewMembershipMsg(member);
+        emailService.sendMsg(
+                PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID,
+                PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY,
+                member);
     }
 
     /**
      * Sends a renew membership SMS to the provided address.
      *
-     * @param Member member
+     * @param member Member
      */
     @PostMapping(path = {"/sms/renew-membership"})
     public void testRenewMembershipSMS(@RequestBody Member member) {
@@ -130,7 +155,7 @@ public class AdminController {
     /**
      * Sends a new membership SMS to the provided address.
      *
-     * @param Member member
+     * @param member Member
      */
     @PostMapping(path = {"/sms/new-membership"})
     public void testNewMembershipSMS(@RequestBody Member member) {
@@ -140,7 +165,7 @@ public class AdminController {
     /**
      * Sends a renew membership Slack message to the provided address.
      *
-     * @param Member member
+     * @param member Member
      */
     @PostMapping(path = {"/slack/renew-membership"})
     public void testRenewMembershipSlack(@RequestBody Member member) {
@@ -150,7 +175,7 @@ public class AdminController {
     /**
      * Sends a new membership Slack message to the provided address.
      *
-     * @param Member member
+     * @param member Member
      */
     @PostMapping(path = {"/slack/new-membership"})
     public void testNewMembershipSlack(@RequestBody Member member) {
@@ -168,7 +193,7 @@ public class AdminController {
     /**
      * Adds a person to the member audience in Mail Chimp.
      *
-     * @param Member member
+     * @param member Member
      */
     @PostMapping(path = {"/mailchimp/add-member"})
     public void addOrUpdateMemberToMailChimp(@RequestBody Member member) throws ResourceNotFoundException {
@@ -178,7 +203,7 @@ public class AdminController {
     /**
      * Adds a person to the non-member audience in Mail Chimp.
      *
-     * @param Member member
+     * @param member Member
      */
     @PostMapping(path = {"/mailchimp/add-non-member"})
     public void addOrUpdateNonMemberToMailChimp(@RequestBody Member member) throws ResourceNotFoundException {

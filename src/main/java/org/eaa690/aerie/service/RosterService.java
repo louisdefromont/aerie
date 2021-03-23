@@ -201,12 +201,6 @@ public class RosterService {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
-     * Members cache.  Used when determining if a member is new or renewing.
-     */
-    static Cache<String, Member> membersCache =
-            CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.MINUTES).build();
-
-    /**
      * Sets PropertyService.
      *
      * @param value PropertyService
@@ -239,13 +233,9 @@ public class RosterService {
             getSearchMembersPage();
             final List<Member> members = parseRecords();
             for (Member member : members) {
-                final Optional<Member> existingMemberOpt = memberRepository.findByRosterId(member.getRosterId());
-                if (existingMemberOpt.isPresent()) {
-                    member.setId(existingMemberOpt.get().getId());
-                } else if (member.getMemberType() == MemberType.Regular ||
-                        member.getMemberType() == MemberType.Family) {
-                    sendNewMemberMessage(member);
-                }
+                memberRepository
+                        .findByRosterId(member.getRosterId())
+                        .ifPresent(value -> member.setId(value.getId()));
                 if (member.getCreatedAt() == null) {
                     member.setCreatedAt(new Date());
                 }
@@ -259,35 +249,47 @@ public class RosterService {
 
     @Scheduled(cron = "0 0 9 * * *")
     public void sendMembershipRenewalMessages() {
-        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        final String thirtyDaysAgo = sdf.format(Date.from(Instant.now().minus(30, ChronoUnit.DAYS)));
-        final Optional<List<Member>> membersOpt = memberRepository.findAll();
-        if (membersOpt.isPresent()) {
-            membersOpt
-                    .get()
-                    .stream()
-                    .filter(member -> member.getMemberType() == MemberType.Regular ||
-                            member.getMemberType() == MemberType.Family ||
-                            member.getMemberType() == MemberType.Student)
-                    .filter(member -> {
-                        final String expirationDate = sdf.format(member.getExpiration());
-                        if (expirationDate.equals(thirtyDaysAgo)) {
-                            return true;
-                        }
-                        return false;
-                    })
-                    .forEach(member -> {
-                if (member.emailEnabled()) {
-                    emailService.sendRenewMembershipMsg(member);
-                }
-                if (member.smsEnabled()) {
-                    smsService.sendRenewMembershipMsg(member);
-                }
-                if (member.slackEnabled()) {
-                    slackService.sendRenewMembershipMsg(member);
-                }
-            });
-        }
+        memberRepository
+                .findAll()
+                .ifPresent(members -> members
+                        .stream()
+                        .filter(member -> member.getMemberType() == MemberType.Regular ||
+                                member.getMemberType() == MemberType.Family ||
+                                member.getMemberType() == MemberType.Student)
+                        .forEach(member -> {
+                            try {
+                                final String expirationDate = SDF.format(member.getExpiration());
+                                if (expirationDate.equals(
+                                        getDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_FIRST_MSG_DAYS_KEY))) {
+                                    emailService.sendMsg(
+                                            PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
+                                            PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
+                                            member);
+                                    smsService.sendRenewMembershipMsg(member);
+                                    slackService.sendRenewMembershipMsg(member);
+                                }
+                                if (expirationDate.equals(
+                                        getDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_SECOND_MSG_DAYS_KEY))) {
+                                    emailService.sendMsg(
+                                            PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
+                                            PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
+                                            member);
+                                    smsService.sendRenewMembershipMsg(member);
+                                    slackService.sendRenewMembershipMsg(member);
+                                }
+                                if (expirationDate.equals(
+                                        getDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_THIRD_MSG_DAYS_KEY))) {
+                                    emailService.sendMsg(
+                                            PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
+                                            PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
+                                            member);
+                                    smsService.sendRenewMembershipMsg(member);
+                                    slackService.sendRenewMembershipMsg(member);
+                                }
+                            } catch (ResourceNotFoundException rnfe) {
+                                LOGGER.error("Error", rnfe);
+                            }
+                        }));
     }
 
     /**
@@ -343,6 +345,26 @@ public class RosterService {
     }
 
     /**
+     * Saves member information to roster.
+     *
+     * @param member Member to be saved
+     */
+    public void saveNewMember(final Member member) {
+        // TODO
+        LOGGER.info("Saving new member: " + member);
+    }
+
+    /**
+     * Saves member information to roster.
+     *
+     * @param member Member to be saved
+     */
+    public void saveRenewingMember(final Member member) {
+        // TODO
+        LOGGER.info("Saving renewing member: " + member);
+    }
+
+    /**
      * Performs login to EAA's roster management system.
      */
     private void doLogin() {
@@ -358,8 +380,7 @@ public class RosterService {
         final HttpRequest request = builder.build();
 
         try {
-            HttpResponse<String> response = client.send(request,
-                    HttpResponse.BodyHandlers.ofString());
+            client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
             System.out.println("[Login] Error: " + e.getMessage());
         }
@@ -591,31 +612,20 @@ public class RosterService {
         return records;
     }
 
-    private void sendNewMemberMessage(final Member member) {
-        //emailService.sendNewMembershipMsg(member);
-        //smsService.sendNewMembershipMsg(member);
-        //slackService.sendNewMembershipMsg(member);
-    }
-
-    public void saveMember(Member member) {
-        if (membersCache.size() == 0) {
-            memberRepository
-                    .findAll()
-                    .get()
-                    .stream()
-                    .forEach(m -> membersCache.put(
-                            m.getEmail().toUpperCase() + m.getFirstName().toUpperCase() +
-                                    m.getLastName().toUpperCase(), m));
-        }
-        if (membersCache.getAllPresent(
-                Arrays.asList(member.getEmail().toUpperCase() + member.getFirstName().toUpperCase() +
-                        member.getLastName().toUpperCase())) != null) {
-            LOGGER.info("Saving new member: " + member);
-            // If new member, notification will be sent upon update from roster management system
-            return;
-        }
-        LOGGER.info("Saving renewing member: " + member);
-        // If renewing member, send member renewal notifications
+    /**
+     * Gets date string for provided property key.
+     *
+     * @param key proprty key
+     * @return date string
+     * @throws ResourceNotFoundException when property not found
+     */
+    private String getDateStr(String key) throws ResourceNotFoundException {
+        return SDF.format(Date.from(Instant
+                .now()
+                .plus(Integer.parseInt(propertyService
+                                .get(key)
+                                .getValue()),
+                        ChronoUnit.DAYS)));
     }
 
 }

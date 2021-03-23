@@ -25,7 +25,6 @@ import com.sendgrid.helpers.mail.objects.Personalization;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
-import org.eaa690.aerie.model.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,6 @@ import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 
 /**
@@ -70,11 +68,6 @@ public class EmailService {
     private SendGrid sendGrid;
 
     /**
-     * Flag to indicate if Freemarker Configuration has been initialized.
-     */
-    private boolean freemarkerConfigurationInitialized = false;
-
-    /**
      * Sets PropertyService.
      *
      * @param value PropertyService
@@ -85,111 +78,84 @@ public class EmailService {
     }
 
     /**
-     * {@inheritDoc} Required implementation.
+     * Sends email to a member.
+     *
+     * @param member Member to be messaged
      */
-    public void sendRenewMembershipMsg(final Member member) {
-        if (member.getEmail() == null) {
+    public void sendMsg(final String templateIdKey, final String subjectKey, final Member member) {
+        if (member == null || member.getEmail() == null) {
             return;
         }
-        Response response = null;
-        try {
-            String to = member.getEmail();
-            if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_ENABLED_KEY).getValue())) {
-                to = propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue();
+        if (member.emailEnabled()) {
+            try {
+                String to = member.getEmail();
+                if (Boolean.parseBoolean(
+                        propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_ENABLED_KEY).getValue())) {
+                    to = propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue();
+                }
+                final String qualifier =
+                        Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue()) ?
+                                "S" : "Not s";
+                LOGGER.info(String.format("%sending email... toAddress [%s];", qualifier, to));
+                final Mail mail = new Mail();
+                mail.setSubject(propertyService.get(subjectKey).getValue());
+                mail.setTemplateId(propertyService.get(templateIdKey).getValue());
+                mail.setFrom(new Email(propertyService
+                        .get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()));
+                mail.addPersonalization(personalize(member, to));
+                sendEmail(mail);
+            } catch (IOException | ResourceNotFoundException ex) {
+                LOGGER.error(ex.getMessage());
             }
-            final String qualifier =
-                    Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue()) ?
-                            "S" : "Not s";
-            LOGGER.info(String.format("%sending membership renewal email... toAddress [%s];", qualifier, to));
-            final Mail mail = new Mail();
-            mail.setSubject(propertyService
-                    .get(PropertyKeyConstants.SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY)
-                    .getValue());
-            mail.setFrom(new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()));
-            final Personalization personalization = new Personalization();
-            personalization.addTo(new Email(to));
-            personalization.addBcc(new Email(propertyService.get(PropertyKeyConstants.EMAIL_BCC_KEY).getValue()));
-            personalization.addDynamicTemplateData("firstName", member.getFirstName());
-            personalization.addDynamicTemplateData("lastName", member.getLastName());
-            if (member.getExpiration() == null) {
-                personalization.addDynamicTemplateData("expirationDate", sdf.format(new Date()));
-            } else {
-                personalization.addDynamicTemplateData("expirationDate", sdf.format(member.getExpiration()));
-            }
-            mail.setTemplateId(propertyService.get(
-                    PropertyKeyConstants.SEND_GRID_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID).getValue());
-            mail.addPersonalization(personalization);
-
-            if (!sendgridInitialized) {
-                sendGrid = new SendGrid(propertyService.get(PropertyKeyConstants.SEND_GRID_EMAIL_API_KEY).getValue());
-                sendgridInitialized = true;
-            }
-            final Request request = new Request();
-            request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
-            request.setBody(mail.build());
-            if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
-                response = sendGrid.api(request);
-                LOGGER.info(String.format("Response... statusCode [%s]; body [%s]; headers [%s]",
-                        response.getStatusCode(), response.getBody(), response.getHeaders()));
-            } else {
-                LOGGER.info("Not sending email due to enabled flag set to false.");
-            }
-        } catch (IOException | ResourceNotFoundException ex) {
-            LOGGER.error(ex.getMessage());
         }
     }
 
-    public void sendNewMembershipMsg(final Member member) {
-        if (member.getEmail() == null) {
-            return;
+    /**
+     * Personalizes an email to the member.
+     *
+     * @param member Member
+     * @param to address
+     * @return Personalization
+     * @throws ResourceNotFoundException when property is not found
+     */
+    private Personalization personalize(Member member, String to) throws ResourceNotFoundException {
+        final Personalization personalization = new Personalization();
+        personalization.addTo(new Email(to));
+        personalization.addBcc(new Email(propertyService.get(PropertyKeyConstants.EMAIL_BCC_KEY).getValue()));
+        personalization.addDynamicTemplateData("firstName", member.getFirstName());
+        personalization.addDynamicTemplateData("lastName", member.getLastName());
+        if (member.getExpiration() == null) {
+            personalization.addDynamicTemplateData("expirationDate", sdf.format(new Date()));
+        } else {
+            personalization.addDynamicTemplateData("expirationDate", sdf.format(member.getExpiration()));
         }
-        Response response = null;
-        try {
-            String to = member.getEmail();
-            if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_ENABLED_KEY).getValue())) {
-                to = propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue();
-            }
-            final String qualifier =
-                    Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue()) ?
-                            "S" : "Not s";
-            LOGGER.info(String.format("%sending new membership email... toAddress [%s];", qualifier, to));
-            final Mail mail = new Mail();
-            mail.setSubject(propertyService
-                    .get(PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY)
-                    .getValue());
-            mail.setFrom(new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()));
-            final Personalization personalization = new Personalization();
-            personalization.addTo(new Email(to));
-            personalization.addBcc(new Email(propertyService.get(PropertyKeyConstants.EMAIL_BCC_KEY).getValue()));
-            personalization.addDynamicTemplateData("firstName", member.getFirstName());
-            personalization.addDynamicTemplateData("lastName", member.getLastName());
-            if (member.getExpiration() == null) {
-                personalization.addDynamicTemplateData("expirationDate", sdf.format(new Date()));
-            } else {
-                personalization.addDynamicTemplateData("expirationDate", sdf.format(member.getExpiration()));
-            }
-            mail.setTemplateId(propertyService.get(
-                    PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID).getValue());
-            mail.addPersonalization(personalization);
+        return personalization;
+    }
 
-            if (!sendgridInitialized) {
-                sendGrid = new SendGrid(propertyService.get(PropertyKeyConstants.SEND_GRID_EMAIL_API_KEY).getValue());
-                sendgridInitialized = true;
-            }
-            final Request request = new Request();
-            request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
-            request.setBody(mail.build());
-            if (Boolean.valueOf(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
-                response = sendGrid.api(request);
-                LOGGER.info(String.format("Response... statusCode [%s]; body [%s]; headers [%s]",
-                        response.getStatusCode(), response.getBody(), response.getHeaders()));
-            } else {
-                LOGGER.info("Not sending email due to enabled flag set to false.");
-            }
-        } catch (IOException | ResourceNotFoundException ex) {
-            LOGGER.error(ex.getMessage());
+    /**
+     * Sends email to member.
+     *
+     * @param mail message
+     * @throws ResourceNotFoundException when property is not found
+     * @throws IOException upon message delivery failure
+     */
+    private void sendEmail(Mail mail) throws ResourceNotFoundException, IOException {
+        if (!sendgridInitialized) {
+            sendGrid = new SendGrid(propertyService
+                    .get(PropertyKeyConstants.SEND_GRID_EMAIL_API_KEY).getValue());
+            sendgridInitialized = true;
+        }
+        final Request request = new Request();
+        request.setMethod(Method.POST);
+        request.setEndpoint("mail/send");
+        request.setBody(mail.build());
+        if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
+            final Response response = sendGrid.api(request);
+            LOGGER.info(String.format("Response... statusCode [%s]; body [%s]; headers [%s]",
+                    response.getStatusCode(), response.getBody(), response.getHeaders()));
+        } else {
+            LOGGER.info("Not sending email due to enabled flag set to false.");
         }
     }
+
 }

@@ -37,6 +37,11 @@ public class PropertyKeyConstants {
     public static final String CHECK_WX_API_KEY_KEY = "weather.checkwx.api-key";
 
     /**
+     * JOTFORM_BASE_URL_KEY.
+     */
+    public static final String JOTFORM_BASE_URL_KEY = "jotform.base-url";
+
+    /**
      * JOTFORM_API_KEY.
      */
     public static final String JOTFORM_API_KEY_KEY = "jotform.api-key";
@@ -80,6 +85,16 @@ public class PropertyKeyConstants {
      * ROSTER_PASS.
      */
     public static final String ROSTER_PASS_KEY = "ROSTER_PASS";
+
+    /**
+     * TINY_URL_API_KEY.
+     */
+    public static final String TINY_URL_API_KEY = "tiny-url.api-key";
+
+    /**
+     * TINY_URL_CREATE_API_KEY.
+     */
+    public static final String TINY_URL_CREATE_API_KEY = "tiny-url.api.create";
 
     /**
      * SEND_EMAIL_GRID_API_KEY.

@@ -128,6 +128,11 @@ public class RosterService {
     private final static String EXPORT_BUTTON = "ctl00$ContentPlaceHolder1$btnExport";
 
     /**
+     * eaachapters.org search button variable.
+     */
+    private final static String SEARCH_BUTTON = "ctl00$ContentPlaceHolder1$btnSearch=Search";
+
+    /**
      * eaachapters.org status variable.
      */
     private final static String STATUS = "ctl00$ContentPlaceHolder1$ddlStatus";
@@ -325,7 +330,7 @@ public class RosterService {
      * @return list of Member
      */
     public List<Member> getAllMembers() {
-        return memberRepository.findAll().get();
+        return memberRepository.findAll().orElse(null);
     }
 
     /**
@@ -347,8 +352,17 @@ public class RosterService {
      * @param member Member to be saved
      */
     public Member saveNewMember(final Member member) throws ResourceExistsException {
-        // TODO
         LOGGER.info("Saving new member: " + member);
+        try {
+            getHttpHeaders();
+            doLogin();
+            getSearchMembersPage();
+            if (!existsUser(member.getFirstName(), member.getLastName())) {
+                // TODO: add user
+            }
+        } catch (ResourceNotFoundException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
         return member;
     }
 
@@ -357,9 +371,19 @@ public class RosterService {
      *
      * @param member Member to be saved
      */
-    public void saveRenewingMember(final Member member) {
-        // TODO
+    public Member saveRenewingMember(final Member member) {
         LOGGER.info("Saving renewing member: " + member);
+        try {
+            getHttpHeaders();
+            doLogin();
+            getSearchMembersPage();
+            if (existsUser(member.getFirstName(), member.getLastName())) {
+                // TODO: update user
+            }
+        } catch (ResourceNotFoundException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return member;
     }
 
     /**
@@ -412,6 +436,34 @@ public class RosterService {
     }
 
     /**
+     * Checks if a user exists in EAA's roster management system.
+     */
+    private boolean existsUser(final String firstName, final String lastName) {
+        final String uriStr = EAA_CHAPTERS_SITE_BASE + "/searchmembers.aspx";
+        final String requestBodyStr = buildExistsUserRequestBodyString(firstName, lastName);
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(uriStr))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBodyStr));
+        headers.remove(VIEW_STATE);
+        headers.put(ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+        for (final String key : headers.keySet()) {
+            builder.setHeader(key, headers.get(key));
+        }
+        final HttpRequest request = builder.build();
+
+        StringBuilder sb = new StringBuilder();
+        try {
+            HttpResponse<String> response = client.send(request,
+                    HttpResponse.BodyHandlers.ofString());
+            sb.append(response.body());
+        } catch (Exception e) {
+            System.out.println("[FETCH] Error: " + e.getMessage());
+        }
+        return sb.toString().contains("lnkViewUpdateMember");
+    }
+
+    /**
      * Fetch's data from EAA's roster management system.
      */
     private String fetchData() {
@@ -445,7 +497,7 @@ public class RosterService {
         try {
             final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             final HttpHeaders responseHeaders = response.headers();
-            final String cookieStr = responseHeaders.firstValue("set-cookie").get();
+            final String cookieStr = responseHeaders.firstValue("set-cookie").orElse("");
             headers.put("cookie", cookieStr.substring(0, cookieStr.indexOf(";")));
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
@@ -522,6 +574,50 @@ public class RosterService {
         data.add(SEARCH_MEMBER_TYPE);
         data.add(CURRENT_STATUS);
         data.add(ROW_COUNT);
+        for (final String key : headers.keySet()) {
+            if (data.contains(key)) {
+                if (sb.length() > 0) {
+                    sb.append("&");
+                }
+                if (FIRST_NAME.equals(key) ||
+                        LAST_NAME.equals(key) ||
+                        EXPORT_BUTTON.equals(key) ||
+                        STATUS.equals(key) ||
+                        SEARCH_MEMBER_TYPE.equals(key) ||
+                        CURRENT_STATUS.equals(key) ||
+                        ROW_COUNT.equals(key)) {
+                    sb.append(key.replaceAll("\\$", "%24"));
+                } else {
+                    sb.append(key);
+                }
+                sb.append("=");
+                if (VIEW_STATE.equals(key) || EVENT_VALIDATION.equals(key)) {
+                    sb.append(headers.get(key)
+                            .replaceAll("/", "%2F")
+                            .replaceAll("=", "%3D")
+                            .replaceAll("\\+", "%2B"));
+                } else {
+                    sb.append(headers.get(key));
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    private String buildExistsUserRequestBodyString(final String firstName, final String lastName) {
+        final StringBuilder sb = new StringBuilder();
+        final List<String> data = new ArrayList<>();
+        data.add(EVENT_TARGET);
+        data.add(EVENT_ARGUMENT);
+        data.add(VIEW_STATE);
+        data.add(VIEW_STATE_GENERATOR);
+        data.add(VIEW_STATE_ENCRYPTED);
+        data.add(SEARCH_BUTTON);
+        data.add(FIRST_NAME + "=" + firstName);
+        data.add(LAST_NAME + "=" + lastName);
+        data.add(STATUS + "=Active");
+        data.add(SEARCH_MEMBER_TYPE);
+        data.add(CURRENT_STATUS);
         for (final String key : headers.keySet()) {
             if (data.contains(key)) {
                 if (sb.length() > 0) {

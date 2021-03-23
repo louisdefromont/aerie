@@ -50,6 +50,11 @@ public class SMSService {
      */
     private PropertyService propertyService;
 
+    /**
+     * JotFormService.
+     */
+    private JotFormService jotFormService;
+
     private boolean twilioInitialized = false;
 
     /**
@@ -60,6 +65,16 @@ public class SMSService {
     @Autowired
     public void setPropertyService(final PropertyService value) {
         propertyService = value;
+    }
+
+    /**
+     * Sets JotFormService.
+     *
+     * @param value JotFormService
+     */
+    @Autowired
+    public void setJotFormService(final JotFormService value) {
+        jotFormService = value;
     }
 
     /**
@@ -118,7 +133,8 @@ public class SMSService {
                     .getValue()
                     .replaceAll("\\{\\{firstName\\}\\}", member.getFirstName())
                     .replaceAll("\\{\\{lastName\\}\\}", member.getLastName())
-                    .replaceAll("\\{\\{expirationDate\\}\\}", expiration);
+                    .replaceAll("\\{\\{expirationDate\\}\\}", expiration)
+                    .replaceAll("\\{\\{url\\}\\}", jotFormService.buildRenewMembershipUrl(member));
         } catch (ResourceNotFoundException e) {
             LOGGER.error("Error", e);
         }

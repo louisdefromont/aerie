@@ -107,38 +107,73 @@ public class JotFormService {
         try {
             final String dateStr = sdf.format(new Date());
             final JotForm client = new JotForm(propertyService.get(PropertyKeyConstants.JOTFORM_API_KEY_KEY).getValue());
-            final HashMap<String, String> submissionFilter = new HashMap<String, String>();
-            submissionFilter.put("id:gt",
-                    propertyService.get(PropertyKeyConstants.JOTFORM_NEW_MEMBER_FORM_ID_KEY).getValue());
-            submissionFilter.put("created_at:gt", dateStr);
-            final Map<String, Member> newMembersMap = new HashMap<>();
-            LOGGER.info("Querying for new member form submissions after " + dateStr);
-            parseNewMember(newMembersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
-
-            final Map<String, Member> renewMembersMap = new HashMap<>();
-            submissionFilter.put("id:gt",
-                    propertyService.get(PropertyKeyConstants.JOTFORM_MEMBER_RENEWAL_FORM_ID_KEY).getValue());
-            submissionFilter.put("created_at:gt", dateStr);
-            LOGGER.info("Querying for member renewal form submissions after " + dateStr);
-            parseRenewingMember(renewMembersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
-
-            final Map<String, Member> membersMap = new HashMap<>();
-            membersMap.putAll(newMembersMap);
-            membersMap.putAll(renewMembersMap);
-            if (!membersMap.isEmpty()) {
-                LOGGER.info("MembersMap size is " + membersMap.size());
-                for (String key : membersMap.keySet()) {
-                    if (submissionsCache.getIfPresent(key) == null) {
-                        submissionsCache.put(key, key);
-                        rosterService.saveMember(membersMap.get(key));
-                    }
-                }
-            }
+            processNewMemberSubmissions(dateStr, client);
+            processRenewingMemberSubmissions(dateStr, client);
         } catch (ResourceNotFoundException rnfe) {
             LOGGER.error(rnfe);
         }
     }
 
+    /**
+     * Processes renewing member submissions.
+     *
+     * @param dateStr Date
+     * @param client JotFormClient
+     * @throws ResourceNotFoundException when property is not found
+     */
+    private void processRenewingMemberSubmissions(String dateStr, JotForm client) throws ResourceNotFoundException {
+        final HashMap<String, String> submissionFilter = new HashMap<>();
+        final Map<String, Member> renewMembersMap = new HashMap<>();
+        submissionFilter.put("id:gt",
+                propertyService.get(PropertyKeyConstants.JOTFORM_MEMBER_RENEWAL_FORM_ID_KEY).getValue());
+        submissionFilter.put("created_at:gt", dateStr);
+        LOGGER.info("Querying for member renewal form submissions after " + dateStr);
+        parseRenewingMember(renewMembersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
+
+        if (!renewMembersMap.isEmpty()) {
+            LOGGER.info("RenewMembersMap size is " + renewMembersMap.size());
+            for (String key : renewMembersMap.keySet()) {
+                if (submissionsCache.getIfPresent(key) == null) {
+                    submissionsCache.put(key, key);
+                    rosterService.saveRenewingMember(renewMembersMap.get(key));
+                }
+            }
+        }
+    }
+
+    /**
+     * Processes new member submissions.
+     *
+     * @param dateStr Date
+     * @param client JotFormClient
+     * @throws ResourceNotFoundException when property is not found
+     */
+    private void processNewMemberSubmissions(String dateStr, JotForm client) throws ResourceNotFoundException {
+        final HashMap<String, String> submissionFilter = new HashMap<>();
+        submissionFilter.put("id:gt",
+                propertyService.get(PropertyKeyConstants.JOTFORM_NEW_MEMBER_FORM_ID_KEY).getValue());
+        submissionFilter.put("created_at:gt", dateStr);
+        final Map<String, Member> newMembersMap = new HashMap<>();
+        LOGGER.info("Querying for new member form submissions after " + dateStr);
+        parseNewMember(newMembersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
+
+        if (!newMembersMap.isEmpty()) {
+            LOGGER.info("NewMembersMap size is " + newMembersMap.size());
+            for (String key : newMembersMap.keySet()) {
+                if (submissionsCache.getIfPresent(key) == null) {
+                    submissionsCache.put(key, key);
+                    rosterService.saveNewMember(newMembersMap.get(key));
+                }
+            }
+        }
+    }
+
+    /**
+     * Parses new member information from JotForm.
+     *
+     * @param membersMap map of new members
+     * @param submission JotForm
+     */
     private void parseNewMember(Map<String, Member> membersMap, JSONObject submission) {
         final JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
@@ -162,107 +197,12 @@ public class JotFormService {
         }
     }
 
-    private void parseNumOfFamily(OtherInfoBuilder otherInfoBuilder, JSONObject answers) {
-        if (answers.has("17")) {
-            JSONObject numOfFamily = answers.getJSONObject("17");
-            if (numOfFamily.has(ANSWER)) {
-                otherInfoBuilder.setNumberOfFamily(numOfFamily.getString(ANSWER));
-            }
-        }
-    }
-
-    private void parseMembershipType(Member member, JSONObject answers) {
-        if (answers.has("16")) {
-            // TODO
-            //JSONObject membershipType = answers.getJSONObject("16");
-            //member.setMemberType();
-        }
-    }
-
-    private void parseEAANumber(Member member, JSONObject answers) {
-        if (answers.has("15")) {
-            JSONObject eaaNumber = answers.getJSONObject("15");
-            if (eaaNumber.has(ANSWER)) {
-                member.setEaaNumber(eaaNumber.getString(ANSWER));
-            }
-        }
-    }
-
-    private void parseAdditionalInfo(OtherInfoBuilder otherInfoBuilder, JSONObject answers) {
-        if (answers.has("11")) {
-            JSONObject additionalInfo = answers.getJSONObject("11");
-            if (additionalInfo.has(ANSWER)) {
-                otherInfoBuilder.setAdditionalInfo(additionalInfo.getString(ANSWER));
-            }
-        }
-    }
-
-    private void parseAdditionalFamily(OtherInfoBuilder otherInfoBuilder, JSONObject answers) {
-        if (answers.has("9")) {
-            final JSONObject additionalFamily = answers.getJSONObject("9");
-            if (additionalFamily.has(ANSWER)) {
-                otherInfoBuilder.setAdditionalFamily(additionalFamily.getString(ANSWER));
-            }
-        }
-    }
-
-    private void parseEmail(Member member, JSONObject answers) {
-        if (answers.has("6")) {
-            final JSONObject email = answers.getJSONObject("6");
-            if (email.has(ANSWER)) {
-                member.setEmail(email.getString(ANSWER));
-            }
-        }
-    }
-
-    private void parsePhone(Member member, JSONObject answers) {
-        if (answers.has("5")) {
-            final JSONObject phone = answers.getJSONObject("5");
-            if (phone.has(ANSWER)) {
-                final JSONObject phoneAnswer = phone.getJSONObject(ANSWER);
-                if (phoneAnswer.has("full")) {
-                    member.setHomePhone(phoneAnswer.getString("full"));
-                }
-            }
-        }
-    }
-
-    private void parseAddress(Member member, JSONObject answers) {
-        if (answers.has("4")) {
-            final JSONObject address = answers.getJSONObject("4");
-            if (address.has(ANSWER)) {
-                final JSONObject addressAnswer = address.getJSONObject(ANSWER);
-                if (addressAnswer.has("addr_line1")) {
-                    member.setAddressLine1(addressAnswer.getString("addr_line1"));
-                }
-                if (addressAnswer.has("city")) {
-                    member.setCity(addressAnswer.getString("city"));
-                }
-                if (addressAnswer.has("state")) {
-                    member.setState(deriveState(addressAnswer.getString("state")));
-                }
-                if (addressAnswer.has("postal")) {
-                    member.setZipCode(addressAnswer.getString("postal"));
-                }
-            }
-        }
-    }
-
-    private void parseName(Member member, JSONObject answers) {
-        if (answers.has("3")) {
-            final JSONObject fullName = answers.getJSONObject("3");
-            if (fullName.has(ANSWER)) {
-                final JSONObject fullNameAnswer = fullName.getJSONObject(ANSWER);
-                if (fullNameAnswer.has("first")) {
-                    member.setFirstName(fullNameAnswer.getString("first"));
-                }
-                if (fullNameAnswer.has("last")) {
-                    member.setLastName(fullNameAnswer.getString("last"));
-                }
-            }
-        }
-    }
-
+    /**
+     * Parses renewing member information from JotForm.
+     *
+     * @param membersMap map of new members
+     * @param submission JotForm
+     */
     private void parseRenewingMember(Map<String, Member> membersMap, JSONObject submission) {
         final JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
@@ -286,6 +226,167 @@ public class JotFormService {
         }
     }
 
+    /**
+     * Parses number of family members.
+     *
+     * @param otherInfoBuilder OtherInfoBuilder
+     * @param answers JotForm
+     */
+    private void parseNumOfFamily(OtherInfoBuilder otherInfoBuilder, JSONObject answers) {
+        if (answers.has("17")) {
+            JSONObject numOfFamily = answers.getJSONObject("17");
+            if (numOfFamily.has(ANSWER)) {
+                otherInfoBuilder.setNumberOfFamily(numOfFamily.getString(ANSWER));
+            }
+        }
+    }
+
+    /**
+     * Parses membership type.
+     *
+     * @param member Member
+     * @param answers JotForm
+     */
+    private void parseMembershipType(Member member, JSONObject answers) {
+        if (answers.has("16")) {
+            // TODO
+            //JSONObject membershipType = answers.getJSONObject("16");
+            //member.setMemberType();
+        }
+    }
+
+    /**
+     * Parses EAA number.
+     *
+     * @param member Member
+     * @param answers JotForm
+     */
+    private void parseEAANumber(Member member, JSONObject answers) {
+        if (answers.has("15")) {
+            JSONObject eaaNumber = answers.getJSONObject("15");
+            if (eaaNumber.has(ANSWER)) {
+                member.setEaaNumber(eaaNumber.getString(ANSWER));
+            }
+        }
+    }
+
+    /**
+     * Parses additional info.
+     *
+     * @param otherInfoBuilder OtherInfoBuilder
+     * @param answers JotForm
+     */
+    private void parseAdditionalInfo(OtherInfoBuilder otherInfoBuilder, JSONObject answers) {
+        if (answers.has("11")) {
+            JSONObject additionalInfo = answers.getJSONObject("11");
+            if (additionalInfo.has(ANSWER)) {
+                otherInfoBuilder.setAdditionalInfo(additionalInfo.getString(ANSWER));
+            }
+        }
+    }
+
+    /**
+     * Parses additional family.
+     *
+     * @param otherInfoBuilder OtherInfoBuilder
+     * @param answers JotForm
+     */
+    private void parseAdditionalFamily(OtherInfoBuilder otherInfoBuilder, JSONObject answers) {
+        if (answers.has("9")) {
+            final JSONObject additionalFamily = answers.getJSONObject("9");
+            if (additionalFamily.has(ANSWER)) {
+                otherInfoBuilder.setAdditionalFamily(additionalFamily.getString(ANSWER));
+            }
+        }
+    }
+
+    /**
+     * Parses email.
+     *
+     * @param member Member
+     * @param answers JotForm
+     */
+    private void parseEmail(Member member, JSONObject answers) {
+        if (answers.has("6")) {
+            final JSONObject email = answers.getJSONObject("6");
+            if (email.has(ANSWER)) {
+                member.setEmail(email.getString(ANSWER));
+            }
+        }
+    }
+
+    /**
+     * Parses phone number.
+     *
+     * @param member Member
+     * @param answers JotForm
+     */
+    private void parsePhone(Member member, JSONObject answers) {
+        if (answers.has("5")) {
+            final JSONObject phone = answers.getJSONObject("5");
+            if (phone.has(ANSWER)) {
+                final JSONObject phoneAnswer = phone.getJSONObject(ANSWER);
+                if (phoneAnswer.has("full")) {
+                    member.setHomePhone(phoneAnswer.getString("full"));
+                }
+            }
+        }
+    }
+
+    /**
+     * Parses address.
+     *
+     * @param member Member
+     * @param answers JotForm
+     */
+    private void parseAddress(Member member, JSONObject answers) {
+        if (answers.has("4")) {
+            final JSONObject address = answers.getJSONObject("4");
+            if (address.has(ANSWER)) {
+                final JSONObject addressAnswer = address.getJSONObject(ANSWER);
+                if (addressAnswer.has("addr_line1")) {
+                    member.setAddressLine1(addressAnswer.getString("addr_line1"));
+                }
+                if (addressAnswer.has("city")) {
+                    member.setCity(addressAnswer.getString("city"));
+                }
+                if (addressAnswer.has("state")) {
+                    member.setState(deriveState(addressAnswer.getString("state")));
+                }
+                if (addressAnswer.has("postal")) {
+                    member.setZipCode(addressAnswer.getString("postal"));
+                }
+            }
+        }
+    }
+
+    /**
+     * Parses name.
+     *
+     * @param member Member
+     * @param answers JotForm
+     */
+    private void parseName(Member member, JSONObject answers) {
+        if (answers.has("3")) {
+            final JSONObject fullName = answers.getJSONObject("3");
+            if (fullName.has(ANSWER)) {
+                final JSONObject fullNameAnswer = fullName.getJSONObject(ANSWER);
+                if (fullNameAnswer.has("first")) {
+                    member.setFirstName(fullNameAnswer.getString("first"));
+                }
+                if (fullNameAnswer.has("last")) {
+                    member.setLastName(fullNameAnswer.getString("last"));
+                }
+            }
+        }
+    }
+
+    /**
+     * Translates state string to enum.
+     *
+     * @param state String
+     * @return enum
+     */
     private State deriveState(String state) {
         if ("AL".equalsIgnoreCase(state)) {
             return State.ALABAMA;

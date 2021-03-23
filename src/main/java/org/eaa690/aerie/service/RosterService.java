@@ -25,13 +25,10 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
+import org.eaa690.aerie.exception.ResourceExistsException;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
@@ -261,7 +258,7 @@ public class RosterService {
                                 final String expirationDate = SDF.format(member.getExpiration());
                                 if (expirationDate.equals(
                                         getDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_FIRST_MSG_DAYS_KEY))) {
-                                    emailService.sendMsg(
+                                    emailService.queueMsg(
                                             PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                                             PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
                                             member);
@@ -270,7 +267,7 @@ public class RosterService {
                                 }
                                 if (expirationDate.equals(
                                         getDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_SECOND_MSG_DAYS_KEY))) {
-                                    emailService.sendMsg(
+                                    emailService.queueMsg(
                                             PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                                             PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
                                             member);
@@ -279,7 +276,7 @@ public class RosterService {
                                 }
                                 if (expirationDate.equals(
                                         getDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_THIRD_MSG_DAYS_KEY))) {
-                                    emailService.sendMsg(
+                                    emailService.queueMsg(
                                             PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                                             PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
                                             member);
@@ -299,7 +296,7 @@ public class RosterService {
      * @return Member
      * @throws ResourceNotFoundException when no member matches
      */
-    public Member getMemberByRFID(String rfid) throws ResourceNotFoundException {
+    public Member getMemberByRFID(final String rfid) throws ResourceNotFoundException {
         final Optional<Member> member = memberRepository.findByRfid(rfid);
         if (member.isPresent()) {
             return member.get();
@@ -314,7 +311,7 @@ public class RosterService {
      * @return Member
      * @throws ResourceNotFoundException when no member matches
      */
-    public Member getMemberByID(Long id) throws ResourceNotFoundException {
+    public Member getMemberByID(final Long id) throws ResourceNotFoundException {
         Optional<Member> member = memberRepository.findByRosterId(id);
         if (member.isPresent()) {
             return member.get();
@@ -349,9 +346,10 @@ public class RosterService {
      *
      * @param member Member to be saved
      */
-    public void saveNewMember(final Member member) {
+    public Member saveNewMember(final Member member) throws ResourceExistsException {
         // TODO
         LOGGER.info("Saving new member: " + member);
+        return member;
     }
 
     /**
@@ -619,7 +617,7 @@ public class RosterService {
      * @return date string
      * @throws ResourceNotFoundException when property not found
      */
-    private String getDateStr(String key) throws ResourceNotFoundException {
+    private String getDateStr(final String key) throws ResourceNotFoundException {
         return SDF.format(Date.from(Instant
                 .now()
                 .plus(Integer.parseInt(propertyService

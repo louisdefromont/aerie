@@ -111,18 +111,21 @@ public class AdminController {
                         PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                         PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
                         member);
+                emailService.incrementManualMessageCount();
                 break;
             case "second":
                 emailService.sendMsg(
                         PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                         PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
                         member);
+                emailService.incrementManualMessageCount();
                 break;
             case "third":
                 emailService.sendMsg(
                         PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                         PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
                         member);
+                emailService.incrementManualMessageCount();
                 break;
             default:
                 // Do nothing
@@ -135,11 +138,20 @@ public class AdminController {
      * @param member Member
      */
     @PostMapping(path = {"/email/new-membership"})
-    public void testNewMembershipEmail(@RequestBody Member member) {
+    public void testNewMembershipEmail(@RequestBody final Member member) {
         emailService.sendMsg(
                 PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID,
                 PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY,
                 member);
+        emailService.incrementManualMessageCount();
+    }
+
+    /**
+     * Gets queued email count.
+     */
+    @GetMapping(path = {"/email/queue-count"})
+    public int getQueuedEmailCount() {
+        return emailService.getQueuedMsgCount();
     }
 
     /**
@@ -148,7 +160,7 @@ public class AdminController {
      * @param member Member
      */
     @PostMapping(path = {"/sms/renew-membership"})
-    public void testRenewMembershipSMS(@RequestBody Member member) {
+    public void testRenewMembershipSMS(@RequestBody final Member member) {
         smsService.sendRenewMembershipMsg(member);
     }
 
@@ -158,7 +170,7 @@ public class AdminController {
      * @param member Member
      */
     @PostMapping(path = {"/sms/new-membership"})
-    public void testNewMembershipSMS(@RequestBody Member member) {
+    public void testNewMembershipSMS(@RequestBody final Member member) {
         smsService.sendNewMembershipMsg(member);
     }
 
@@ -168,7 +180,7 @@ public class AdminController {
      * @param member Member
      */
     @PostMapping(path = {"/slack/renew-membership"})
-    public void testRenewMembershipSlack(@RequestBody Member member) {
+    public void testRenewMembershipSlack(@RequestBody final Member member) {
         slackService.sendRenewMembershipMsg(member);
     }
 
@@ -178,7 +190,7 @@ public class AdminController {
      * @param member Member
      */
     @PostMapping(path = {"/slack/new-membership"})
-    public void testNewMembershipSlack(@RequestBody Member member) {
+    public void testNewMembershipSlack(@RequestBody final Member member) {
         slackService.sendNewMembershipMsg(member);
     }
 
@@ -196,7 +208,7 @@ public class AdminController {
      * @param member Member
      */
     @PostMapping(path = {"/mailchimp/add-member"})
-    public void addOrUpdateMemberToMailChimp(@RequestBody Member member) throws ResourceNotFoundException {
+    public void addOrUpdateMemberToMailChimp(@RequestBody final Member member) throws ResourceNotFoundException {
         mailChimpService.addOrUpdateMember(member.getFirstName(), member.getLastName(), member.getEmail());
     }
 
@@ -206,7 +218,7 @@ public class AdminController {
      * @param member Member
      */
     @PostMapping(path = {"/mailchimp/add-non-member"})
-    public void addOrUpdateNonMemberToMailChimp(@RequestBody Member member) throws ResourceNotFoundException {
+    public void addOrUpdateNonMemberToMailChimp(@RequestBody final Member member) throws ResourceNotFoundException {
         mailChimpService.addOrUpdateNonMember(member.getFirstName(), member.getLastName(), member.getEmail());
     }
 }

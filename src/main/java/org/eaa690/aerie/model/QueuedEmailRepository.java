@@ -22,47 +22,31 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * MemberRepository.
+ * QueuedEmailRepository.
  */
-public interface MemberRepository extends Repository<Member, Long> {
+public interface QueuedEmailRepository extends Repository<QueuedEmail, Long> {
 
     /**
-     * Gets a member.
+     * Gets all QueuedEmail.
      *
-     * @param rfid RFID
-     * @return Member
+     * @return all QueuedEmail
      */
-    Optional<Member> findByRfid(String rfid);
+    Optional<List<QueuedEmail>> findAll();
 
     /**
-     * Gets a member.
+     * Saves a QueuedEmail.
      *
-     * @param id ID
-     * @return Member
+     * @param queuedEmail QueuedEmail
+     * @return QueuedEmail
      */
-    Optional<Member> findById(Long id);
+    QueuedEmail save(QueuedEmail queuedEmail);
 
     /**
-     * Gets a member.
+     * Saves a QueuedEmail.
      *
-     * @param rosterId RosterID
-     * @return Member
+     * @param queuedEmail QueuedEmail
+     * @return QueuedEmail
      */
-    Optional<Member> findByRosterId(Long rosterId);
-
-    /**
-     * Gets all members.
-     *
-     * @return all members
-     */
-    Optional<List<Member>> findAll();
-
-    /**
-     * Saves a member.
-     *
-     * @param member Member
-     * @return Member
-     */
-    Member save(Member member);
+    QueuedEmail delete(QueuedEmail queuedEmail);
 
 }

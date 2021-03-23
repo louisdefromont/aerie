@@ -18,6 +18,7 @@ package org.eaa690.aerie.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
@@ -33,8 +34,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -73,6 +76,11 @@ public class JotFormService {
     private PropertyService propertyService;
 
     /**
+     * TinyURLService.
+     */
+    private TinyURLService tinyUrlService;
+
+    /**
      * RosterService.
      */
     @Autowired
@@ -83,6 +91,16 @@ public class JotFormService {
      */
     @Autowired
     private EmailService emailService;
+
+    /**
+     * Sets TinyURLService.
+     *
+     * @param value TinyURLService
+     */
+    @Autowired
+    public void setTinyURLService(final TinyURLService value) {
+        tinyUrlService = value;
+    }
 
     /**
      * Sets PropertyService.
@@ -129,6 +147,43 @@ public class JotFormService {
         } catch (ResourceNotFoundException rnfe) {
             LOGGER.error(rnfe);
         }
+    }
+
+    /**
+     * Builds a member's renew membership URL, complete with pre-populated fields.
+     *
+     * @param member Member
+     * @return URL
+     */
+    public String buildRenewMembershipUrl(final Member member) {
+        // TODO implement this
+        try {
+            final StringBuilder sb = new StringBuilder();
+            // https://form.jotform.com/
+            sb.append(propertyService.get(PropertyKeyConstants.JOTFORM_BASE_URL_KEY).getValue());
+            // 203205658119150
+            sb.append(propertyService.get(PropertyKeyConstants.JOTFORM_MEMBER_RENEWAL_FORM_ID_KEY).getValue());
+            sb.append("?");
+            final List<String> parameters = new ArrayList<>();
+            parameters.add("fullName3[first]=" + member.getFirstName());
+            parameters.add("fullName3[last]=" + member.getLastName());
+            parameters.add("address4[addr_line1]=" + member.getAddressLine1());
+            parameters.add("address4[addr_line2]=" + member.getAddressLine2());
+            parameters.add("address4[city]=" + member.getCity());
+            parameters.add("address4[state]=" + member.getState());
+            parameters.add("address4[postal]=" + member.getZipCode());
+            parameters.add("phoneNumber5=" + member.getCellPhone()); // TODO
+            parameters.add("email6=" + member.getEmail());
+            parameters.add("additionalFamily9="); // TODO
+            parameters.add("numberOf="); // TODO
+            parameters.add("eaaNational15=" + member.getEaaNumber());
+            parameters.add("additionalInformation="); // TODO
+            sb.append(StringUtils.join(parameters, "&"));
+            return tinyUrlService.getTinyURL(sb.toString());
+        } catch (ResourceNotFoundException e) {
+            LOGGER.error("Error", e);
+        }
+        return null;
     }
 
     /**

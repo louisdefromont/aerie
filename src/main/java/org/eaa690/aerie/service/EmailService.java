@@ -18,12 +18,14 @@ package org.eaa690.aerie.service;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.objects.Personalization;
+import org.apache.commons.lang3.StringUtils;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
@@ -69,6 +71,11 @@ public class EmailService {
     private PropertyService propertyService;
 
     /**
+     * JotFormService.
+     */
+    private JotFormService jotFormService;
+
+    /**
      * MemberRepository.
      */
     private MemberRepository memberRepository;
@@ -96,6 +103,16 @@ public class EmailService {
     @Autowired
     public void setPropertyService(final PropertyService value) {
         propertyService = value;
+    }
+
+    /**
+     * Sets JotFormService.
+     *
+     * @param value JotFormService
+     */
+    @Autowired
+    public void setJotFormService(final JotFormService value) {
+        jotFormService = value;
     }
 
     /**
@@ -224,6 +241,7 @@ public class EmailService {
         personalization.addBcc(new Email(propertyService.get(PropertyKeyConstants.EMAIL_BCC_KEY).getValue()));
         personalization.addDynamicTemplateData("firstName", member.getFirstName());
         personalization.addDynamicTemplateData("lastName", member.getLastName());
+        personalization.addDynamicTemplateData("url", jotFormService.buildRenewMembershipUrl(member));
         if (member.getExpiration() == null) {
             personalization.addDynamicTemplateData("expirationDate", sdf.format(new Date()));
         } else {

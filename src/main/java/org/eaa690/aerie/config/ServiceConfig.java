@@ -23,6 +23,7 @@ import org.eaa690.aerie.service.JotFormService;
 import org.eaa690.aerie.service.MailChimpService;
 import org.eaa690.aerie.service.PropertyService;
 import org.eaa690.aerie.service.RosterService;
+import org.eaa690.aerie.service.TinyURLService;
 import org.eaa690.aerie.service.WeatherService;
 import org.eaa690.aerie.ssl.SSLUtilities;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -101,6 +102,16 @@ public class ServiceConfig {
     @Bean
     public JotFormService jotFormService() {
         return new JotFormService();
+    }
+
+    /**
+     * TinyURLService.
+     *
+     * @return TinyURLService
+     */
+    @Bean
+    public TinyURLService tinyUrlService() {
+        return new TinyURLService();
     }
 
     /**

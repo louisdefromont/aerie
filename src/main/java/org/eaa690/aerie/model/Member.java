@@ -66,6 +66,11 @@ public class Member extends BaseEntity implements Comparable<Member> {
     private String nickname;
 
     /**
+     * Username.
+     */
+    private String username;
+
+    /**
      * Spouse.
      */
     private String spouse;
@@ -529,6 +534,14 @@ public class Member extends BaseEntity implements Comparable<Member> {
 
     public void setEagleVolunteer(boolean eagleVolunteer) {
         this.eagleVolunteer = eagleVolunteer;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     /**

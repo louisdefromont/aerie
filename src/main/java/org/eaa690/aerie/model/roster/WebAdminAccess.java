@@ -28,5 +28,15 @@ public enum WebAdminAccess {
     /**
      * No Access.
      */
-    NO_ACCESS
+    NO_ACCESS;
+
+    public static String getDisplayString(WebAdminAccess admin) {
+        if (CHAPTER_ADMIN.equals(admin)) {
+            return "2";
+        } else if (CHAPTER_READONLY.equals(admin)) {
+            return "1";
+        } else {
+            return "0";
+        }
+    }
 }

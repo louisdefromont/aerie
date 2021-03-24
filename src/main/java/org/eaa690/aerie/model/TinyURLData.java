@@ -72,14 +72,6 @@ public class TinyURLData {
         this.alias = alias;
     }
 
-    public String getTinyUrl() {
-        return tiny_url;
-    }
-
-    public void setTinyUrl(String tinyUrl) {
-        this.tiny_url = tinyUrl;
-    }
-
     public String getTags() {
         return tags;
     }
@@ -88,4 +80,11 @@ public class TinyURLData {
         this.tags = tags;
     }
 
+    public String getTiny_url() {
+        return tiny_url;
+    }
+
+    public void setTiny_url(String tiny_url) {
+        this.tiny_url = tiny_url;
+    }
 }

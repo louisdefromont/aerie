@@ -360,6 +360,7 @@ public class RosterService {
             getSearchMembersPage();
             if (existsUser(member.getFirstName(), member.getLastName())) {
                 // TODO: update user
+                LOGGER.info(buildUpdateUserRequestBodyString(member));
             }
         } catch (ResourceNotFoundException e) {
             LOGGER.error(e.getMessage(), e);

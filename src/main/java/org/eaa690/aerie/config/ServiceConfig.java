@@ -210,6 +210,7 @@ public class ServiceConfig {
                             propertyService.get(PropertyKeyConstants.SLACK_TOKEN_KEY).getValue());
             slackSession.connect();
             slackSession.addMessagePostedListener(slackService);
+            return slackSession;
         } catch (IOException | ResourceNotFoundException e) {
             return null;
         }

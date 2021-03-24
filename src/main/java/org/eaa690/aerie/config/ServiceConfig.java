@@ -216,13 +216,19 @@ public class ServiceConfig {
         }
     }
 
+    /**
+     * Initialize twillio.
+     *
+     * @param propertyService PropertyService
+     */
     @Bean
-    public void twillio(final PropertyService propertyService) {
+    public Object twillio(final PropertyService propertyService) {
         try {
             Twilio.init(propertyService.get(PropertyKeyConstants.SMS_ACCOUNT_SID_KEY).getValue(),
                     propertyService.get(PropertyKeyConstants.SMS_AUTH_ID_KEY).getValue());
         } catch (ResourceNotFoundException e) {
-            // Do nothing
+            return null;
         }
+        return null;
     }
 }

@@ -147,7 +147,7 @@ public class OtherInfoBuilder {
         if (additionalInfo != null) {
             parts.add(String.format("Additional Info=[%s]", additionalInfo));
         }
-        return parts.stream().collect(Collectors.joining("; "));
+        return String.join("; ", parts);
     }
 
     public void setRaw(String raw) {

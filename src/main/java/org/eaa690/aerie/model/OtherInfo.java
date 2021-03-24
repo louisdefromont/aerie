@@ -26,7 +26,7 @@ public class OtherInfo {
     private List<String> family;
 
     public OtherInfo(String otherInfo) {
-        OtherInfoBuilder builder = new OtherInfoBuilder();
+        final OtherInfoBuilder builder = new OtherInfoBuilder();
         builder.setRaw(otherInfo);
         slack = builder.getSlack();
         rfid = builder.getRfid();

@@ -952,6 +952,7 @@ public class RosterService {
                                 final OtherInfo otherInfo = new OtherInfo(column.text().trim());
                                 member.setRfid(otherInfo.getRfid());
                                 member.setSlack(otherInfo.getSlack());
+                                member.setOtherInfo(otherInfo.getRaw());
                                 //otherInfo.getDescription();
                                 //otherInfo.getFamily();
                                 break;

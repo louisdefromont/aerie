@@ -58,7 +58,7 @@ public class EmailService {
     /**
      * SimpleDateFormat.
      */
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy (EEEE)");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
 
     /**
      * SendGrid Initialized.

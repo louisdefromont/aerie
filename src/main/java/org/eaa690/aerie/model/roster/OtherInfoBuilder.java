@@ -157,26 +157,31 @@ public class OtherInfoBuilder {
             if (additionalFamilyMatcher.find()) {
                 matched = true;
                 setAdditionalFamily(additionalFamilyMatcher.group(1));
+                LOGGER.info("Set additional family to ["+getAdditionalFamily()+"]");
             }
             final Matcher numOfFamilyMatcher = numOfFamilyPattern.matcher(raw);
             if (numOfFamilyMatcher.find()) {
                 matched = true;
                 setNumberOfFamily(numOfFamilyMatcher.group(1));
+                LOGGER.info("Set number of family to ["+getNumberOfFamily()+"]");
             }
             final Matcher slackMatcher = slackPattern.matcher(raw);
             if (slackMatcher.find()) {
                 matched = true;
                 setSlack(slackMatcher.group(1));
+                LOGGER.info("Set Slack to ["+getSlack()+"]");
             }
             final Matcher rfidMatcher = rfidPattern.matcher(raw);
             if (rfidMatcher.find()) {
                 matched = true;
                 setRfid(rfidMatcher.group(1));
+                LOGGER.info("Set RFID to ["+getRfid()+"]");
             }
             final Matcher additionalInfoMatcher = additionalInfoPattern.matcher(raw);
             if (additionalInfoMatcher.find()) {
                 matched = true;
                 setAdditionalInfo(additionalInfoMatcher.group(1));
+                LOGGER.info("Set additional info to ["+getAdditionalInfo()+"]");
             }
             if (!matched) {
                 LOGGER.info("No patterns matched.  Setting additional info to ["+raw+"]");

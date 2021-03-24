@@ -16,6 +16,10 @@
 
 package org.eaa690.aerie.model.roster;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.eaa690.aerie.service.RosterService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -23,6 +27,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class OtherInfoBuilder {
+
+    /**
+     * Logger.
+     */
+    private static final Log LOGGER = LogFactory.getLog(OtherInfoBuilder.class);
 
     /**
      * Family Pattern.
@@ -170,6 +179,7 @@ public class OtherInfoBuilder {
                 setAdditionalInfo(additionalInfoMatcher.group(1));
             }
             if (!matched) {
+                LOGGER.info("No patterns matched.  Setting additional info to ["+raw+"]");
                 setAdditionalInfo(raw);
             }
         }

@@ -27,27 +27,27 @@ public class OtherInfoBuilder {
     /**
      * Family Pattern.
      */
-    private Pattern additionalFamilyPattern = Pattern.compile("Family=[(.*?)]");
+    public static Pattern additionalFamilyPattern = Pattern.compile("Family=[(.*?)]");
 
     /**
      * # of Family Pattern.
      */
-    private Pattern numOfFamilyPattern = Pattern.compile("# of Family=[(.*?)]");
+    public static Pattern numOfFamilyPattern = Pattern.compile("# of Family=[(.*?)]");
 
     /**
      * Slack Pattern.
      */
-    private Pattern slackPattern = Pattern.compile("Slack=[(.*?)]");
+    public static Pattern slackPattern = Pattern.compile("Slack=[(.*?)]");
 
     /**
      * RFID Pattern.
      */
-    private Pattern rfidPattern = Pattern.compile("RFID=[(.*?)]");
+    public static Pattern rfidPattern = Pattern.compile("RFID=[(.*?)]");
 
     /**
      * Additional Info Pattern.
      */
-    private Pattern additionalInfoPattern = Pattern.compile("Additional Info=[(.*?)]");
+    public static Pattern additionalInfoPattern = Pattern.compile("Additional Info=[(.*?)]");
 
     /**
      * Additional Family.

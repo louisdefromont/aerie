@@ -952,6 +952,8 @@ public class RosterService {
                                 final OtherInfo otherInfo = new OtherInfo(column.text().trim());
                                 member.setRfid(otherInfo.getRfid());
                                 member.setSlack(otherInfo.getSlack());
+                                //otherInfo.getDescription();
+                                //otherInfo.getFamily();
                                 break;
                             case 23:
                                 member.setCity(column.text().trim());

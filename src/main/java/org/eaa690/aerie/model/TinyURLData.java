@@ -46,7 +46,7 @@ public class TinyURLData {
     /**
      * TinyURL.
      */
-    private String tinyUrl;
+    private String tiny_url;
 
     public String getUrl() {
         return url;
@@ -73,11 +73,11 @@ public class TinyURLData {
     }
 
     public String getTinyUrl() {
-        return tinyUrl;
+        return tiny_url;
     }
 
     public void setTinyUrl(String tinyUrl) {
-        this.tinyUrl = tinyUrl;
+        this.tiny_url = tinyUrl;
     }
 
     public String getTags() {

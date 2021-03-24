@@ -142,26 +142,35 @@ public class OtherInfoBuilder {
     }
 
     public void setRaw(String raw) {
+        boolean matched = false;
         if (raw != null) {
             final Matcher additionalFamilyMatcher = additionalFamilyPattern.matcher(raw);
             if (additionalFamilyMatcher.find()) {
+                matched = true;
                 setAdditionalFamily(additionalFamilyMatcher.group(1));
             }
             final Matcher numOfFamilyMatcher = numOfFamilyPattern.matcher(raw);
             if (numOfFamilyMatcher.find()) {
+                matched = true;
                 setNumberOfFamily(numOfFamilyMatcher.group(1));
             }
             final Matcher slackMatcher = slackPattern.matcher(raw);
             if (slackMatcher.find()) {
+                matched = true;
                 setSlack(slackMatcher.group(1));
             }
             final Matcher rfidMatcher = rfidPattern.matcher(raw);
             if (rfidMatcher.find()) {
+                matched = true;
                 setRfid(rfidMatcher.group(1));
             }
             final Matcher additionalInfoMatcher = additionalInfoPattern.matcher(raw);
             if (additionalInfoMatcher.find()) {
+                matched = true;
                 setAdditionalInfo(additionalInfoMatcher.group(1));
+            }
+            if (!matched) {
+                setAdditionalInfo(raw);
             }
         }
     }

@@ -32,7 +32,9 @@ public class OtherInfo {
         rfid = builder.getRfid();
         description = builder.getAdditionalInfo();
         numOfFamily = builder.getNumberOfFamily();
-        family = Arrays.asList(builder.getAdditionalFamily().split(","));
+        if (builder.getAdditionalFamily() != null) {
+            family = Arrays.asList(builder.getAdditionalFamily().split(","));
+        }
         raw = builder.getRaw();
     }
 

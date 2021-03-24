@@ -35,8 +35,16 @@ public enum WebAdminAccess {
             return "2";
         } else if (CHAPTER_READONLY.equals(admin)) {
             return "1";
-        } else {
-            return "0";
         }
+        return "0";
+    }
+
+    public static WebAdminAccess fromDisplayString(final String displayString) {
+        if ("Chapter Admin".equalsIgnoreCase(displayString)) {
+            return CHAPTER_ADMIN;
+        } else if ("Chapter Read Only".equalsIgnoreCase(displayString)) {
+            return CHAPTER_READONLY;
+        }
+        return NO_ACCESS;
     }
 }

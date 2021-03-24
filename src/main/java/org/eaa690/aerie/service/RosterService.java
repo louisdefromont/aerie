@@ -34,6 +34,7 @@ import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
 import org.eaa690.aerie.model.OtherInfo;
+import org.eaa690.aerie.model.roster.Country;
 import org.eaa690.aerie.model.roster.Gender;
 import org.eaa690.aerie.model.roster.MemberType;
 import org.eaa690.aerie.model.roster.State;
@@ -700,6 +701,7 @@ public class RosterService {
                 .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
                 .append(RosterConstants.TEXT_NICK_NAME)
                 .append(RosterConstants.FORM_DATA_SEPARATOR)
+                .append(member.getNickname())
                 .append(RosterConstants.FORM_BOUNDARY)
                 .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
                 .append(RosterConstants.SPOUSE)
@@ -719,7 +721,7 @@ public class RosterService {
                 .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
                 .append(RosterConstants.MEMBER_TYPE)
                 .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getMemberType())
+                .append(MemberType.toDisplayString(member.getMemberType()))
                 .append(RosterConstants.FORM_BOUNDARY)
                 .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
                 .append(RosterConstants.CURRENT_STANDING)
@@ -764,16 +766,17 @@ public class RosterService {
                 .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
                 .append(RosterConstants.COUNTRY)
                 .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append("USA")
+                .append(Country.toDisplayString(member.getCountry()))
                 .append(RosterConstants.FORM_BOUNDARY)
                 .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
                 .append(RosterConstants.BIRTH_DATE)
                 .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(MDY_SDF.format(member.getBirthDate())).append(RosterConstants.FORM_BOUNDARY)
+                .append(MDY_SDF.format(member.getBirthDateAsDate()))
+                .append(RosterConstants.FORM_BOUNDARY)
                 .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
                 .append(RosterConstants.JOIN_DATE)
                 .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getJoined())
+                .append(MDY_SDF.format(member.getJoinedAsDate()))
                 .append(RosterConstants.FORM_BOUNDARY)
                 .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
                 .append(RosterConstants.EXPIRATION_DATE)
@@ -878,34 +881,149 @@ public class RosterService {
                     int columnCount = 0;
                     final Member member = new Member();
                     for (Element column : columns) {
-                        if (columnCount == 0) {
-                            member.setRosterId(Long.parseLong(column.text().trim()));
-                        }
-                        if (columnCount == 1) {
-                            member.setMemberType(MemberType.valueOf(column.text().trim().replaceAll("-", "")));
-                        }
-                        if (columnCount == 3) {
-                            member.setFirstName(column.text().trim());
-                        }
-                        if (columnCount == 4) {
-                            member.setLastName(column.text().trim());
-                        }
-                        if (columnCount == 7) {
-                            member.setEmail(column.text().trim());
-                        }
-                        if (columnCount == 16) {
-                            member.setCellPhone(column.text().trim());
-                        }
-                        if (columnCount == 18) {
-                            member.setEaaNumber(column.text().trim());
-                        }
-                        if (columnCount == 21) {
-                            member.setExpiration(SDF.parse(column.text().trim()));
-                        }
-                        if (columnCount == 22) {
-                            final OtherInfo otherInfo = new OtherInfo(column.text().trim());
-                            member.setRfid(otherInfo.getRfid());
-                            member.setSlack(otherInfo.getSlack());
+                        switch (columnCount) {
+                            case 0:
+                                member.setRosterId(Long.parseLong(column.text().trim()));
+                                break;
+                            case 1:
+                                member.setMemberType(MemberType.valueOf(column.text().trim().replaceAll("-", "")));
+                                break;
+                            case 2:
+                                member.setNickname(column.text().trim());
+                                break;
+                            case 3:
+                                member.setFirstName(column.text().trim());
+                                break;
+                            case 4:
+                                member.setLastName(column.text().trim());
+                                break;
+                            case 5:
+                                member.setSpouse(column.text().trim());
+                                break;
+                            case 6:
+                                member.setGender(Gender.valueOf(column.text().trim().toUpperCase()));
+                                break;
+                            case 7:
+                                member.setEmail(column.text().trim());
+                                break;
+                            case 8:
+                                // Ignore EmailPrivate
+                                break;
+                            case 9:
+                                member.setUsername(column.text().trim());
+                                break;
+                            case 10:
+                                member.setBirthDate(column.text().trim());
+                                break;
+                            case 11:
+                                member.setAddressLine1(column.text().trim());
+                                break;
+                            case 12:
+                                member.setAddressLine2(column.text().trim());
+                                break;
+                            case 13:
+                                // Ignore AddressPrivate
+                                break;
+                            case 14:
+                                member.setHomePhone(column.text().trim());
+                                break;
+                            case 15:
+                                // Ignore HomePhonePrivate
+                                break;
+                            case 16:
+                                member.setCellPhone(column.text().trim());
+                                break;
+                            case 17:
+                                // Ignore CellPhonePrivate
+                                break;
+                            case 18:
+                                member.setEaaNumber(column.text().trim());
+                                break;
+                            case 19:
+                                member.setStatus(Status.valueOf(column.text().trim().toUpperCase()));
+                                break;
+                            case 20:
+                                member.setJoined(column.text().trim());
+                                break;
+                            case 21:
+                                member.setExpiration(SDF.parse(column.text().trim()));
+                                break;
+                            case 22:
+                                final OtherInfo otherInfo = new OtherInfo(column.text().trim());
+                                member.setRfid(otherInfo.getRfid());
+                                member.setSlack(otherInfo.getSlack());
+                                break;
+                            case 23:
+                                member.setCity(column.text().trim());
+                                break;
+                            case 24:
+                                member.setState(State.fromDisplayString(column.text().trim()));
+                                break;
+                            case 25:
+                                member.setCountry(Country.fromDisplayString(column.text().trim()));
+                                break;
+                            case 26:
+                                member.setZipCode(column.text().trim());
+                                break;
+                            case 27:
+                                member.setRatings(column.text().trim());
+                                break;
+                            case 28:
+                                member.setAircraftOwned(column.text().trim());
+                                break;
+                            case 29:
+                                member.setAircraftProject(column.text().trim());
+                                break;
+                            case 30:
+                                member.setAircraftBuilt(column.text().trim());
+                                break;
+                            case 31:
+                                member.setImcClub("yes".equalsIgnoreCase(column.text().trim()) ?
+                                        Boolean.TRUE : Boolean.FALSE);
+                                break;
+                            case 32:
+                                member.setVmcClub("yes".equalsIgnoreCase(column.text().trim()) ?
+                                        Boolean.TRUE : Boolean.FALSE);
+                                break;
+                            case 33:
+                                member.setYePilot("yes".equalsIgnoreCase(column.text().trim()) ?
+                                        Boolean.TRUE : Boolean.FALSE);
+                                break;
+                            case 34:
+                                member.setYeVolunteer("yes".equalsIgnoreCase(column.text().trim()) ?
+                                        Boolean.TRUE : Boolean.FALSE);
+                                break;
+                            case 35:
+                                member.setEaglePilot("yes".equalsIgnoreCase(column.text().trim()) ?
+                                        Boolean.TRUE : Boolean.FALSE);
+                                break;
+                            case 36:
+                                member.setEagleVolunteer("yes".equalsIgnoreCase(column.text().trim()) ?
+                                        Boolean.TRUE : Boolean.FALSE);
+                                break;
+                            case 37:
+                                // Ignore DateAdded
+                                break;
+                            case 38:
+                                // Ignore DateUpdated
+                                break;
+                            case 39:
+                                member.setEaaExpiration(column.text().trim());
+                                break;
+                            case 40:
+                                member.setYouthProtection(column.text().trim());
+                                break;
+                            case 41:
+                                member.setBackgroundCheck(column.text().trim());
+                                break;
+                            case 42:
+                                // Ignore UpdatedBy
+                                break;
+                            case 43:
+                                member.setWebAdminAccess(WebAdminAccess.fromDisplayString(column.text().trim()));
+                                break;
+                            default:
+                                // Do nothing
                         }
                         columnCount++;
                     }

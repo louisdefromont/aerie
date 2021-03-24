@@ -65,4 +65,21 @@ public enum MemberType {
         }
         return null;
     }
+
+    public static String toDisplayString(final MemberType memberType) {
+        if (Regular.equals(memberType)) {
+            return "Regular";
+        } else if (Family.equals(memberType)) {
+            return "Family";
+        } else if (Lifetime.equals(memberType)) {
+            return "Lifetime";
+        } else if (Honorary.equals(memberType)) {
+            return "Honorary";
+        } else if (Student.equals(memberType)) {
+            return "Student";
+        } else if (Prospect.equals(memberType)) {
+            return "Prospect";
+        }
+        return "Non-Member";
+    }
 }

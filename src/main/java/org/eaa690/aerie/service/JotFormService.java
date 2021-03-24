@@ -156,7 +156,6 @@ public class JotFormService {
      * @return URL
      */
     public String buildRenewMembershipUrl(final Member member) {
-        // TODO implement this
         try {
             final StringBuilder sb = new StringBuilder();
             // https://form.jotform.com/

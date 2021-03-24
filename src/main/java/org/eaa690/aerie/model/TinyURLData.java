@@ -16,6 +16,8 @@
 
 package org.eaa690.aerie.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * TinyURL Data Response.
  */
@@ -34,6 +36,12 @@ public class TinyURLData {
      * Alias.
      */
     private String alias;
+
+    /**
+     * Tags.
+     */
+    @JsonIgnore
+    private String tags;
 
     /**
      * TinyURL.
@@ -71,4 +79,13 @@ public class TinyURLData {
     public void setTinyUrl(String tinyUrl) {
         this.tinyUrl = tinyUrl;
     }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
 }

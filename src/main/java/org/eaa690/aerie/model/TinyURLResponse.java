@@ -16,6 +16,8 @@
 
 package org.eaa690.aerie.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * TinyURL Response Object.
  */
@@ -29,6 +31,13 @@ public class TinyURLResponse {
      * Data.
      */
     private TinyURLData data;
+
+    /**
+     * Errors.
+     */
+    @JsonIgnore
+    private String errors;
+
 
     public int getCode() {
         return code;
@@ -44,5 +53,13 @@ public class TinyURLResponse {
 
     public void setData(TinyURLData data) {
         this.data = data;
+    }
+
+    public String getErrors() {
+        return errors;
+    }
+
+    public void setErrors(String errors) {
+        this.errors = errors;
     }
 }

@@ -78,7 +78,7 @@ public class TinyURLService {
                             "\",\"domain\":\"tiny.one\"}"));
             final HttpResponse<String> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
             final TinyURLResponse tuResponse = mapper.readValue(response.body(), TinyURLResponse.class);
-            return tuResponse.getData().getTinyUrl();
+            return tuResponse.getData().getTiny_url();
         } catch (Exception e) {
             System.out.println("[Get Tiny URL] Error: " + e.getMessage());
         }

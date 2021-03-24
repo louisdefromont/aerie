@@ -156,7 +156,6 @@ public class JotFormService {
      * @return URL
      */
     public String buildRenewMembershipUrl(final Member member) {
-        // TODO implement this
         try {
             final StringBuilder sb = new StringBuilder();
             // https://form.jotform.com/
@@ -165,18 +164,18 @@ public class JotFormService {
             sb.append(propertyService.get(PropertyKeyConstants.JOTFORM_MEMBER_RENEWAL_FORM_ID_KEY).getValue());
             sb.append("?");
             final List<String> parameters = new ArrayList<>();
-            parameters.add("fullName3[first]=" + member.getFirstName());
-            parameters.add("fullName3[last]=" + member.getLastName());
-            parameters.add("address4[addr_line1]=" + member.getAddressLine1());
-            parameters.add("address4[addr_line2]=" + member.getAddressLine2());
-            parameters.add("address4[city]=" + member.getCity());
-            parameters.add("address4[state]=" + member.getState());
-            parameters.add("address4[postal]=" + member.getZipCode());
-            parameters.add("phoneNumber5=" + member.getCellPhone()); // TODO
-            parameters.add("email6=" + member.getEmail());
+            parameters.add("fullName3[first]=" + handleNull(member.getFirstName()));
+            parameters.add("fullName3[last]=" + handleNull(member.getLastName()));
+            parameters.add("address4[addr_line1]=" + handleNull(member.getAddressLine1()));
+            parameters.add("address4[addr_line2]=" + handleNull(member.getAddressLine2()));
+            parameters.add("address4[city]=" + handleNull(member.getCity()));
+            parameters.add("address4[state]=" + handleNull(State.getDisplayString(member.getState())));
+            parameters.add("address4[postal]=" + handleNull(member.getZipCode()));
+            parameters.add("phoneNumber5=" + handleNull(member.getCellPhone())); // TODO
+            parameters.add("email6=" + handleNull(member.getEmail()));
             parameters.add("additionalFamily9="); // TODO
             parameters.add("numberOf="); // TODO
-            parameters.add("eaaNational15=" + member.getEaaNumber());
+            parameters.add("eaaNational15=" + handleNull(member.getEaaNumber()));
             parameters.add("additionalInformation="); // TODO
             sb.append(StringUtils.join(parameters, "&"));
             return tinyUrlService.getTinyURL(sb.toString());
@@ -184,6 +183,19 @@ public class JotFormService {
             LOGGER.error("Error", e);
         }
         return null;
+    }
+
+    /**
+     * Ensures string is either an empty string or a text value.  Never null.
+     *
+     * @param value to be evaulated
+     * @return non-null value
+     */
+    private String handleNull(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value;
     }
 
     /**
@@ -196,12 +208,12 @@ public class JotFormService {
     private void processRenewingMemberSubmissions(final String dateStr, final JotForm client)
             throws ResourceNotFoundException {
         final HashMap<String, String> submissionFilter = new HashMap<>();
-        final Map<String, Member> renewMembersMap = new HashMap<>();
         submissionFilter.put("id:gt",
                 propertyService.get(PropertyKeyConstants.JOTFORM_MEMBER_RENEWAL_FORM_ID_KEY).getValue());
         submissionFilter.put("created_at:gt", dateStr);
         LOGGER.info("Querying for member renewal form submissions after " + dateStr);
-        parseRenewingMember(renewMembersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
+        final Map<String, Member> renewMembersMap =
+                parseRenewingMember(client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
         if (!renewMembersMap.isEmpty()) {
             LOGGER.info("RenewMembersMap size is " + renewMembersMap.size());
@@ -227,9 +239,9 @@ public class JotFormService {
         submissionFilter.put("id:gt",
                 propertyService.get(PropertyKeyConstants.JOTFORM_NEW_MEMBER_FORM_ID_KEY).getValue());
         submissionFilter.put("created_at:gt", dateStr);
-        final Map<String, Member> newMembersMap = new HashMap<>();
         LOGGER.info("Querying for new member form submissions after " + dateStr);
-        parseNewMember(newMembersMap, client.getSubmissions("0", "1000", submissionFilter, "created_at"));
+        final Map<String, Member> newMembersMap =
+                parseNewMember(client.getSubmissions("0", "1000", submissionFilter, "created_at"));
 
         if (!newMembersMap.isEmpty()) {
             LOGGER.info("NewMembersMap size is " + newMembersMap.size());
@@ -253,10 +265,11 @@ public class JotFormService {
     /**
      * Parses new member information from JotForm.
      *
-     * @param membersMap map of new members
      * @param submission JotForm
+     * @return membersMap map of new members
      */
-    private void parseNewMember(final Map<String, Member> membersMap, final JSONObject submission) {
+    private Map<String, Member> parseNewMember(final JSONObject submission) {
+        final Map<String, Member> map = new HashMap<>();
         final JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
             final Member member = new Member();
@@ -275,17 +288,19 @@ public class JotFormService {
                 parseNumOfFamily(otherInfoBuilder, answers);
                 member.setOtherInfo(otherInfoBuilder.getRaw());
             }
-            membersMap.put((String)object.get("id"), member);
+            map.put((String)object.get("id"), member);
         }
+        return map;
     }
 
     /**
      * Parses renewing member information from JotForm.
      *
-     * @param membersMap map of new members
      * @param submission JotForm
+     * @return membersMap map of new members
      */
-    private void parseRenewingMember(final Map<String, Member> membersMap, final JSONObject submission) {
+    private Map<String, Member> parseRenewingMember(final JSONObject submission) {
+        final Map<String, Member> map = new HashMap<>();
         final JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
             final Member member = new Member();
@@ -304,8 +319,9 @@ public class JotFormService {
                 parseNumOfFamily(otherInfoBuilder, answers);
                 member.setOtherInfo(otherInfoBuilder.getRaw());
             }
-            membersMap.put((String)object.get("id"), member);
+            map.put((String)object.get("id"), member);
         }
+        return map;
     }
 
     /**
@@ -433,7 +449,7 @@ public class JotFormService {
                     member.setCity(addressAnswer.getString("city"));
                 }
                 if (addressAnswer.has("state")) {
-                    member.setState(deriveState(addressAnswer.getString("state")));
+                    member.setState(State.deriveState(addressAnswer.getString("state")));
                 }
                 if (addressAnswer.has("postal")) {
                     member.setZipCode(addressAnswer.getString("postal"));
@@ -463,25 +479,6 @@ public class JotFormService {
         }
     }
 
-    /**
-     * Translates state string to enum.
-     *
-     * @param state String
-     * @return enum
-     */
-    private State deriveState(final String state) {
-        if ("AL".equalsIgnoreCase(state)) {
-            return State.ALABAMA;
-        } else if ("FL".equalsIgnoreCase(state)) {
-            return State.FLORIDA;
-        } else if ("NC".equalsIgnoreCase(state)) {
-            return State.NORTH_CAROLINA;
-        } else if ("SC".equalsIgnoreCase(state)) {
-            return State.SOUTH_CAROLINA;
-        } else if ("TN".equalsIgnoreCase(state)) {
-            return State.TENNESSEE;
-        }
-        return State.GEORGIA;
-    }
+
 
 }

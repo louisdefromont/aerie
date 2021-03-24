@@ -2,6 +2,7 @@ package org.eaa690.aerie.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -43,6 +44,8 @@ public class QueuedEmail extends BaseEntity implements Comparable<QueuedEmail> {
         templateIdKey = templateId;
         subjectKey = subject;
         memberId = member;
+        setCreatedAt(new Date());
+        setUpdatedAt(new Date());
     }
 
     public String getTemplateIdKey() {

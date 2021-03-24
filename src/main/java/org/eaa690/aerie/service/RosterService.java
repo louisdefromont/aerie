@@ -386,7 +386,7 @@ public class RosterService {
         try {
             httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
-            System.out.println("[Login] Error: " + e.getMessage());
+            LOGGER.error("[Login] Error", e);
         }
     }
 
@@ -412,7 +412,7 @@ public class RosterService {
             final Element viewState = doc.getElementById(RosterConstants.VIEW_STATE);
             headers.put(RosterConstants.VIEW_STATE, viewState.attr("value"));
         } catch (Exception e) {
-            System.out.println("[Search Page] Error: " + e.getMessage());
+            LOGGER.error("[Search Page] Error", e);
         }
     }
 
@@ -438,7 +438,7 @@ public class RosterService {
                     HttpResponse.BodyHandlers.ofString());
             sb.append(response.body());
         } catch (Exception e) {
-            System.out.println("[FETCH] Error: " + e.getMessage());
+            LOGGER.error("[FETCH] Error", e);
         }
         return sb.toString().contains("lnkViewUpdateMember");
     }
@@ -465,7 +465,7 @@ public class RosterService {
                     HttpResponse.BodyHandlers.ofString());
             sb.append(response.body());
         } catch (Exception e) {
-            System.out.println("[FETCH] Error: " + e.getMessage());
+            LOGGER.error("[FETCH] Error", e);
         }
         return sb.toString();
     }
@@ -478,7 +478,7 @@ public class RosterService {
             final String cookieStr = responseHeaders.firstValue("set-cookie").orElse("");
             headers.put("cookie", cookieStr.substring(0, cookieStr.indexOf(";")));
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            LOGGER.error("Error", e);
         }
         headers.put(RosterConstants.EVENT_TARGET, "");
         headers.put(RosterConstants.EVENT_ARGUMENT, "");
@@ -901,7 +901,7 @@ public class RosterService {
                                 member.setSpouse(column.text().trim());
                                 break;
                             case 6:
-                                member.setGender(Gender.valueOf(column.text().trim().toUpperCase()));
+                                member.setGender(Gender.fromDisplayString(column.text().trim().toUpperCase()));
                                 break;
                             case 7:
                                 member.setEmail(column.text().trim());
@@ -1029,7 +1029,7 @@ public class RosterService {
                     }
                     records.add(member);
                 } catch (Exception e) {
-                    System.out.println("Error: " + e.getMessage());
+                    LOGGER.error("Error", e);
                 }
             }
             rowCount++;

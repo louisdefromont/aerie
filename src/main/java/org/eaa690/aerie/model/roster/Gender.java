@@ -42,4 +42,13 @@ public enum Gender {
             return "Unknown";
         }
     }
+
+    public static Gender fromDisplayString(final String displayString) {
+        if ("Male".equalsIgnoreCase(displayString)) {
+            return MALE;
+        } else if ("Female".equalsIgnoreCase(displayString)) {
+            return FEMALE;
+        }
+        return UNKNOWN;
+    }
 }

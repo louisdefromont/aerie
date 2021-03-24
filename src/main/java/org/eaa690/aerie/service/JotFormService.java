@@ -276,7 +276,7 @@ public class JotFormService {
      */
     private Map<String, Member> parseNewMember(final JSONObject submission) {
         final Map<String, Member> map = new HashMap<>();
-        final Date oneYearFromNow = Date.from(Instant.now().plus(1, ChronoUnit.YEARS));
+        final Date oneYearFromNow = Date.from(Instant.now().plus(365, ChronoUnit.DAYS));
         final JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
             final Member member = new Member();
@@ -309,7 +309,7 @@ public class JotFormService {
      */
     private Map<String, Member> parseRenewingMember(final JSONObject submission) {
         final Map<String, Member> map = new HashMap<>();
-        final Date oneYearFromNow = Date.from(Instant.now().plus(1, ChronoUnit.YEARS));
+        final Date oneYearFromNow = Date.from(Instant.now().plus(365, ChronoUnit.DAYS));
         final JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
             final Member member = new Member();

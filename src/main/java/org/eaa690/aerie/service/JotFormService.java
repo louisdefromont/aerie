@@ -94,6 +94,7 @@ public class JotFormService {
 
     /**
      * Sets TinyURLService.
+     * Note: mostly used for unit test mocks
      *
      * @param value TinyURLService
      */
@@ -104,6 +105,7 @@ public class JotFormService {
 
     /**
      * Sets PropertyService.
+     * Note: mostly used for unit test mocks
      *
      * @param value PropertyService
      */
@@ -114,6 +116,7 @@ public class JotFormService {
 
     /**
      * Sets RosterService.
+     * Note: mostly used for unit test mocks
      *
      * @param value RosterService
      */
@@ -124,6 +127,7 @@ public class JotFormService {
 
     /**
      * Sets EmailService.
+     * Note: mostly used for unit test mocks
      *
      * @param value EmailService
      */

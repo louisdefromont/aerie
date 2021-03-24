@@ -45,16 +45,35 @@ public class TinyURLService {
     /**
      * PropertyService.
      */
+    @Autowired
     private PropertyService propertyService;
 
     /**
+     * HttpClient.
+     */
+    @Autowired
+    private HttpClient httpClient;
+
+    /**
      * Sets PropertyService.
+     * Note: mostly used for unit test mocks
      *
      * @param value PropertyService
      */
     @Autowired
     public void setPropertyService(final PropertyService value) {
         propertyService = value;
+    }
+
+    /**
+     * Sets HttpClient.
+     * Note: mostly used for unit test mocks
+     *
+     * @param value HttpClient
+     */
+    @Autowired
+    public void setHttpClient(final HttpClient value) {
+        httpClient = value;
     }
 
     /**
@@ -65,7 +84,6 @@ public class TinyURLService {
      */
     public String getTinyURL(final String originalValue) {
         try {
-            final HttpClient client = HttpClient.newHttpClient();
             final HttpRequest.Builder builder = HttpRequest.newBuilder()
                     // "https://api.tinyurl.com/create"
                     .uri(URI.create(propertyService.get(PropertyKeyConstants.TINY_URL_CREATE_API_KEY).getValue()))
@@ -76,7 +94,7 @@ public class TinyURLService {
                     .POST(HttpRequest.BodyPublishers.ofString("{\"url\":\"" +
                             originalValue +
                             "\",\"domain\":\"tiny.one\"}"));
-            final HttpResponse<String> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
             final TinyURLResponse tuResponse = mapper.readValue(response.body(), TinyURLResponse.class);
             return tuResponse.getData().getTinyUrl();
         } catch (Exception e) {

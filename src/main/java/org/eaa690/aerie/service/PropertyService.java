@@ -47,6 +47,7 @@ public class PropertyService {
 
     /**
      * Sets PropertyRepository.
+     * Note: mostly used for unit test mocks
      *
      * @param pRepository PropertyRepository
      */
@@ -55,6 +56,9 @@ public class PropertyService {
         propertyRepository = pRepository;
     }
 
+    /**
+     * PropertyCache.
+     */
     static Cache<String, Property> propertyCache =
             CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
 

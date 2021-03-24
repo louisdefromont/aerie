@@ -16,17 +16,13 @@
 
 package org.eaa690.aerie.service;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import com.ullink.slack.simpleslackapi.SlackSession;
-import com.ullink.slack.simpleslackapi.SlackUser;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
-import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
 import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
@@ -55,20 +51,24 @@ public class SlackService implements SlackMessagePostedListener {
     /**
      * PropertyService.
      */
+    @Autowired
     private PropertyService propertyService;
 
     /**
      * JotFormService.
      */
+    @Autowired
     private JotFormService jotFormService;
 
     /**
      * SlackSession
      */
-    private SlackSession slackSession = null;
+    @Autowired
+    private SlackSession slackSession;
 
     /**
      * Sets PropertyService.
+     * Note: mostly used for unit test mocks
      *
      * @param value PropertyService
      */
@@ -78,7 +78,19 @@ public class SlackService implements SlackMessagePostedListener {
     }
 
     /**
+     * Sets SlackSession.
+     * Note: mostly used for unit test mocks
+     *
+     * @param value SlackSession
+     */
+    @Autowired
+    public void setSlackSession(final SlackSession value) {
+        slackSession = value;
+    }
+
+    /**
      * Sets JotFormService.
+     * Note: mostly used for unit test mocks
      *
      * @param value JotFormService
      */
@@ -156,7 +168,6 @@ public class SlackService implements SlackMessagePostedListener {
      * @return list of users
      */
     public List<String> allSlackUsers() throws ResourceNotFoundException {
-        init();
         final List<String> users = new ArrayList<>();
         slackSession
                 .getUsers()
@@ -197,28 +208,9 @@ public class SlackService implements SlackMessagePostedListener {
      * @throws ResourceNotFoundException when properties are not found
      */
     private void sendMessage(final String msg, final String slackUserName) throws ResourceNotFoundException {
-        init();
         if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue())) {
             slackSession.sendMessageToUser(slackSession.findUserByUserName(slackUserName), msg, null);
         }
     }
 
-    /**
-     * Initializes Slack session.
-     *
-     * @throws ResourceNotFoundException when property is not found
-     */
-    private void init() throws ResourceNotFoundException {
-        if (slackSession == null || !slackSession.isConnected()) {
-            slackSession = SlackSessionFactory
-                    .createWebSocketSlackSession(
-                            propertyService.get(PropertyKeyConstants.SLACK_TOKEN_KEY).getValue());
-            try {
-                slackSession.connect();
-                slackSession.addMessagePostedListener(this);
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
-    }
 }

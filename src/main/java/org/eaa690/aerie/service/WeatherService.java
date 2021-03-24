@@ -71,22 +71,26 @@ public class WeatherService {
     /**
      * Synchronous rest template.
      */
+    @Autowired
     private RestTemplate restTemplate;
 
     /**
      * PropertyService.
      */
+    @Autowired
     private PropertyService propertyService;
 
     /**
      * SSLUtilities.
      */
+    @Autowired
     private SSLUtilities sslUtilities;
 
     /**
      * JSON Object Serializer/Deserializer.
      */
-    private ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
      * Logger.
@@ -100,7 +104,19 @@ public class WeatherService {
     private WeatherProductRepository weatherProductRepository;
 
     /**
+     * Sets ObjectMapper.
+     * Note: mostly used for unit test mocks
+     *
+     * @param value ObjectMapper
+     */
+    @Autowired
+    public void setObjectMapper(final ObjectMapper value) {
+        objectMapper = value;
+    }
+
+    /**
      * Sets WeatherProductRepository.
+     * Note: mostly used for unit test mocks
      *
      * @param wpRepository WeatherProductRepository
      */
@@ -117,6 +133,7 @@ public class WeatherService {
 
     /**
      * Sets RateLimitRepository.
+     * Note: mostly used for unit test mocks
      *
      * @param rlRepository RateLimitRepository
      */
@@ -127,6 +144,7 @@ public class WeatherService {
 
     /**
      * Sets SSLUtilities.
+     * Note: mostly used for unit test mocks
      *
      * @param value SSLUtilities
      */
@@ -137,6 +155,7 @@ public class WeatherService {
 
     /**
      * Sets PropertyService.
+     * Note: mostly used for unit test mocks
      *
      * @param value PropertyService
      */
@@ -147,6 +166,7 @@ public class WeatherService {
 
     /**
      * Sets RestTemplate.
+     * Note: mostly used for unit test mocks
      *
      * @param value RestTemplate
      */
@@ -166,7 +186,7 @@ public class WeatherService {
         if (icaoCodes == null || icaoCodes.isEmpty()) {
             return metars;
         }
-        icaoCodes.stream().forEach(icaoCode -> {
+        icaoCodes.forEach(icaoCode -> {
             try {
                 metars.add(getMETAR(icaoCode));
             } catch (ResourceNotFoundException rnfe) {
@@ -211,7 +231,7 @@ public class WeatherService {
         if (icaoCodes == null || icaoCodes.isEmpty()) {
             return tafs;
         }
-        icaoCodes.stream().forEach(icaoCode -> {
+        icaoCodes.forEach(icaoCode -> {
             try {
                 tafs.add(getTAF(icaoCode));
             } catch (ResourceNotFoundException rnfe) {
@@ -260,7 +280,7 @@ public class WeatherService {
         if (icaoCodes == null || icaoCodes.isEmpty()) {
             return stations;
         }
-        icaoCodes.stream().forEach(icaoCode -> {
+        icaoCodes.forEach(icaoCode -> {
             try {
                 stations.add(getStation(icaoCode));
             } catch (ResourceNotFoundException rnfe) {
@@ -348,7 +368,7 @@ public class WeatherService {
         if (weatherProductOpt.isPresent()) {
             WeatherProduct weatherProduct = weatherProductOpt.get();
             try {
-                return mapper.readValue(weatherProduct.getValue(), METAR.class);
+                return objectMapper.readValue(weatherProduct.getValue(), METAR.class);
             } catch (IOException e) {
                 LOGGER.warn(String.format("Unable to deserialize METAR from cache: %s", e.getMessage()));
             }
@@ -368,7 +388,7 @@ public class WeatherService {
         if (weatherProductOpt.isPresent()) {
             WeatherProduct weatherProduct = weatherProductOpt.get();
             try {
-                return mapper.readValue(weatherProduct.getValue(), TAF.class);
+                return objectMapper.readValue(weatherProduct.getValue(), TAF.class);
             } catch (IOException e) {
                 LOGGER.warn(String.format("Unable to deserialize TAF from cache: %s", e.getMessage()));
             }
@@ -388,7 +408,7 @@ public class WeatherService {
         if (weatherProductOpt.isPresent()) {
             WeatherProduct weatherProduct = weatherProductOpt.get();
             try {
-                return mapper.readValue(weatherProduct.getValue(), Station.class);
+                return objectMapper.readValue(weatherProduct.getValue(), Station.class);
             } catch (IOException e) {
                 LOGGER.warn(String.format("Unable to deserialize Station from cache: %s", e.getMessage()));
             }
@@ -541,9 +561,7 @@ public class WeatherService {
             final Date rateLimitDuration = Date.from(Instant.now().minus(Duration.parse(rateLimit.getValue())));
             final Date lastRun = rateLimit.getUpdatedAt();
             LOGGER.info(String.format("Comparing rateLimitDuration [%s] to lastRun [%s]", rateLimitDuration, lastRun));
-            if (lastRun.after(rateLimitDuration)) {
-                return false;
-            }
+            return !lastRun.after(rateLimitDuration);
         }
         return true;
     }
@@ -577,7 +595,7 @@ public class WeatherService {
             if (weatherProductOpt.isPresent()) {
                 weatherProduct = weatherProductOpt.get();
             }
-            weatherProduct.setValue(mapper.writeValueAsString(metar));
+            weatherProduct.setValue(objectMapper.writeValueAsString(metar));
             weatherProduct.setUpdatedAt(new Date());
             weatherProductRepository.save(weatherProduct);
         } catch (JsonProcessingException jpe) {
@@ -601,7 +619,7 @@ public class WeatherService {
             if (weatherProductOpt.isPresent()) {
                 weatherProduct = weatherProductOpt.get();
             }
-            weatherProduct.setValue(mapper.writeValueAsString(taf));
+            weatherProduct.setValue(objectMapper.writeValueAsString(taf));
             weatherProduct.setUpdatedAt(new Date());
             weatherProductRepository.save(weatherProduct);
         } catch (JsonProcessingException jpe) {
@@ -625,7 +643,7 @@ public class WeatherService {
             if (weatherProductOpt.isPresent()) {
                 weatherProduct = weatherProductOpt.get();
             }
-            weatherProduct.setValue(mapper.writeValueAsString(station));
+            weatherProduct.setValue(objectMapper.writeValueAsString(station));
             weatherProduct.setUpdatedAt(new Date());
             weatherProductRepository.save(weatherProduct);
         } catch (JsonProcessingException jpe) {

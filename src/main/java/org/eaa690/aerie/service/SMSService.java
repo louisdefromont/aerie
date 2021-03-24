@@ -48,17 +48,18 @@ public class SMSService {
     /**
      * PropertyService.
      */
+    @Autowired
     private PropertyService propertyService;
 
     /**
      * JotFormService.
      */
+    @Autowired
     private JotFormService jotFormService;
-
-    private boolean twilioInitialized = false;
 
     /**
      * Sets PropertyService.
+     * Note: mostly used for unit test mocks
      *
      * @param value PropertyService
      */
@@ -69,6 +70,7 @@ public class SMSService {
 
     /**
      * Sets JotFormService.
+     * Note: mostly used for unit test mocks
      *
      * @param value JotFormService
      */
@@ -151,12 +153,6 @@ public class SMSService {
     private void sendSMSMessage(final String to, final String text) throws ResourceNotFoundException {
         if (to != null && text != null &&
                 Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_ENABLED_KEY).getValue())) {
-            if (!twilioInitialized) {
-                Twilio
-                        .init(propertyService.get(PropertyKeyConstants.SMS_ACCOUNT_SID_KEY).getValue(),
-                                propertyService.get(PropertyKeyConstants.SMS_AUTH_ID_KEY).getValue());
-                twilioInitialized = true;
-            }
             com.twilio.rest.api.v2010.account.Message
                     .creator(new PhoneNumber(to),
                             new PhoneNumber(propertyService.get(PropertyKeyConstants.SMS_FROM_ADDRESS_KEY).getValue()),

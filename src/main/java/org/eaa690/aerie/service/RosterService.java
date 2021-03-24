@@ -181,6 +181,12 @@ public class RosterService {
     private SMSService smsService;
 
     /**
+     * MailChimpService.
+     */
+    @Autowired
+    private MailChimpService mailChimpService;
+
+    /**
      * SlackService.
      */
     @Autowired
@@ -193,6 +199,12 @@ public class RosterService {
     private MemberRepository memberRepository;
 
     /**
+     * HttpClient.
+     */
+    @Autowired
+    private HttpClient httpClient;
+
+    /**
      * HttpHeaders.
      */
     private final Map<String, String> headers = new HashMap<>();
@@ -203,7 +215,19 @@ public class RosterService {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
+     * Sets HttpClient.
+     * Note: mostly used for unit test mocks
+     *
+     * @param value HttpClient
+     */
+    @Autowired
+    public void setHttpClient(final HttpClient value) {
+        httpClient = value;
+    }
+
+    /**
      * Sets PropertyService.
+     * Note: mostly used for unit test mocks
      *
      * @param value PropertyService
      */
@@ -213,7 +237,52 @@ public class RosterService {
     }
 
     /**
+     * Sets MailChimpService.
+     * Note: mostly used for unit test mocks
+     *
+     * @param value MailChimpService
+     */
+    @Autowired
+    public void setMailChimpService(final MailChimpService value) {
+        mailChimpService = value;
+    }
+
+    /**
+     * Sets EmailService.
+     * Note: mostly used for unit test mocks
+     *
+     * @param value EmailService
+     */
+    @Autowired
+    public void setEmailService(final EmailService value) {
+        emailService = value;
+    }
+
+    /**
+     * Sets SMSService.
+     * Note: mostly used for unit test mocks
+     *
+     * @param value SMSService
+     */
+    @Autowired
+    public void setSMSService(final SMSService value) {
+        smsService = value;
+    }
+
+    /**
+     * Sets SlackService.
+     * Note: mostly used for unit test mocks
+     *
+     * @param value SlackService
+     */
+    @Autowired
+    public void setSlackService(final SlackService value) {
+        slackService = value;
+    }
+
+    /**
      * Sets MemberRepository.
+     * Note: mostly used for unit test mocks
      *
      * @param mRepository MemberRepository
      */
@@ -287,6 +356,13 @@ public class RosterService {
                                             member);
                                     smsService.sendRenewMembershipMsg(member);
                                     slackService.sendRenewMembershipMsg(member);
+                                }
+                                if (expirationDate.equals(SDF.format(new Date()))) {
+                                    // TODO: move member to non-member distro list in MailChimp
+                                    //mailChimpService.addOrUpdateNonMember(
+                                    //        member.getFirstName(),
+                                    //        member.getLastName(),
+                                    //        member.getEmail());
                                 }
                             } catch (ResourceNotFoundException rnfe) {
                                 LOGGER.error("Error", rnfe);
@@ -392,7 +468,6 @@ public class RosterService {
     private void doLogin() {
         final String uriStr = EAA_CHAPTERS_SITE_BASE + "/main.aspx";
         final String requestBodyStr = buildLoginRequestBodyString();
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBodyStr));
@@ -402,7 +477,7 @@ public class RosterService {
         final HttpRequest request = builder.build();
 
         try {
-            client.send(request, HttpResponse.BodyHandlers.ofString());
+            httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
             System.out.println("[Login] Error: " + e.getMessage());
         }
@@ -414,7 +489,6 @@ public class RosterService {
      */
     private void getSearchMembersPage() {
         final String uriStr = EAA_CHAPTERS_SITE_BASE + "/searchmembers.aspx";
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .GET();
@@ -424,7 +498,7 @@ public class RosterService {
         final HttpRequest request = builder.build();
 
         try {
-            HttpResponse<String> response = client.send(request,
+            HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
 
             final Document doc = Jsoup.parse(response.body());
@@ -441,7 +515,6 @@ public class RosterService {
     private boolean existsUser(final String firstName, final String lastName) {
         final String uriStr = EAA_CHAPTERS_SITE_BASE + "/searchmembers.aspx";
         final String requestBodyStr = buildExistsUserRequestBodyString(firstName, lastName);
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBodyStr));
@@ -454,7 +527,7 @@ public class RosterService {
 
         StringBuilder sb = new StringBuilder();
         try {
-            HttpResponse<String> response = client.send(request,
+            HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
             sb.append(response.body());
         } catch (Exception e) {
@@ -469,7 +542,6 @@ public class RosterService {
     private String fetchData() {
         final String uriStr = EAA_CHAPTERS_SITE_BASE + "/searchmembers.aspx";
         final String requestBodyStr = buildFetchDataRequestBodyString();
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBodyStr));
@@ -482,7 +554,7 @@ public class RosterService {
 
         StringBuilder sb = new StringBuilder();
         try {
-            HttpResponse<String> response = client.send(request,
+            HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
             sb.append(response.body());
         } catch (Exception e) {
@@ -492,10 +564,9 @@ public class RosterService {
     }
 
     private void getHttpHeaders() throws ResourceNotFoundException {
-        final HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(EAA_CHAPTERS_SITE_BASE + "/main.aspx")).GET().build();
         try {
-            final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             final HttpHeaders responseHeaders = response.headers();
             final String cookieStr = responseHeaders.firstValue("set-cookie").orElse("");
             headers.put("cookie", cookieStr.substring(0, cookieStr.indexOf(";")));

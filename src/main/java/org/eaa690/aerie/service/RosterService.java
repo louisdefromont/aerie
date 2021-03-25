@@ -298,7 +298,7 @@ public class RosterService {
      * @return Member
      * @throws ResourceNotFoundException when no member matches
      */
-    public Member getMemberByID(final Long id) throws ResourceNotFoundException {
+    public Member getMemberByRosterID(final Long id) throws ResourceNotFoundException {
         Optional<Member> member = memberRepository.findByRosterId(id);
         if (member.isPresent()) {
             return member.get();
@@ -318,12 +318,12 @@ public class RosterService {
     /**
      * Updates a member's RFID to the provided value.
      *
-     * @param id Member ID
+     * @param id Member Roster ID
      * @param rfid new RFID value
      * @throws ResourceNotFoundException when no member matches
      */
     public void updateMemberRFID(final Long id, final String rfid) throws ResourceNotFoundException {
-        final Member member = getMemberByID(id);
+        final Member member = getMemberByRosterID(id);
         member.setRfid(rfid);
         memberRepository.save(member);
     }

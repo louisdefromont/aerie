@@ -296,6 +296,9 @@ public class Member extends BaseEntity implements Comparable<Member> {
 
     public void setSlack(String slack) {
         this.slack = slack;
+        if (slack != null) {
+            slackEnabled = true;
+        }
     }
 
     public String getFirstName() {
@@ -510,6 +513,9 @@ public class Member extends BaseEntity implements Comparable<Member> {
 
     public void setCellPhone(String cellPhone) {
         this.cellPhone = cellPhone;
+        if (cellPhone != null) {
+            smsEnabled = true;
+        }
     }
 
     public String getEmail() {
@@ -518,6 +524,9 @@ public class Member extends BaseEntity implements Comparable<Member> {
 
     public void setEmail(String email) {
         this.email = email;
+        if (email != null) {
+            emailEnabled = true;
+        }
     }
 
     public String getRatings() {

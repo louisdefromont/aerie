@@ -16,11 +16,15 @@
 
 package org.eaa690.aerie.controller;
 
+import ch.qos.logback.classic.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.service.EmailService;
 import org.eaa690.aerie.service.MailChimpService;
+import org.eaa690.aerie.service.RosterService;
 import org.eaa690.aerie.service.SMSService;
 import org.eaa690.aerie.service.SlackService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +41,18 @@ import java.util.List;
         "/admin"
 })
 public class AdminController {
+
+    /**
+     * Logger.
+     */
+    private static final Log LOGGER = LogFactory.getLog(AdminController.class);
+
+    private final static String SEND_MSG_MESSAGE = "Sending %s %s to %s %s at %s";
+
+    /**
+     * RosterService.
+     */
+    private RosterService rosterService;
 
     /**
      * EmailService.
@@ -57,6 +73,16 @@ public class AdminController {
      * MailChimpService.
      */
     private MailChimpService mailChimpService;
+
+    /**
+     * Sets RosterService.
+     *
+     * @param value RosterService
+     */
+    @Autowired
+    public void setRosterService(final RosterService value) {
+        rosterService = value;
+    }
 
     /**
      * Sets EmailService.
@@ -101,12 +127,18 @@ public class AdminController {
     /**
      * Sends a renew membership email to the provided address.
      *
-     * @param member Member
+     * @param rosterId Member Roster ID
+     * @param order first, second, or third reminder message
      */
-    @PostMapping(path = {"/email/renew-membership/{order}"})
-    public void testRenewMembershipEmail(@PathVariable("order") final String order, @RequestBody final Member member) {
+    @PostMapping(path = {"/email/{rosterId}/renew-membership/{order}"})
+    public void testRenewMembershipEmail(
+            @PathVariable("rosterId") final Long rosterId,
+            @PathVariable("order") final String order) throws ResourceNotFoundException {
+        final Member member = rosterService.getMemberByRosterID(rosterId);
         switch (order) {
             case "first":
+                LOGGER.info(String.format(SEND_MSG_MESSAGE, "first renew-membership", "email",
+                        member.getFirstName(), member.getLastName(), member.getEmail()));
                 emailService.sendMsg(
                         PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                         PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
@@ -114,6 +146,8 @@ public class AdminController {
                 emailService.incrementManualMessageCount();
                 break;
             case "second":
+                LOGGER.info(String.format(SEND_MSG_MESSAGE, "second renew-membership", "email",
+                        member.getFirstName(), member.getLastName(), member.getEmail()));
                 emailService.sendMsg(
                         PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                         PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
@@ -121,6 +155,8 @@ public class AdminController {
                 emailService.incrementManualMessageCount();
                 break;
             case "third":
+                LOGGER.info(String.format(SEND_MSG_MESSAGE, "third renew-membership", "email",
+                        member.getFirstName(), member.getLastName(), member.getEmail()));
                 emailService.sendMsg(
                         PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                         PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
@@ -135,10 +171,13 @@ public class AdminController {
     /**
      * Sends a new membership email to the provided address.
      *
-     * @param member Member
+     * @param rosterId Member Roster ID
      */
-    @PostMapping(path = {"/email/new-membership"})
-    public void testNewMembershipEmail(@RequestBody final Member member) {
+    @PostMapping(path = {"/email/{rosterId}/new-membership"})
+    public void testNewMembershipEmail(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
+        final Member member = rosterService.getMemberByRosterID(rosterId);
+        LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "email",
+                member.getFirstName(), member.getLastName(), member.getEmail()));
         emailService.sendMsg(
                 PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID,
                 PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY,
@@ -157,40 +196,53 @@ public class AdminController {
     /**
      * Sends a renew membership SMS to the provided address.
      *
-     * @param member Member
+     * @param rosterId Member Roster ID
      */
-    @PostMapping(path = {"/sms/renew-membership"})
-    public void testRenewMembershipSMS(@RequestBody final Member member) {
+    @PostMapping(path = {"/sms/{rosterId}/renew-membership"})
+    public void testRenewMembershipSMS(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
+        final Member member = rosterService.getMemberByRosterID(rosterId);
+        LOGGER.info(String.format(SEND_MSG_MESSAGE, "renew-membership", "sms",
+                member.getFirstName(), member.getLastName(), member.getCellPhone()));
         smsService.sendRenewMembershipMsg(member);
     }
 
     /**
      * Sends a new membership SMS to the provided address.
      *
-     * @param member Member
+     * @param rosterId Member Roster ID
      */
-    @PostMapping(path = {"/sms/new-membership"})
-    public void testNewMembershipSMS(@RequestBody final Member member) {
+    @PostMapping(path = {"/sms/{rosterId}/new-membership"})
+    public void testNewMembershipSMS(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
+        final Member member = rosterService.getMemberByRosterID(rosterId);
+        LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "sms",
+                member.getFirstName(), member.getLastName(), member.getCellPhone()));
         smsService.sendNewMembershipMsg(member);
     }
 
     /**
      * Sends a renew membership Slack message to the provided address.
      *
-     * @param member Member
+     * @param rosterId Member Roster ID
      */
-    @PostMapping(path = {"/slack/renew-membership"})
-    public void testRenewMembershipSlack(@RequestBody final Member member) {
+    @PostMapping(path = {"/slack/{rosterId}/renew-membership"})
+    public void testRenewMembershipSlack(@PathVariable("rosterId") final Long rosterId)
+            throws ResourceNotFoundException {
+        final Member member = rosterService.getMemberByRosterID(rosterId);
+        LOGGER.info(String.format(SEND_MSG_MESSAGE, "renew-membership", "slack",
+                member.getFirstName(), member.getLastName(), member.getSlack()));
         slackService.sendRenewMembershipMsg(member);
     }
 
     /**
      * Sends a new membership Slack message to the provided address.
      *
-     * @param member Member
+     * @param rosterId Member Roster ID
      */
-    @PostMapping(path = {"/slack/new-membership"})
-    public void testNewMembershipSlack(@RequestBody final Member member) {
+    @PostMapping(path = {"/slack/{rosterId}/new-membership"})
+    public void testNewMembershipSlack(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
+        final Member member = rosterService.getMemberByRosterID(rosterId);
+        LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "slack",
+                member.getFirstName(), member.getLastName(), member.getSlack()));
         slackService.sendNewMembershipMsg(member);
     }
 
@@ -205,20 +257,24 @@ public class AdminController {
     /**
      * Adds a person to the member audience in Mail Chimp.
      *
-     * @param member Member
+     * @param rosterId Member Roster ID
      */
-    @PostMapping(path = {"/mailchimp/add-member"})
-    public void addOrUpdateMemberToMailChimp(@RequestBody final Member member) throws ResourceNotFoundException {
+    @PostMapping(path = {"/mailchimp/{rosterId}/add-member"})
+    public void addOrUpdateMemberToMailChimp(@PathVariable("rosterId") final Long rosterId)
+            throws ResourceNotFoundException {
+        final Member member = rosterService.getMemberByRosterID(rosterId);
         mailChimpService.addOrUpdateMember(member.getFirstName(), member.getLastName(), member.getEmail());
     }
 
     /**
      * Adds a person to the non-member audience in Mail Chimp.
      *
-     * @param member Member
+     * @param rosterId Member Roster ID
      */
-    @PostMapping(path = {"/mailchimp/add-non-member"})
-    public void addOrUpdateNonMemberToMailChimp(@RequestBody final Member member) throws ResourceNotFoundException {
+    @PostMapping(path = {"/mailchimp/{rosterId}/add-non-member"})
+    public void addOrUpdateNonMemberToMailChimp(@PathVariable("rosterId") final Long rosterId)
+            throws ResourceNotFoundException {
+        final Member member = rosterService.getMemberByRosterID(rosterId);
         mailChimpService.addOrUpdateNonMember(member.getFirstName(), member.getLastName(), member.getEmail());
     }
 }

@@ -18,14 +18,12 @@ package org.eaa690.aerie.service;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.objects.Personalization;
-import org.apache.commons.lang3.StringUtils;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
@@ -61,33 +59,33 @@ public class EmailService {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
 
     /**
-     * SendGrid Initialized.
-     */
-    private boolean sendgridInitialized = false;
-
-    /**
      * PropertyService.
      */
+    @Autowired
     private PropertyService propertyService;
 
     /**
      * JotFormService.
      */
+    @Autowired
     private JotFormService jotFormService;
 
     /**
      * MemberRepository.
      */
+    @Autowired
     private MemberRepository memberRepository;
 
     /**
      * QueuedEmailRepository.
      */
+    @Autowired
     private QueuedEmailRepository queuedEmailRepository;
 
     /**
      * SendGrid.
      */
+    @Autowired
     private SendGrid sendGrid;
 
     /**
@@ -97,6 +95,7 @@ public class EmailService {
 
     /**
      * Sets PropertyService.
+     * Note: mostly used for unit test mocks
      *
      * @param value PropertyService
      */
@@ -106,7 +105,19 @@ public class EmailService {
     }
 
     /**
+     * Sets SendGrid.
+     * Note: mostly used for unit test mocks
+     *
+     * @param value SendGrid
+     */
+    @Autowired
+    public void setSendGrid(final SendGrid value) {
+        sendGrid = value;
+    }
+
+    /**
      * Sets JotFormService.
+     * Note: mostly used for unit test mocks
      *
      * @param value JotFormService
      */
@@ -117,6 +128,7 @@ public class EmailService {
 
     /**
      * Sets MemberRepository.
+     * Note: mostly used for unit test mocks
      *
      * @param mRepository MemberRepository
      */
@@ -127,6 +139,7 @@ public class EmailService {
 
     /**
      * Sets QueuedEmailRepository.
+     * Note: mostly used for unit test mocks
      *
      * @param qeRepository QueuedEmailRepository
      */
@@ -200,10 +213,7 @@ public class EmailService {
      * @param member Member to be messaged
      */
     public void sendMsg(final String templateIdKey, final String subjectKey, final Member member) {
-        if (member == null || member.getEmail() == null) {
-            return;
-        }
-        if (member.emailEnabled()) {
+        if (member != null && member.getEmail() != null && member.emailEnabled()) {
             try {
                 String to = member.getEmail();
                 if (Boolean.parseBoolean(
@@ -258,11 +268,6 @@ public class EmailService {
      * @throws IOException upon message delivery failure
      */
     private void sendEmail(final Mail mail) throws ResourceNotFoundException, IOException {
-        if (!sendgridInitialized) {
-            sendGrid = new SendGrid(propertyService
-                    .get(PropertyKeyConstants.SEND_GRID_EMAIL_API_KEY).getValue());
-            sendgridInitialized = true;
-        }
         final Request request = new Request();
         request.setMethod(Method.POST);
         request.setEndpoint("mail/send");

@@ -16,6 +16,10 @@
 
 package org.eaa690.aerie.model.roster;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.eaa690.aerie.service.RosterService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -25,29 +29,34 @@ import java.util.stream.Collectors;
 public class OtherInfoBuilder {
 
     /**
+     * Logger.
+     */
+    private static final Log LOGGER = LogFactory.getLog(OtherInfoBuilder.class);
+
+    /**
      * Family Pattern.
      */
-    private Pattern additionalFamilyPattern = Pattern.compile("Family=[(.*?)]");
+    public static Pattern additionalFamilyPattern = Pattern.compile("Family=\\[(.*?)\\]");
 
     /**
      * # of Family Pattern.
      */
-    private Pattern numOfFamilyPattern = Pattern.compile("# of Family=[(.*?)]");
+    public static Pattern numOfFamilyPattern = Pattern.compile("# of Family=\\[(.*?)\\]");
 
     /**
      * Slack Pattern.
      */
-    private Pattern slackPattern = Pattern.compile("Slack=[(.*?)]");
+    public static Pattern slackPattern = Pattern.compile("Slack=\\[(.*?)\\]");
 
     /**
      * RFID Pattern.
      */
-    private Pattern rfidPattern = Pattern.compile("RFID=[(.*?)]");
+    public static Pattern rfidPattern = Pattern.compile("RFID=\\[(.*?)\\]");
 
     /**
      * Additional Info Pattern.
      */
-    private Pattern additionalInfoPattern = Pattern.compile("Additional Info=[(.*?)]");
+    public static Pattern additionalInfoPattern = Pattern.compile("Additional Info=\\[(.*?)\\]");
 
     /**
      * Additional Family.
@@ -138,30 +147,45 @@ public class OtherInfoBuilder {
         if (additionalInfo != null) {
             parts.add(String.format("Additional Info=[%s]", additionalInfo));
         }
-        return parts.stream().collect(Collectors.joining("; "));
+        return String.join("; ", parts);
     }
 
     public void setRaw(String raw) {
+        boolean matched = false;
         if (raw != null) {
             final Matcher additionalFamilyMatcher = additionalFamilyPattern.matcher(raw);
             if (additionalFamilyMatcher.find()) {
+                matched = true;
                 setAdditionalFamily(additionalFamilyMatcher.group(1));
+                LOGGER.info("Set additional family to ["+getAdditionalFamily()+"]");
             }
             final Matcher numOfFamilyMatcher = numOfFamilyPattern.matcher(raw);
             if (numOfFamilyMatcher.find()) {
+                matched = true;
                 setNumberOfFamily(numOfFamilyMatcher.group(1));
+                LOGGER.info("Set number of family to ["+getNumberOfFamily()+"]");
             }
             final Matcher slackMatcher = slackPattern.matcher(raw);
             if (slackMatcher.find()) {
+                matched = true;
                 setSlack(slackMatcher.group(1));
+                LOGGER.info("Set Slack to ["+getSlack()+"]");
             }
             final Matcher rfidMatcher = rfidPattern.matcher(raw);
             if (rfidMatcher.find()) {
+                matched = true;
                 setRfid(rfidMatcher.group(1));
+                LOGGER.info("Set RFID to ["+getRfid()+"]");
             }
             final Matcher additionalInfoMatcher = additionalInfoPattern.matcher(raw);
             if (additionalInfoMatcher.find()) {
+                matched = true;
                 setAdditionalInfo(additionalInfoMatcher.group(1));
+                LOGGER.info("Set additional info to ["+getAdditionalInfo()+"]");
+            }
+            if (!matched) {
+                LOGGER.info("No patterns matched.  Setting additional info to ["+raw+"]");
+                setAdditionalInfo(raw);
             }
         }
     }

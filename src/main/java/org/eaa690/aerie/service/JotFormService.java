@@ -34,6 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -94,6 +96,7 @@ public class JotFormService {
 
     /**
      * Sets TinyURLService.
+     * Note: mostly used for unit test mocks
      *
      * @param value TinyURLService
      */
@@ -104,6 +107,7 @@ public class JotFormService {
 
     /**
      * Sets PropertyService.
+     * Note: mostly used for unit test mocks
      *
      * @param value PropertyService
      */
@@ -114,6 +118,7 @@ public class JotFormService {
 
     /**
      * Sets RosterService.
+     * Note: mostly used for unit test mocks
      *
      * @param value RosterService
      */
@@ -124,6 +129,7 @@ public class JotFormService {
 
     /**
      * Sets EmailService.
+     * Note: mostly used for unit test mocks
      *
      * @param value EmailService
      */
@@ -270,6 +276,7 @@ public class JotFormService {
      */
     private Map<String, Member> parseNewMember(final JSONObject submission) {
         final Map<String, Member> map = new HashMap<>();
+        final Date oneYearFromNow = Date.from(Instant.now().plus(365, ChronoUnit.DAYS));
         final JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
             final Member member = new Member();
@@ -286,6 +293,7 @@ public class JotFormService {
                 parseEAANumber(member, answers);
                 parseMembershipType(member, answers);
                 parseNumOfFamily(otherInfoBuilder, answers);
+                member.setExpiration(oneYearFromNow);
                 member.setOtherInfo(otherInfoBuilder.getRaw());
             }
             map.put((String)object.get("id"), member);
@@ -301,6 +309,7 @@ public class JotFormService {
      */
     private Map<String, Member> parseRenewingMember(final JSONObject submission) {
         final Map<String, Member> map = new HashMap<>();
+        final Date oneYearFromNow = Date.from(Instant.now().plus(365, ChronoUnit.DAYS));
         final JSONArray content = submission.getJSONArray("content");
         for (int i = 0; i < content.length(); i++) {
             final Member member = new Member();
@@ -317,6 +326,7 @@ public class JotFormService {
                 parseEAANumber(member, answers);
                 parseMembershipType(member, answers);
                 parseNumOfFamily(otherInfoBuilder, answers);
+                member.setExpiration(oneYearFromNow);
                 member.setOtherInfo(otherInfoBuilder.getRaw());
             }
             map.put((String)object.get("id"), member);

@@ -1,8 +1,10 @@
 package org.eaa690.aerie.model;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eaa690.aerie.model.roster.OtherInfoBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,13 +13,7 @@ import java.util.stream.Stream;
 
 public class OtherInfo {
 
-    private Pattern familyPattern = Pattern.compile("Family=\\[(.*?)\\]");
-
-    private Pattern slackPattern = Pattern.compile("Slack=\\[(.*?)\\]");
-
-    private Pattern rfidPattern = Pattern.compile("RFID=\\[(.*?)\\]");
-
-    private Pattern otherPattern = Pattern.compile("Other=\\[(.*?)\\]");
+    private String raw;
 
     private String rfid;
 
@@ -25,29 +21,21 @@ public class OtherInfo {
 
     private String description;
 
-    private List<String> family = new ArrayList<>();
+    private String numOfFamily;
+
+    private List<String> family;
 
     public OtherInfo(String otherInfo) {
-        final Matcher familyMatcher = familyPattern.matcher(otherInfo);
-        if (familyMatcher.find()) {
-            final String familyStr = familyMatcher.group(1);
-            if (StringUtils.isNotEmpty(familyStr)) {
-                family = Stream.of(familyStr.split("\\s*,\\s*")).collect(Collectors.toList());
-                family.stream().forEach(name -> name.trim());
-            }
+        final OtherInfoBuilder builder = new OtherInfoBuilder();
+        builder.setRaw(otherInfo);
+        slack = builder.getSlack();
+        rfid = builder.getRfid();
+        description = builder.getAdditionalInfo();
+        numOfFamily = builder.getNumberOfFamily();
+        if (builder.getAdditionalFamily() != null) {
+            family = Arrays.asList(builder.getAdditionalFamily().split(","));
         }
-        final Matcher slackMatcher = slackPattern.matcher(otherInfo);
-        if (slackMatcher.find()) {
-            slack = slackMatcher.group(1);
-        }
-        final Matcher rfidMatcher = rfidPattern.matcher(otherInfo);
-        if (rfidMatcher.find()) {
-            rfid = rfidMatcher.group(1);
-        }
-        final Matcher descriptionMatcher = otherPattern.matcher(otherInfo);
-        if (descriptionMatcher.find()) {
-            description = descriptionMatcher.group(1);
-        }
+        raw = builder.getRaw();
     }
 
     public String getRfid() {
@@ -80,6 +68,22 @@ public class OtherInfo {
 
     public void setFamily(final List<String> family) {
         this.family = family;
+    }
+
+    public String getNumOfFamily() {
+        return numOfFamily;
+    }
+
+    public void setNumOfFamily(String numOfFamily) {
+        this.numOfFamily = numOfFamily;
+    }
+
+    public String getRaw() {
+        return raw;
+    }
+
+    public void setRaw(String raw) {
+        this.raw = raw;
     }
 
     public String toString() {

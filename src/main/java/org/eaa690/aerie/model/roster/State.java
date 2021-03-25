@@ -82,4 +82,25 @@ public enum State {
         }
         return "GA";
     }
+
+    /**
+     * Gets State from displayable string value.
+     *
+     * @param displayString displayable string
+     * @return State
+     */
+    public static State fromDisplayString(final String displayString) {
+        if ("AL".equalsIgnoreCase(displayString)) {
+            return ALABAMA;
+        } else if ("FL".equalsIgnoreCase(displayString)) {
+            return FLORIDA;
+        } else if ("NC".equalsIgnoreCase(displayString)) {
+            return NORTH_CAROLINA;
+        } else if ("SC".equalsIgnoreCase(displayString)) {
+            return SOUTH_CAROLINA;
+        } else if ("TN".equalsIgnoreCase(displayString)) {
+            return TENNESSEE;
+        }
+        return GEORGIA;
+    }
 }

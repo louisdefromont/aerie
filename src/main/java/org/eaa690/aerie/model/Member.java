@@ -25,6 +25,8 @@ import org.eaa690.aerie.model.roster.WebAdminAccess;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
@@ -34,6 +36,11 @@ import java.util.Objects;
 @Entity
 @Table(name = "MEMBER")
 public class Member extends BaseEntity implements Comparable<Member> {
+
+    /**
+     * Date representing the beginning of dates.
+     */
+    private final static Date ZERO_DATE = new Date(0);
 
     /**
      * Roster management system ID.
@@ -64,6 +71,11 @@ public class Member extends BaseEntity implements Comparable<Member> {
      * Nickname.
      */
     private String nickname;
+
+    /**
+     * Username.
+     */
+    private String username;
 
     /**
      * Spouse.
@@ -138,6 +150,21 @@ public class Member extends BaseEntity implements Comparable<Member> {
     private String otherInfo;
 
     /**
+     * Family.
+     */
+    private String family;
+
+    /**
+     * Num of Family.
+     */
+    private String numOfFamily;
+
+    /**
+     * AdditionalInfo.
+     */
+    private String additionalInfo;
+
+    /**
      * Home Phone.
      */
     private String homePhone;
@@ -193,6 +220,21 @@ public class Member extends BaseEntity implements Comparable<Member> {
     private boolean eagleVolunteer = Boolean.FALSE;
 
     /**
+     * EAA Membership Expiration Date.
+     */
+    private String eaaExpiration;
+
+    /**
+     * Youth Protection Expiration Date.
+     */
+    private String youthProtection;
+
+    /**
+     * Background Check Expiration Date.
+     */
+    private String backgroundCheck;
+
+    /**
      * EAA Number.
      */
     private String eaaNumber;
@@ -211,6 +253,11 @@ public class Member extends BaseEntity implements Comparable<Member> {
      * Membership Expiration.
      */
     private Date expiration;
+
+    /**
+     * SimpleDateFormat.
+     */
+    private final static SimpleDateFormat SDF = new SimpleDateFormat("MM/dd/yy");
 
     /**
      * Email Enabled Flag.
@@ -407,12 +454,34 @@ public class Member extends BaseEntity implements Comparable<Member> {
         return birthDate;
     }
 
+    public Date getBirthDateAsDate() {
+        if (birthDate == null || "".equals(birthDate)) {
+            return ZERO_DATE;
+        }
+        try {
+            return SDF.parse(birthDate);
+        } catch (ParseException e) {
+            return ZERO_DATE;
+        }
+    }
+
     public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
 
     public String getJoined() {
         return joined;
+    }
+
+    public Date getJoinedAsDate() {
+        if (joined == null || "".equals(joined)) {
+            return ZERO_DATE;
+        }
+        try {
+            return SDF.parse(joined);
+        } catch (ParseException e) {
+            return ZERO_DATE;
+        }
     }
 
     public void setJoined(String joined) {
@@ -529,6 +598,62 @@ public class Member extends BaseEntity implements Comparable<Member> {
 
     public void setEagleVolunteer(boolean eagleVolunteer) {
         this.eagleVolunteer = eagleVolunteer;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEaaExpiration() {
+        return eaaExpiration;
+    }
+
+    public void setEaaExpiration(String eaaExpiration) {
+        this.eaaExpiration = eaaExpiration;
+    }
+
+    public String getYouthProtection() {
+        return youthProtection;
+    }
+
+    public void setYouthProtection(String youthProtection) {
+        this.youthProtection = youthProtection;
+    }
+
+    public String getBackgroundCheck() {
+        return backgroundCheck;
+    }
+
+    public void setBackgroundCheck(String backgroundCheck) {
+        this.backgroundCheck = backgroundCheck;
+    }
+
+    public String getFamily() {
+        return family;
+    }
+
+    public void setFamily(String family) {
+        this.family = family;
+    }
+
+    public String getNumOfFamily() {
+        return numOfFamily;
+    }
+
+    public void setNumOfFamily(String numOfFamily) {
+        this.numOfFamily = numOfFamily;
+    }
+
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 
     /**

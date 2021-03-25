@@ -48,21 +48,35 @@ public class MailChimpService {
     /**
      * PropertyService.
      */
+    @Autowired
     private PropertyService propertyService;
 
     /**
      * MailChimp Connection.
      */
+    @Autowired
     private MailChimpConnection mailChimpConnection;
 
     /**
      * Sets PropertyService.
+     * Note: mostly used for unit test mocks
      *
      * @param value PropertyService
      */
     @Autowired
     public void setPropertyService(final PropertyService value) {
         propertyService = value;
+    }
+
+    /**
+     * Sets MailChimpConnection.
+     * Note: mostly used for unit test mocks
+     *
+     * @param value MailChimpConnection
+     */
+    @Autowired
+    public void setMailChimpConnection(final MailChimpConnection value) {
+        mailChimpConnection = value;
     }
 
     public void addOrUpdateMember(String firstName, String lastName, String emailAddress)
@@ -106,7 +120,6 @@ public class MailChimpService {
     }
 
     private List<Member> getMemberList(String listId) throws ResourceNotFoundException {
-        initMailChimp();
         try {
             final MailChimpList yourList = mailChimpConnection.getList(listId);
             return yourList.getMembers(0,0);
@@ -117,7 +130,6 @@ public class MailChimpService {
     }
 
     private void addOrUpdateMember(String listId, String firstName, String lastName, String emailAddress) {
-        initMailChimp();
         try {
             Map<String, Object> mergeFields = new HashMap<>();
             mergeFields.put("FNAME", firstName);
@@ -144,7 +156,6 @@ public class MailChimpService {
     }
 
     private void deleteMember(String listId, String memberId) {
-        initMailChimp();
         try {
             final MailChimpList yourList = mailChimpConnection.getList(listId);
             yourList.deleteMemberFromList(memberId);
@@ -153,14 +164,4 @@ public class MailChimpService {
         }
     }
 
-    private void initMailChimp() {
-        try {
-            if (mailChimpConnection == null) {
-                mailChimpConnection = new MailChimpConnection(propertyService
-                        .get(PropertyKeyConstants.MAILCHIMP_API_KEY).getValue());
-            }
-        } catch (ResourceNotFoundException e) {
-            LOGGER.error("ERROR", e);
-        }
-    }
 }

@@ -16,6 +16,9 @@
 
 package org.eaa690.aerie.controller;
 
+import ch.qos.logback.classic.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
@@ -38,6 +41,13 @@ import java.util.List;
         "/admin"
 })
 public class AdminController {
+
+    /**
+     * Logger.
+     */
+    private static final Log LOGGER = LogFactory.getLog(AdminController.class);
+
+    private final static String SEND_MSG_MESSAGE = "Sending %s %s to %s %s at %s";
 
     /**
      * RosterService.
@@ -127,6 +137,8 @@ public class AdminController {
         final Member member = rosterService.getMemberByRosterID(rosterId);
         switch (order) {
             case "first":
+                LOGGER.info(String.format(SEND_MSG_MESSAGE, "first renew-membership", "email",
+                        member.getFirstName(), member.getLastName(), member.getEmail()));
                 emailService.sendMsg(
                         PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                         PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
@@ -134,6 +146,8 @@ public class AdminController {
                 emailService.incrementManualMessageCount();
                 break;
             case "second":
+                LOGGER.info(String.format(SEND_MSG_MESSAGE, "second renew-membership", "email",
+                        member.getFirstName(), member.getLastName(), member.getEmail()));
                 emailService.sendMsg(
                         PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                         PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
@@ -141,6 +155,8 @@ public class AdminController {
                 emailService.incrementManualMessageCount();
                 break;
             case "third":
+                LOGGER.info(String.format(SEND_MSG_MESSAGE, "third renew-membership", "email",
+                        member.getFirstName(), member.getLastName(), member.getEmail()));
                 emailService.sendMsg(
                         PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                         PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
@@ -160,6 +176,8 @@ public class AdminController {
     @PostMapping(path = {"/email/{rosterId}/new-membership"})
     public void testNewMembershipEmail(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRosterID(rosterId);
+        LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "email",
+                member.getFirstName(), member.getLastName(), member.getEmail()));
         emailService.sendMsg(
                 PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID,
                 PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY,
@@ -183,6 +201,8 @@ public class AdminController {
     @PostMapping(path = {"/sms/{rosterId}/renew-membership"})
     public void testRenewMembershipSMS(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRosterID(rosterId);
+        LOGGER.info(String.format(SEND_MSG_MESSAGE, "renew-membership", "sms",
+                member.getFirstName(), member.getLastName(), member.getCellPhone()));
         smsService.sendRenewMembershipMsg(member);
     }
 
@@ -194,6 +214,8 @@ public class AdminController {
     @PostMapping(path = {"/sms/{rosterId}/new-membership"})
     public void testNewMembershipSMS(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRosterID(rosterId);
+        LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "sms",
+                member.getFirstName(), member.getLastName(), member.getCellPhone()));
         smsService.sendNewMembershipMsg(member);
     }
 
@@ -206,6 +228,8 @@ public class AdminController {
     public void testRenewMembershipSlack(@PathVariable("rosterId") final Long rosterId)
             throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRosterID(rosterId);
+        LOGGER.info(String.format(SEND_MSG_MESSAGE, "renew-membership", "slack",
+                member.getFirstName(), member.getLastName(), member.getSlack()));
         slackService.sendRenewMembershipMsg(member);
     }
 
@@ -217,6 +241,8 @@ public class AdminController {
     @PostMapping(path = {"/slack/{rosterId}/new-membership"})
     public void testNewMembershipSlack(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRosterID(rosterId);
+        LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "slack",
+                member.getFirstName(), member.getLastName(), member.getSlack()));
         slackService.sendNewMembershipMsg(member);
     }
 

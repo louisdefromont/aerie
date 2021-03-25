@@ -172,7 +172,7 @@ public class SlackService implements SlackMessagePostedListener {
         slackSession
                 .getUsers()
                 .stream()
-                .forEach(user -> users.add(user.getUserName() + "|" + user.getRealName()));
+                .forEach(user -> users.add(user.getRealName() + "|" + user.getUserName()));
         return users;
     }
 

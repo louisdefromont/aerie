@@ -871,6 +871,12 @@ public class RosterService {
      */
     private List<Member> parseRecords() {
         final List<Member> records = new ArrayList<>();
+        final List<String> slackUsers = new ArrayList<>();
+        try {
+            slackUsers.addAll(slackService.allSlackUsers());
+        } catch (ResourceNotFoundException e) {
+            // Do nothing
+        }
         final Document doc = Jsoup.parse(fetchData());
         final Elements tableRecords = doc.getElementsByTag("tr");
         int rowCount = 0;
@@ -957,6 +963,9 @@ public class RosterService {
                                 if (otherInfo.getFamily() != null) {
                                     member.setFamily(String.join(", ", otherInfo.getFamily()));
                                 }
+                                if (member.getSlack() == null) {
+                                    setSlack(slackUsers, member);
+                                }
                                 break;
                             case 23:
                                 member.setCity(column.text().trim());
@@ -1040,6 +1049,21 @@ public class RosterService {
             rowCount++;
         }
         return records;
+    }
+
+    /**
+     * Assigns slack username if not already assigned and a first/last name match is found.
+     *
+     * @param slackUsers list of all Slack users
+     * @param member Member
+     */
+    private void setSlack(final List<String> slackUsers, final Member member) {
+        final String username = member.getFirstName() + " " + member.getLastName();
+        slackUsers.forEach(str -> {
+            if (str.contains(username)) {
+                member.setSlack(str.split("\\|")[1]);
+            }
+        });
     }
 
     /**

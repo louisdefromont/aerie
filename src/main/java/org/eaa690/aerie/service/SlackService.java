@@ -209,6 +209,7 @@ public class SlackService implements SlackMessagePostedListener {
      */
     private void sendMessage(final String msg, final String slackUserName) throws ResourceNotFoundException {
         if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue())) {
+            LOGGER.info(String.format("Sending %s to %s", msg, slackUserName));
             slackSession.sendMessageToUser(slackSession.findUserByUserName(slackUserName), msg, null);
         }
     }

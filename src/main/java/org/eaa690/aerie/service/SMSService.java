@@ -153,6 +153,7 @@ public class SMSService {
     private void sendSMSMessage(final String to, final String text) throws ResourceNotFoundException {
         if (to != null && text != null &&
                 Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_ENABLED_KEY).getValue())) {
+            LOGGER.info(String.format("Sending %s to %s", text, to));
             com.twilio.rest.api.v2010.account.Message
                     .creator(new PhoneNumber(to),
                             new PhoneNumber(propertyService.get(PropertyKeyConstants.SMS_FROM_ADDRESS_KEY).getValue()),

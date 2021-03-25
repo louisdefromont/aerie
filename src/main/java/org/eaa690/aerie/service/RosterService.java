@@ -953,8 +953,8 @@ public class RosterService {
                                 member.setRfid(otherInfo.getRfid());
                                 member.setSlack(otherInfo.getSlack());
                                 member.setOtherInfo(otherInfo.getRaw());
-                                //otherInfo.getDescription();
-                                //otherInfo.getFamily();
+                                member.setAdditionalInfo(otherInfo.getDescription());
+                                member.setFamily(String.join(", ", otherInfo.getFamily()));
                                 break;
                             case 23:
                                 member.setCity(column.text().trim());

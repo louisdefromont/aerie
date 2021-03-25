@@ -150,6 +150,21 @@ public class Member extends BaseEntity implements Comparable<Member> {
     private String otherInfo;
 
     /**
+     * Family.
+     */
+    private String family;
+
+    /**
+     * Num of Family.
+     */
+    private String numOfFamily;
+
+    /**
+     * AdditionalInfo.
+     */
+    private String additionalInfo;
+
+    /**
      * Home Phone.
      */
     private String homePhone;
@@ -615,6 +630,30 @@ public class Member extends BaseEntity implements Comparable<Member> {
 
     public void setBackgroundCheck(String backgroundCheck) {
         this.backgroundCheck = backgroundCheck;
+    }
+
+    public String getFamily() {
+        return family;
+    }
+
+    public void setFamily(String family) {
+        this.family = family;
+    }
+
+    public String getNumOfFamily() {
+        return numOfFamily;
+    }
+
+    public void setNumOfFamily(String numOfFamily) {
+        this.numOfFamily = numOfFamily;
+    }
+
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 
     /**

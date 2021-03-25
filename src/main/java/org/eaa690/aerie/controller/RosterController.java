@@ -73,7 +73,7 @@ public class RosterController {
     @GetMapping(path = {"/{memberId}/expiration"})
     public MemberData getMemberData(@PathVariable("memberId") final Long memberId)
             throws ResourceNotFoundException {
-        final Member member = rosterService.getMemberByID(memberId);
+        final Member member = rosterService.getMemberByRosterID(memberId);
         final MemberData record = new MemberData();
         record.setId(member.getId());
         record.setExpirationDate(member.getExpiration());

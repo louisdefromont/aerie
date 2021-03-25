@@ -931,13 +931,25 @@ public class RosterService {
                                 // Ignore AddressPrivate
                                 break;
                             case 14:
-                                member.setHomePhone(column.text().trim());
+                                member.setHomePhone(column
+                                        .text()
+                                        .trim()
+                                        .replaceAll(" ", "")
+                                        .replaceAll("-", "")
+                                        .replaceAll("\\(", "")
+                                        .replaceAll("\\)", ""));
                                 break;
                             case 15:
                                 // Ignore HomePhonePrivate
                                 break;
                             case 16:
-                                member.setCellPhone(column.text().trim());
+                                member.setCellPhone(column
+                                        .text()
+                                        .trim()
+                                        .replaceAll(" ", "")
+                                        .replaceAll("-", "")
+                                        .replaceAll("\\(", "")
+                                        .replaceAll("\\)", ""));
                                 break;
                             case 17:
                                 // Ignore CellPhonePrivate
@@ -963,7 +975,7 @@ public class RosterService {
                                 if (otherInfo.getFamily() != null) {
                                     member.setFamily(String.join(", ", otherInfo.getFamily()));
                                 }
-                                if (member.getSlack() == null) {
+                                if (member.getSlack() == null || "NULL".equalsIgnoreCase(member.getSlack())) {
                                     setSlack(slackUsers, member);
                                 }
                                 break;
@@ -1060,8 +1072,9 @@ public class RosterService {
     private void setSlack(final List<String> slackUsers, final Member member) {
         final String username = member.getFirstName() + " " + member.getLastName();
         slackUsers.forEach(str -> {
-            if (str.contains(username)) {
-                member.setSlack(str.split("\\|")[1]);
+            final String split[] = str.split("\\|");
+            if (!"NULL".equalsIgnoreCase(split[1]) && str.contains(username)) {
+                member.setSlack(split[1]);
             }
         });
     }

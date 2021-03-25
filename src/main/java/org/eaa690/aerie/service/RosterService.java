@@ -954,7 +954,9 @@ public class RosterService {
                                 member.setSlack(otherInfo.getSlack());
                                 member.setOtherInfo(otherInfo.getRaw());
                                 member.setAdditionalInfo(otherInfo.getDescription());
-                                member.setFamily(String.join(", ", otherInfo.getFamily()));
+                                if (otherInfo.getFamily() != null) {
+                                    member.setFamily(String.join(", ", otherInfo.getFamily()));
+                                }
                                 break;
                             case 23:
                                 member.setCity(column.text().trim());

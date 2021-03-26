@@ -157,7 +157,7 @@ public class Member extends BaseEntity implements Comparable<Member> {
     /**
      * Num of Family.
      */
-    private String numOfFamily;
+    private Long numOfFamily;
 
     /**
      * AdditionalInfo.
@@ -649,11 +649,11 @@ public class Member extends BaseEntity implements Comparable<Member> {
         this.family = family;
     }
 
-    public String getNumOfFamily() {
+    public Long getNumOfFamily() {
         return numOfFamily;
     }
 
-    public void setNumOfFamily(String numOfFamily) {
+    public void setNumOfFamily(Long numOfFamily) {
         this.numOfFamily = numOfFamily;
     }
 

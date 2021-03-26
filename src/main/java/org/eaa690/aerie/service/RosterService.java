@@ -1116,6 +1116,9 @@ public class RosterService {
                                 if (member.getSlack() == null || "NULL".equalsIgnoreCase(member.getSlack())) {
                                     setSlack(slackUsers, member);
                                 }
+                                if (otherInfo.getNumOfFamily() != null) {
+                                    member.setNumOfFamily(otherInfo.getNumOfFamily());
+                                }
                                 break;
                             case 23:
                                 member.setCity(column.text().trim());

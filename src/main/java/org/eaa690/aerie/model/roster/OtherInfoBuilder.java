@@ -71,7 +71,7 @@ public class OtherInfoBuilder {
     /**
      * Number of Family.
      */
-    private String numOfFamily;
+    private Long numOfFamily;
 
     /**
      * RFID.
@@ -98,11 +98,11 @@ public class OtherInfoBuilder {
         this.additionalFamily = additionalFamily;
     }
 
-    public String getNumberOfFamily() {
+    public Long getNumberOfFamily() {
         return numOfFamily;
     }
 
-    public void setNumberOfFamily(String numOfFamily) {
+    public void setNumberOfFamily(Long numOfFamily) {
         this.numOfFamily = numOfFamily;
     }
 
@@ -161,9 +161,13 @@ public class OtherInfoBuilder {
             }
             final Matcher numOfFamilyMatcher = numOfFamilyPattern.matcher(raw);
             if (numOfFamilyMatcher.find()) {
-                matched = true;
-                setNumberOfFamily(numOfFamilyMatcher.group(1));
-                LOGGER.info("Set number of family to ["+getNumberOfFamily()+"]");
+                try {
+                    setNumberOfFamily(Long.parseLong(numOfFamilyMatcher.group(1)));
+                    matched = true;
+                    LOGGER.info("Set number of family to ["+getNumberOfFamily()+"]");
+                } catch (NumberFormatException nfe) {
+                    LOGGER.info("Unable to parse number of family value=["+numOfFamilyMatcher.group(1)+"]");
+                }
             }
             final Matcher slackMatcher = slackPattern.matcher(raw);
             if (slackMatcher.find()) {

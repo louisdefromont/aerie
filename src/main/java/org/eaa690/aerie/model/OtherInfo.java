@@ -21,7 +21,7 @@ public class OtherInfo {
 
     private String description;
 
-    private String numOfFamily;
+    private Long numOfFamily;
 
     private List<String> family;
 
@@ -70,11 +70,11 @@ public class OtherInfo {
         this.family = family;
     }
 
-    public String getNumOfFamily() {
+    public Long getNumOfFamily() {
         return numOfFamily;
     }
 
-    public void setNumOfFamily(String numOfFamily) {
+    public void setNumOfFamily(Long numOfFamily) {
         this.numOfFamily = numOfFamily;
     }
 

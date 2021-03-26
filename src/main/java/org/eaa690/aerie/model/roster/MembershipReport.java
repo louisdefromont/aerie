@@ -32,6 +32,16 @@ public class MembershipReport {
     private Long regularMemberExpiredCount = 0L;
 
     /**
+     * Sum of all regular membership types that will expire in 30 days.
+     */
+    private Long regularMemberWillExpire30DaysCount = 0L;
+
+    /**
+     * Sum of all regular membership types that will expire in 7 days.
+     */
+    private Long regularMemberWillExpire7DaysCount = 0L;
+
+    /**
      * Sum of "num of family" for all family membership types.
      */
     private Long familyMemberCount = 0L;
@@ -45,6 +55,16 @@ public class MembershipReport {
      * Sum of all expired family membership types.
      */
     private Long familyMembershipExpiredCount = 0L;
+
+    /**
+     * Sum of all family membership types that will expire in 30 days.
+     */
+    private Long familyMembershipWillExpire30DaysCount = 0L;
+
+    /**
+     * Sum of all family membership types that will expire in 7 days.
+     */
+    private Long familyMembershipWillExpire7DaysCount = 0L;
 
     /**
      * Sum of all lifetime membership types.
@@ -65,6 +85,16 @@ public class MembershipReport {
      * Sum of all expired student membership types.
      */
     private Long studentMemberExpiredCount = 0L;
+
+    /**
+     * Sum of all student membership types that will expire in 30 days.
+     */
+    private Long studentMemberWillExpire30DaysCount = 0L;
+
+    /**
+     * Sum of all student membership types that will expire in 7 days.
+     */
+    private Long studentMemberWillExpire7DaysCount = 0L;
 
     /**
      * Sum of all prospect membership types.
@@ -162,5 +192,53 @@ public class MembershipReport {
 
     public void setStudentMemberExpiredCount(Long studentMemberExpiredCount) {
         this.studentMemberExpiredCount = studentMemberExpiredCount;
+    }
+
+    public Long getRegularMemberWillExpire30DaysCount() {
+        return regularMemberWillExpire30DaysCount;
+    }
+
+    public void setRegularMemberWillExpire30DaysCount(Long regularMemberWillExpire30DaysCount) {
+        this.regularMemberWillExpire30DaysCount = regularMemberWillExpire30DaysCount;
+    }
+
+    public Long getRegularMemberWillExpire7DaysCount() {
+        return regularMemberWillExpire7DaysCount;
+    }
+
+    public void setRegularMemberWillExpire7DaysCount(Long regularMemberWillExpire7DaysCount) {
+        this.regularMemberWillExpire7DaysCount = regularMemberWillExpire7DaysCount;
+    }
+
+    public Long getFamilyMembershipWillExpire30DaysCount() {
+        return familyMembershipWillExpire30DaysCount;
+    }
+
+    public void setFamilyMembershipWillExpire30DaysCount(Long familyMembershipWillExpire30DaysCount) {
+        this.familyMembershipWillExpire30DaysCount = familyMembershipWillExpire30DaysCount;
+    }
+
+    public Long getFamilyMembershipWillExpire7DaysCount() {
+        return familyMembershipWillExpire7DaysCount;
+    }
+
+    public void setFamilyMembershipWillExpire7DaysCount(Long familyMembershipWillExpire7DaysCount) {
+        this.familyMembershipWillExpire7DaysCount = familyMembershipWillExpire7DaysCount;
+    }
+
+    public Long getStudentMemberWillExpire30DaysCount() {
+        return studentMemberWillExpire30DaysCount;
+    }
+
+    public void setStudentMemberWillExpire30DaysCount(Long studentMemberWillExpire30DaysCount) {
+        this.studentMemberWillExpire30DaysCount = studentMemberWillExpire30DaysCount;
+    }
+
+    public Long getStudentMemberWillExpire7DaysCount() {
+        return studentMemberWillExpire7DaysCount;
+    }
+
+    public void setStudentMemberWillExpire7DaysCount(Long studentMemberWillExpire7DaysCount) {
+        this.studentMemberWillExpire7DaysCount = studentMemberWillExpire7DaysCount;
     }
 }

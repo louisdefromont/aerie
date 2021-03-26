@@ -377,6 +377,8 @@ public class RosterService {
      */
     public MembershipReport getMembershipReport() {
         final Date today = new Date();
+        final Date thirtyDays = Date.from(Instant.now().plus(30, ChronoUnit.DAYS));
+        final Date sevenDays = Date.from(Instant.now().plus(7, ChronoUnit.DAYS));
         final MembershipReport membershipReport = new MembershipReport();
         final List<Member> allMembers = memberRepository.findAll().orElse(new ArrayList<>());
         membershipReport.setRegularMemberCount(
@@ -384,6 +386,21 @@ public class RosterService {
                         .stream()
                         .filter(m -> MemberType.Regular == m.getMemberType())
                         .filter(m -> today.before(m.getExpiration()))
+                        .count());
+        membershipReport.setRegularMemberWillExpire30DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Regular == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .filter(m -> thirtyDays.after(m.getExpiration()))
+                        .filter(m -> sevenDays.before(m.getExpiration()))
+                        .count());
+        membershipReport.setRegularMemberWillExpire7DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Regular == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .filter(m -> sevenDays.after(m.getExpiration()))
                         .count());
         membershipReport.setRegularMemberExpiredCount(
                 allMembers
@@ -396,6 +413,21 @@ public class RosterService {
                         .stream()
                         .filter(m -> MemberType.Family == m.getMemberType())
                         .filter(m -> today.before(m.getExpiration()))
+                        .count());
+        membershipReport.setFamilyMembershipWillExpire30DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .filter(m -> thirtyDays.after(m.getExpiration()))
+                        .filter(m -> sevenDays.before(m.getExpiration()))
+                        .count());
+        membershipReport.setFamilyMembershipWillExpire7DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .filter(m -> sevenDays.after(m.getExpiration()))
                         .count());
         membershipReport.setFamilyMembershipExpiredCount(
                 allMembers
@@ -419,6 +451,21 @@ public class RosterService {
                         .stream()
                         .filter(m -> MemberType.Student == m.getMemberType())
                         .filter(m -> today.after(m.getExpiration()))
+                        .count());
+        membershipReport.setStudentMemberWillExpire30DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Student == m.getMemberType())
+                        .filter(m -> today.after(m.getExpiration()))
+                        .filter(m -> thirtyDays.after(m.getExpiration()))
+                        .filter(m -> sevenDays.before(m.getExpiration()))
+                        .count());
+        membershipReport.setStudentMemberWillExpire7DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Student == m.getMemberType())
+                        .filter(m -> today.after(m.getExpiration()))
+                        .filter(m -> sevenDays.after(m.getExpiration()))
                         .count());
         membershipReport.setStudentMemberExpiredCount(
                 allMembers

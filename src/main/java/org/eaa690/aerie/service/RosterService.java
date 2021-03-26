@@ -37,6 +37,7 @@ import org.eaa690.aerie.model.OtherInfo;
 import org.eaa690.aerie.model.roster.Country;
 import org.eaa690.aerie.model.roster.Gender;
 import org.eaa690.aerie.model.roster.MemberType;
+import org.eaa690.aerie.model.roster.MembershipReport;
 import org.eaa690.aerie.model.roster.State;
 import org.eaa690.aerie.model.roster.Status;
 import org.eaa690.aerie.model.roster.WebAdminAccess;
@@ -367,6 +368,37 @@ public class RosterService {
             LOGGER.error(e.getMessage(), e);
         }
         return member;
+    }
+
+    /**
+     * Generates a MembershipReport.
+     *
+     * @return MembershipReport
+     */
+    public MembershipReport getMembershipReport() {
+        final MembershipReport membershipReport = new MembershipReport();
+        final List<Member> allMembers = memberRepository.findAll().orElse(new ArrayList<>());
+        membershipReport.setRegularMemberCount(
+                allMembers.stream().filter(m -> MemberType.Regular == m.getMemberType()).count());
+        membershipReport.setFamilyMembershipCount(
+                allMembers.stream().filter(m -> MemberType.Family == m.getMemberType()).count());
+        membershipReport.setFamilyMemberCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .map(m -> m.getNumOfFamily())
+                        .count());
+        membershipReport.setLifetimeMemberCount(
+                allMembers.stream().filter(m -> MemberType.Lifetime == m.getMemberType()).count());
+        membershipReport.setHonoraryMemberCount(
+                allMembers.stream().filter(m -> MemberType.Honorary == m.getMemberType()).count());
+        membershipReport.setStudentMemberCount(
+                allMembers.stream().filter(m -> MemberType.Student == m.getMemberType()).count());
+        membershipReport.setProspectMemberCount(
+                allMembers.stream().filter(m -> MemberType.Prospect == m.getMemberType()).count());
+        membershipReport.setNonMemberCount(
+                allMembers.stream().filter(m -> MemberType.NonMember == m.getMemberType()).count());
+        return membershipReport;
     }
 
     /**

@@ -344,7 +344,11 @@ public class JotFormService {
         if (answers.has("17")) {
             JSONObject numOfFamily = answers.getJSONObject("17");
             if (numOfFamily.has(ANSWER)) {
-                otherInfoBuilder.setNumberOfFamily(numOfFamily.getString(ANSWER));
+                try {
+                    otherInfoBuilder.setNumberOfFamily(Long.parseLong(numOfFamily.getString(ANSWER)));
+                } catch (NumberFormatException nfe) {
+                    LOGGER.error("Unable to parse number of family value=["+numOfFamily.getString(ANSWER)+"]");
+                }
             }
         }
     }

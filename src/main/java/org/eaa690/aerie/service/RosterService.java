@@ -417,7 +417,7 @@ public class RosterService {
                         .filter(m -> MemberType.Family == m.getMemberType())
                         .filter(m -> today.before(m.getExpiration()))
                         .map(Member::getNumOfFamily)
-                        .count());
+                        .reduce(0L, Long::sum));
         membershipReport.setStudentMemberCount(
                 allMembers
                         .stream()
@@ -1115,6 +1115,9 @@ public class RosterService {
                                 }
                                 if (member.getSlack() == null || "NULL".equalsIgnoreCase(member.getSlack())) {
                                     setSlack(slackUsers, member);
+                                }
+                                if (otherInfo.getNumOfFamily() != null) {
+                                    member.setNumOfFamily(otherInfo.getNumOfFamily());
                                 }
                                 break;
                             case 23:

@@ -376,16 +376,38 @@ public class RosterService {
      * @return MembershipReport
      */
     public MembershipReport getMembershipReport() {
+        final Date today = new Date();
         final MembershipReport membershipReport = new MembershipReport();
         final List<Member> allMembers = memberRepository.findAll().orElse(new ArrayList<>());
         membershipReport.setRegularMemberCount(
-                allMembers.stream().filter(m -> MemberType.Regular == m.getMemberType()).count());
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Regular == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .count());
+        membershipReport.setRegularMemberExpiredCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Regular == m.getMemberType())
+                        .filter(m -> today.after(m.getExpiration()))
+                        .count());
         membershipReport.setFamilyMembershipCount(
-                allMembers.stream().filter(m -> MemberType.Family == m.getMemberType()).count());
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .count());
+        membershipReport.setFamilyMembershipExpiredCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> today.after(m.getExpiration()))
+                        .count());
         membershipReport.setFamilyMemberCount(
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
                         .map(m -> m.getNumOfFamily())
                         .count());
         membershipReport.setLifetimeMemberCount(
@@ -393,7 +415,17 @@ public class RosterService {
         membershipReport.setHonoraryMemberCount(
                 allMembers.stream().filter(m -> MemberType.Honorary == m.getMemberType()).count());
         membershipReport.setStudentMemberCount(
-                allMembers.stream().filter(m -> MemberType.Student == m.getMemberType()).count());
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Student == m.getMemberType())
+                        .filter(m -> today.after(m.getExpiration()))
+                        .count());
+        membershipReport.setStudentMemberExpiredCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Student == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .count());
         membershipReport.setProspectMemberCount(
                 allMembers.stream().filter(m -> MemberType.Prospect == m.getMemberType()).count());
         membershipReport.setNonMemberCount(

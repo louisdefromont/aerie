@@ -27,6 +27,11 @@ public class MembershipReport {
     private Long regularMemberCount = 0L;
 
     /**
+     * Sum of all expired regular membership types.
+     */
+    private Long regularMemberExpiredCount = 0L;
+
+    /**
      * Sum of "num of family" for all family membership types.
      */
     private Long familyMemberCount = 0L;
@@ -35,6 +40,11 @@ public class MembershipReport {
      * Sum of all family membership types.
      */
     private Long familyMembershipCount = 0L;
+
+    /**
+     * Sum of all expired family membership types.
+     */
+    private Long familyMembershipExpiredCount = 0L;
 
     /**
      * Sum of all lifetime membership types.
@@ -50,6 +60,11 @@ public class MembershipReport {
      * Sum of all student membership types.
      */
     private Long studentMemberCount = 0L;
+
+    /**
+     * Sum of all expired student membership types.
+     */
+    private Long studentMemberExpiredCount = 0L;
 
     /**
      * Sum of all prospect membership types.
@@ -123,5 +138,29 @@ public class MembershipReport {
 
     public void setNonMemberCount(Long nonMemberCount) {
         this.nonMemberCount = nonMemberCount;
+    }
+
+    public Long getRegularMemberExpiredCount() {
+        return regularMemberExpiredCount;
+    }
+
+    public void setRegularMemberExpiredCount(Long regularMemberExpiredCount) {
+        this.regularMemberExpiredCount = regularMemberExpiredCount;
+    }
+
+    public Long getFamilyMembershipExpiredCount() {
+        return familyMembershipExpiredCount;
+    }
+
+    public void setFamilyMembershipExpiredCount(Long familyMembershipExpiredCount) {
+        this.familyMembershipExpiredCount = familyMembershipExpiredCount;
+    }
+
+    public Long getStudentMemberExpiredCount() {
+        return studentMemberExpiredCount;
+    }
+
+    public void setStudentMemberExpiredCount(Long studentMemberExpiredCount) {
+        this.studentMemberExpiredCount = studentMemberExpiredCount;
     }
 }

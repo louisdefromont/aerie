@@ -37,6 +37,7 @@ import org.eaa690.aerie.model.OtherInfo;
 import org.eaa690.aerie.model.roster.Country;
 import org.eaa690.aerie.model.roster.Gender;
 import org.eaa690.aerie.model.roster.MemberType;
+import org.eaa690.aerie.model.roster.MembershipReport;
 import org.eaa690.aerie.model.roster.State;
 import org.eaa690.aerie.model.roster.Status;
 import org.eaa690.aerie.model.roster.WebAdminAccess;
@@ -367,6 +368,143 @@ public class RosterService {
             LOGGER.error(e.getMessage(), e);
         }
         return member;
+    }
+
+    /**
+     * Generates a MembershipReport.
+     *
+     * @return MembershipReport
+     */
+    public MembershipReport getMembershipReport() {
+        final Date today = new Date();
+        final Date thirtyDays = Date.from(Instant.now().plus(30, ChronoUnit.DAYS));
+        final Date sevenDays = Date.from(Instant.now().plus(7, ChronoUnit.DAYS));
+        final MembershipReport membershipReport = new MembershipReport();
+        final List<Member> allMembers = memberRepository.findAll().orElse(new ArrayList<>());
+        setActiveCounts(today, membershipReport, allMembers);
+        setExpiredCounts(today, membershipReport, allMembers);
+        setWillExpire30DaysCounts(today, thirtyDays, sevenDays, membershipReport, allMembers);
+        setWillExpire7DaysCounts(today, sevenDays, membershipReport, allMembers);
+        membershipReport.setLifetimeMemberCount(
+                allMembers.stream().filter(m -> MemberType.Lifetime == m.getMemberType()).count());
+        membershipReport.setHonoraryMemberCount(
+                allMembers.stream().filter(m -> MemberType.Honorary == m.getMemberType()).count());
+        membershipReport.setProspectMemberCount(
+                allMembers.stream().filter(m -> MemberType.Prospect == m.getMemberType()).count());
+        membershipReport.setNonMemberCount(
+                allMembers.stream().filter(m -> MemberType.NonMember == m.getMemberType()).count());
+        return membershipReport;
+    }
+
+    private void setActiveCounts(final Date today,
+                                 final MembershipReport membershipReport,
+                                 final List<Member> allMembers) {
+        membershipReport.setRegularMemberCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Regular == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .count());
+        membershipReport.setFamilyMembershipCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .count());
+        membershipReport.setFamilyMemberCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .map(Member::getNumOfFamily)
+                        .count());
+        membershipReport.setStudentMemberCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Student == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .count());
+    }
+
+    private void setWillExpire7DaysCounts(final Date today,
+                                          final Date sevenDays,
+                                          final MembershipReport membershipReport,
+                                          final List<Member> allMembers) {
+        membershipReport.setRegularMemberWillExpire7DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Regular == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .filter(m -> sevenDays.after(m.getExpiration()))
+                        .count());
+        membershipReport.setFamilyMembershipWillExpire7DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .filter(m -> sevenDays.after(m.getExpiration()))
+                        .count());
+        membershipReport.setStudentMemberWillExpire7DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Student == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .filter(m -> sevenDays.after(m.getExpiration()))
+                        .count());
+    }
+
+    private void setWillExpire30DaysCounts(final Date today,
+                                           final Date thirtyDays,
+                                           final Date sevenDays,
+                                           final MembershipReport membershipReport,
+                                           final List<Member> allMembers) {
+        membershipReport.setRegularMemberWillExpire30DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Regular == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .filter(m -> thirtyDays.after(m.getExpiration()))
+                        .filter(m -> sevenDays.before(m.getExpiration()))
+                        .count());
+        membershipReport.setFamilyMembershipWillExpire30DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .filter(m -> thirtyDays.after(m.getExpiration()))
+                        .filter(m -> sevenDays.before(m.getExpiration()))
+                        .count());
+        membershipReport.setStudentMemberWillExpire30DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Student == m.getMemberType())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .filter(m -> thirtyDays.after(m.getExpiration()))
+                        .filter(m -> sevenDays.before(m.getExpiration()))
+                        .count());
+    }
+
+    private void setExpiredCounts(final Date today,
+                                  final MembershipReport membershipReport,
+                                  final List<Member> allMembers) {
+        membershipReport.setRegularMemberExpiredCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Regular == m.getMemberType())
+                        .filter(m -> today.after(m.getExpiration()))
+                        .count());
+        membershipReport.setFamilyMembershipExpiredCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> today.after(m.getExpiration()))
+                        .count());
+        membershipReport.setStudentMemberExpiredCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Student == m.getMemberType())
+                        .filter(m -> today.after(m.getExpiration()))
+                        .count());
     }
 
     /**

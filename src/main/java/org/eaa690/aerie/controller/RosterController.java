@@ -21,6 +21,7 @@ import org.eaa690.aerie.model.MemberData;
 import org.eaa690.aerie.model.FindByRFIDResponse;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.RFIDRequest;
+import org.eaa690.aerie.model.roster.MembershipReport;
 import org.eaa690.aerie.service.RosterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -61,6 +62,17 @@ public class RosterController {
     })
     public void update() {
         rosterService.update();
+    }
+
+    /**
+     * Get member's data.
+     *
+     * @return MembershipReport
+     * @throws ResourceNotFoundException when no member data is found
+     */
+    @GetMapping(path = {"/report"})
+    public MembershipReport getMembershipReport() throws ResourceNotFoundException {
+        return rosterService.getMembershipReport();
     }
 
     /**

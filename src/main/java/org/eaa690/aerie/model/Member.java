@@ -650,6 +650,9 @@ public class Member extends BaseEntity implements Comparable<Member> {
     }
 
     public Long getNumOfFamily() {
+        if (numOfFamily == null) {
+            return 0L;
+        }
         return numOfFamily;
     }
 

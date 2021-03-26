@@ -417,7 +417,7 @@ public class RosterService {
                         .filter(m -> MemberType.Family == m.getMemberType())
                         .filter(m -> today.before(m.getExpiration()))
                         .map(Member::getNumOfFamily)
-                        .count());
+                        .reduce(0L, Long::sum));
         membershipReport.setStudentMemberCount(
                 allMembers
                         .stream()

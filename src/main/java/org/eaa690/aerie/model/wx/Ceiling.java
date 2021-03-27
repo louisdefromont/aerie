@@ -40,16 +40,40 @@ public class Ceiling implements Serializable {
     private String text;
 
     /**
+     * Feet.
+     */
+    @JsonProperty("feet")
+    private Double feet;
+
+    /**
      * Feet AGL.
      */
     @JsonProperty("feet_agl")
     private Double feetAgl;
 
     /**
+     * Base Feet AGL.
+     */
+    @JsonProperty("base_feet_agl")
+    private Double baseFeetAgl;
+
+    /**
      * Meters AGL.
      */
     @JsonProperty("meters_agl")
     private Double metersAgl;
+
+    /**
+     * Base Meters AGL.
+     */
+    @JsonProperty("base_meters_agl")
+    private Double baseMetersAgl;
+
+    /**
+     * Meters.
+     */
+    @JsonProperty("meters")
+    private Double meters;
 
     /**
      * Get code.
@@ -106,6 +130,42 @@ public class Ceiling implements Serializable {
     }
 
     /**
+     * Get Base Feet AGL.
+     *
+     * @return Base Feet AGL
+     */
+    public Double getBaseFeetAgl() {
+        return baseFeetAgl;
+    }
+
+    /**
+     * Set Base Feet AGL.
+     *
+     * @param value Base Feet AGL
+     */
+    public void setBaseFeetAgl(final Double value) {
+        baseFeetAgl = value;
+    }
+
+    /**
+     * Get Feet.
+     *
+     * @return Feet
+     */
+    public Double getFeet() {
+        return feet;
+    }
+
+    /**
+     * Set Feet.
+     *
+     * @param value Feet
+     */
+    public void setFeet(Double value) {
+        this.feet = feet;
+    }
+
+    /**
      * Get Meters AGL.
      *
      * @return Meters AGL
@@ -121,6 +181,42 @@ public class Ceiling implements Serializable {
      */
     public void setMetersAgl(final Double value) {
         metersAgl = value;
+    }
+
+    /**
+     * Get Base Meters AGL.
+     *
+     * @return Base Meters AGL
+     */
+    public Double getBaseMetersAgl() {
+        return baseMetersAgl;
+    }
+
+    /**
+     * Set Base Meters AGL.
+     *
+     * @param value Base Meters AGL
+     */
+    public void setBaseMetersAgl(final Double value) {
+        baseMetersAgl = value;
+    }
+
+    /**
+     * Get Meters.
+     *
+     * @return Meters
+     */
+    public Double getMeters() {
+        return meters;
+    }
+
+    /**
+     * Set Meters.
+     *
+     * @param value Meters
+     */
+    public void setMeters(final Double value) {
+        meters = value;
     }
 
 }

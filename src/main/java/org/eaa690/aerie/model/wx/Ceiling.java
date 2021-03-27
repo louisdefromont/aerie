@@ -40,6 +40,12 @@ public class Ceiling implements Serializable {
     private String text;
 
     /**
+     * Feet.
+     */
+    @JsonProperty("feet")
+    private Double feet;
+
+    /**
      * Feet AGL.
      */
     @JsonProperty("feet_agl")
@@ -103,6 +109,24 @@ public class Ceiling implements Serializable {
      */
     public void setFeetAgl(final Double value) {
         feetAgl = value;
+    }
+
+    /**
+     * Get Feet.
+     *
+     * @return Feet
+     */
+    public Double getFeet() {
+        return feet;
+    }
+
+    /**
+     * Set Feet.
+     *
+     * @param value Feet
+     */
+    public void setFeet(Double value) {
+        this.feet = feet;
     }
 
     /**

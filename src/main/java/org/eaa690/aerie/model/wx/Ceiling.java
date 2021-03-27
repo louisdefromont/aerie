@@ -58,6 +58,12 @@ public class Ceiling implements Serializable {
     private Double metersAgl;
 
     /**
+     * Meters.
+     */
+    @JsonProperty("meters")
+    private Double meters;
+
+    /**
      * Get code.
      *
      * @return code
@@ -145,6 +151,24 @@ public class Ceiling implements Serializable {
      */
     public void setMetersAgl(final Double value) {
         metersAgl = value;
+    }
+
+    /**
+     * Get Meters.
+     *
+     * @return Meters
+     */
+    public Double getMeters() {
+        return meters;
+    }
+
+    /**
+     * Set Meters.
+     *
+     * @param value Meters
+     */
+    public void setMeters(final Double value) {
+        meters = value;
     }
 
 }

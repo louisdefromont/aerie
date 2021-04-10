@@ -157,6 +157,11 @@ public class RosterConstants {
     public final static String SEARCH_BUTTON = "ctl00$ContentPlaceHolder1$btnSearch=Search";
 
     /**
+     * ADD_NEW_MEMBER_BUTTON.
+     */
+    public final static String ADD_NEW_MEMBER_BUTTON = "ctl00$ContentPlaceHolder1$btnAddThisNewMember";
+
+    /**
      * eaachapters.org update member button variable.
      */
     public final static String UPDATE_THIS_MEMBER_BUTTON = "ctl00$ContentPlaceHolder1$btnUpdateThisMember";

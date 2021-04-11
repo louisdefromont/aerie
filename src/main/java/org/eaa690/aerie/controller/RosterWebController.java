@@ -51,6 +51,26 @@ public class RosterWebController {
     public final static String FAMILY_MEMBERSHIP_WILL_EXPIRE_7_COUNT = "familyMembershipWillExpire7Count";
 
     /**
+     * FAMILY_MEMBER_COUNT.
+     */
+    public final static String FAMILY_MEMBER_COUNT = "familyMemberCount";
+
+    /**
+     * FAMILY_MEMBER_EXPIRED_COUNT.
+     */
+    public final static String FAMILY_MEMBER_EXPIRED_COUNT = "familyMemberExpiredCount";
+
+    /**
+     * FAMILY_MEMBER_WILL_EXPIRE_30_COUNT.
+     */
+    public final static String FAMILY_MEMBER_WILL_EXPIRE_30_COUNT = "familyMemberWillExpire30Count";
+
+    /**
+     * FAMILY_MEMBER_WILL_EXPIRE_7_COUNT.
+     */
+    public final static String FAMILY_MEMBER_WILL_EXPIRE_7_COUNT = "familyMemberWillExpire7Count";
+
+    /**
      * STUDENT_MEMBERSHIP_COUNT.
      */
     public final static String STUDENT_MEMBERSHIP_COUNT = "studentMembershipCount";
@@ -101,6 +121,10 @@ public class RosterWebController {
         model.addAttribute(FAMILY_MEMBERSHIP_EXPIRED_COUNT, membershipReport.getFamilyMembershipExpiredCount());
         model.addAttribute(FAMILY_MEMBERSHIP_WILL_EXPIRE_30_COUNT, membershipReport.getFamilyMembershipWillExpire30DaysCount());
         model.addAttribute(FAMILY_MEMBERSHIP_WILL_EXPIRE_7_COUNT, membershipReport.getFamilyMembershipWillExpire7DaysCount());
+        model.addAttribute(FAMILY_MEMBER_COUNT, membershipReport.getFamilyMemberCount());
+        model.addAttribute(FAMILY_MEMBER_EXPIRED_COUNT, membershipReport.getFamilyMemberExpiredCount());
+        model.addAttribute(FAMILY_MEMBER_WILL_EXPIRE_30_COUNT, membershipReport.getFamilyMemberWillExpire30DaysCount());
+        model.addAttribute(FAMILY_MEMBER_WILL_EXPIRE_7_COUNT, membershipReport.getFamilyMemberWillExpire7DaysCount());
         model.addAttribute(STUDENT_MEMBERSHIP_COUNT, membershipReport.getStudentMemberCount());
         model.addAttribute(STUDENT_MEMBERSHIP_EXPIRED_COUNT, membershipReport.getStudentMemberExpiredCount());
         model.addAttribute(STUDENT_MEMBERSHIP_WILL_EXPIRE_30_COUNT, membershipReport.getStudentMemberWillExpire30DaysCount());

@@ -41,11 +41,6 @@ import java.util.List;
 public class RosterController {
 
     /**
-     * FAMILY_MEMBERSHIP_COUNT.
-     */
-    public final static String FAMILY_MEMBERSHIP_COUNT = "familyMembershipCount";
-
-    /**
      * RosterService.
      */
     private RosterService rosterService;
@@ -77,10 +72,8 @@ public class RosterController {
      * @throws ResourceNotFoundException when no member data is found
      */
     @GetMapping(path = {"/report"})
-    public MembershipReport getMembershipReport(Model model) throws ResourceNotFoundException {
-        final MembershipReport membershipReport = rosterService.getMembershipReport();
-        model.addAttribute(FAMILY_MEMBERSHIP_COUNT, membershipReport.getFamilyMembershipCount());
-        return membershipReport;
+    public MembershipReport getMembershipReport() throws ResourceNotFoundException {
+        return rosterService.getMembershipReport();
     }
 
     /**

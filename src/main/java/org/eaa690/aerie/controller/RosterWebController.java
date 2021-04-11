@@ -96,6 +96,11 @@ public class RosterWebController {
     public final static String LIFETIME_MEMBERSHIP_COUNT = "lifetimeMembershipCount";
 
     /**
+     * NON_MEMBERSHIP_COUNT.
+     */
+    public final static String NON_MEMBERSHIP_COUNT = "nonMembershipCount";
+
+    /**
      * RosterService.
      */
     private RosterService rosterService;
@@ -130,6 +135,7 @@ public class RosterWebController {
         model.addAttribute(STUDENT_MEMBERSHIP_WILL_EXPIRE_30_COUNT, membershipReport.getStudentMemberWillExpire30DaysCount());
         model.addAttribute(STUDENT_MEMBERSHIP_WILL_EXPIRE_7_COUNT, membershipReport.getStudentMemberWillExpire7DaysCount());
         model.addAttribute(LIFETIME_MEMBERSHIP_COUNT, membershipReport.getLifetimeMemberCount());
+        model.addAttribute(NON_MEMBERSHIP_COUNT, membershipReport.getNonMemberCount());
         return "membershipreport";
     }
 }

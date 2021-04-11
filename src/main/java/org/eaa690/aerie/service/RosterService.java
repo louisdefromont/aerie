@@ -430,18 +430,21 @@ public class RosterService {
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Regular == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.before(m.getExpiration()))
                         .count());
         membershipReport.setFamilyMembershipCount(
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.before(m.getExpiration()))
                         .count());
         membershipReport.setFamilyMemberCount(
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.before(m.getExpiration()))
                         .map(Member::getNumOfFamily)
                         .reduce(0L, Long::sum));
@@ -449,6 +452,7 @@ public class RosterService {
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Student == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.before(m.getExpiration()))
                         .count());
     }
@@ -461,6 +465,7 @@ public class RosterService {
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Regular == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.before(m.getExpiration()))
                         .filter(m -> sevenDays.after(m.getExpiration()))
                         .count());
@@ -468,13 +473,24 @@ public class RosterService {
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.before(m.getExpiration()))
                         .filter(m -> sevenDays.after(m.getExpiration()))
                         .count());
+        membershipReport.setFamilyMemberWillExpire7DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .filter(m -> sevenDays.after(m.getExpiration()))
+                        .map(Member::getNumOfFamily)
+                        .reduce(0L, Long::sum));
         membershipReport.setStudentMemberWillExpire7DaysCount(
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Student == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.before(m.getExpiration()))
                         .filter(m -> sevenDays.after(m.getExpiration()))
                         .count());
@@ -489,6 +505,7 @@ public class RosterService {
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Regular == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.before(m.getExpiration()))
                         .filter(m -> thirtyDays.after(m.getExpiration()))
                         .filter(m -> sevenDays.before(m.getExpiration()))
@@ -497,14 +514,26 @@ public class RosterService {
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.before(m.getExpiration()))
                         .filter(m -> thirtyDays.after(m.getExpiration()))
                         .filter(m -> sevenDays.before(m.getExpiration()))
                         .count());
+        membershipReport.setFamilyMemberWillExpire30DaysCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
+                        .filter(m -> today.before(m.getExpiration()))
+                        .filter(m -> thirtyDays.after(m.getExpiration()))
+                        .filter(m -> sevenDays.before(m.getExpiration()))
+                        .map(Member::getNumOfFamily)
+                        .reduce(0L, Long::sum));
         membershipReport.setStudentMemberWillExpire30DaysCount(
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Student == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.before(m.getExpiration()))
                         .filter(m -> thirtyDays.after(m.getExpiration()))
                         .filter(m -> sevenDays.before(m.getExpiration()))
@@ -518,18 +547,29 @@ public class RosterService {
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Regular == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.after(m.getExpiration()))
                         .count());
         membershipReport.setFamilyMembershipExpiredCount(
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.after(m.getExpiration()))
                         .count());
+        membershipReport.setFamilyMemberExpiredCount(
+                allMembers
+                        .stream()
+                        .filter(m -> MemberType.Family == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
+                        .filter(m -> today.after(m.getExpiration()))
+                        .map(Member::getNumOfFamily)
+                        .reduce(0L, Long::sum));
         membershipReport.setStudentMemberExpiredCount(
                 allMembers
                         .stream()
                         .filter(m -> MemberType.Student == m.getMemberType())
+                        .filter(m -> Status.ACTIVE == m.getStatus())
                         .filter(m -> today.after(m.getExpiration()))
                         .count());
     }

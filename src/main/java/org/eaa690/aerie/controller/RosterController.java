@@ -24,6 +24,7 @@ import org.eaa690.aerie.model.RFIDRequest;
 import org.eaa690.aerie.model.roster.MembershipReport;
 import org.eaa690.aerie.service.RosterService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;

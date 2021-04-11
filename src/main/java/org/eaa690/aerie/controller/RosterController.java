@@ -24,6 +24,7 @@ import org.eaa690.aerie.model.RFIDRequest;
 import org.eaa690.aerie.model.roster.MembershipReport;
 import org.eaa690.aerie.service.RosterService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -38,6 +39,11 @@ import java.util.List;
         "/roster"
 })
 public class RosterController {
+
+    /**
+     * FAMILY_MEMBERSHIP_COUNT.
+     */
+    public final static String FAMILY_MEMBERSHIP_COUNT = "familyMembershipCount";
 
     /**
      * RosterService.
@@ -71,8 +77,10 @@ public class RosterController {
      * @throws ResourceNotFoundException when no member data is found
      */
     @GetMapping(path = {"/report"})
-    public MembershipReport getMembershipReport() throws ResourceNotFoundException {
-        return rosterService.getMembershipReport();
+    public MembershipReport getMembershipReport(Model model) throws ResourceNotFoundException {
+        final MembershipReport membershipReport = rosterService.getMembershipReport();
+        model.addAttribute(FAMILY_MEMBERSHIP_COUNT, membershipReport.getFamilyMembershipCount());
+        return membershipReport;
     }
 
     /**

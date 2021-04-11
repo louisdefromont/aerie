@@ -119,6 +119,17 @@ public class RosterWebController {
     public String membershipReport(Model model) {
         final MembershipReport membershipReport = rosterService.getMembershipReport();
         model.addAttribute(REGULAR_MEMBERSHIP_COUNT, membershipReport.getRegularMemberCount());
+        model.addAttribute(FAMILY_MEMBERSHIP_COUNT, membershipReport.getFamilyMembershipCount());
+        model.addAttribute(FAMILY_MEMBER_COUNT, membershipReport.getFamilyMemberCount());
+        model.addAttribute(STUDENT_MEMBERSHIP_COUNT, membershipReport.getStudentMemberCount());
+        model.addAttribute(LIFETIME_MEMBERSHIP_COUNT, membershipReport.getLifetimeMemberCount());
+        return "membershipreport";
+    }
+
+    @GetMapping({"/fullmembershipreport"})
+    public String fullMembershipReport(Model model) {
+        final MembershipReport membershipReport = rosterService.getMembershipReport();
+        model.addAttribute(REGULAR_MEMBERSHIP_COUNT, membershipReport.getRegularMemberCount());
         model.addAttribute(REGULAR_MEMBERSHIP_EXPIRED_COUNT, membershipReport.getRegularMemberExpiredCount());
         model.addAttribute(REGULAR_MEMBERSHIP_WILL_EXPIRE_30_COUNT, membershipReport.getRegularMemberWillExpire30DaysCount());
         model.addAttribute(REGULAR_MEMBERSHIP_WILL_EXPIRE_7_COUNT, membershipReport.getRegularMemberWillExpire7DaysCount());
@@ -136,6 +147,6 @@ public class RosterWebController {
         model.addAttribute(STUDENT_MEMBERSHIP_WILL_EXPIRE_7_COUNT, membershipReport.getStudentMemberWillExpire7DaysCount());
         model.addAttribute(LIFETIME_MEMBERSHIP_COUNT, membershipReport.getLifetimeMemberCount());
         model.addAttribute(NON_MEMBERSHIP_COUNT, membershipReport.getNonMemberCount());
-        return "membershipreport";
+        return "fullmembershipreport";
     }
 }

@@ -9,48 +9,30 @@
       <tr>
         <th align="center">Statistic</th>
         <th align="center">Current</th>
-        <th align="center">Expires in 30 days</th>
-        <th align="center">Expires in 7 days</th>
-        <th align="center">Expired</th>
       </tr>
       <tr>
         <td>Regular Membership</td>
         <td align="center" th:text="${regularMembershipCount}"></td>
-        <td align="center" th:text="${regularMembershipWillExpire30Count}"></td>
-        <td align="center" th:text="${regularMembershipWillExpire7Count}"></td>
-        <td align="center" th:text="${regularMembershipExpiredCount}"></td>
       </tr>
       <tr>
         <td>Family Membership</td>
         <td align="center" th:text="${familyMembershipCount}"></td>
-        <td align="center" th:text="${familyMembershipWillExpire30Count}"></td>
-        <td align="center" th:text="${familyMembershipWillExpire7Count}"></td>
-        <td align="center" th:text="${familyMembershipExpiredCount}"></td>
       </tr>
       <tr>
         <td>Family Members</td>
         <td align="center" th:text="${familyMemberCount}"></td>
-        <td colspan="3" align="center">n/a</td>
-        <!-- td align="center" th:text="${familyMemberWillExpire30Count}"></td>
-        <td align="center" th:text="${familyMemberWillExpire7Count}"></td>
-        <td align="center" th:text="${familyMemberExpiredCount}"></td -->
       </tr>
       <tr>
         <td>Student Membership</td>
         <td align="center" th:text="${studentMembershipCount}"></td>
-        <td align="center" th:text="${studentMembershipWillExpire30Count}"></td>
-        <td align="center" th:text="${studentMembershipWillExpire7Count}"></td>
-        <td align="center" th:text="${studentMembershipExpiredCount}"></td>
       </tr>
       <tr>
         <td>Lifetime Membership</td>
         <td align="center" th:text="${lifetimeMembershipCount}"></td>
-        <td colspan="3" align="center">n/a</td>
       </tr>
       <tr>
         <td>Non-Members</td>
         <td align="center" th:text="${nonMembershipCount}"></td>
-        <td colspan="3" align="center">n/a</td>
       </tr>
     </table>
   </body>

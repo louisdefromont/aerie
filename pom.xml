@@ -12,7 +12,7 @@
 	<artifactId>aerie</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Aerie</name>
-	<description>Various applications to facilitate EAA 690 functions</description>
+	<description>Various services for EAA 690</description>
 
 	<properties>
 		<java.version>11</java.version>

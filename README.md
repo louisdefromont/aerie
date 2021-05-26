@@ -1,2 +1,2 @@
-# aerie-raspberrypi
-Raspberry Pi version of the Aerie Ecosystem
+# aerie
+Standalone version of the Aerie Ecosystem

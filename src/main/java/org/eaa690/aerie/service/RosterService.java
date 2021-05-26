@@ -907,7 +907,7 @@ public class RosterService {
         addFormContent(sb, RosterConstants.VIEW_STATE_ENCRYPTED, EMPTY_STRING);
         addFormContent(sb, RosterConstants.FIRST_NAME, EMPTY_STRING);
         addFormContent(sb, RosterConstants.LAST_NAME, member.getLastName());
-        addFormContent(sb, RosterConstants.STATUS, member.getStatus());
+        addFormContent(sb, RosterConstants.STATUS, member.getStatus().toString());
         addFormContent(sb, RosterConstants.SEARCH_MEMBER_TYPE, EMPTY_STRING);
         addFormContent(sb, RosterConstants.CURRENT_STATUS, EMPTY_STRING);
         addFormContent(sb, RosterConstants.UPDATE_THIS_MEMBER_BUTTON, "Update");

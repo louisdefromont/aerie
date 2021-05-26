@@ -17,10 +17,12 @@
 package org.eaa690.aerie.service;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -63,6 +65,21 @@ public class RosterService {
      * Base URL for EAA Chapters.
      */
     private final String EAA_CHAPTERS_SITE_BASE = "https://www.eaachapters.org";
+
+    /**
+     * Empty string constant.
+     */
+    private final static String EMPTY_STRING = "";
+
+    /**
+     * Ampersand.
+     */
+    private final static String AMPERSAND = "&";
+
+    /**
+     * Equals.
+     */
+    private final static String EQUALS = "=";
 
     /**
      * PropertyService.
@@ -120,6 +137,16 @@ public class RosterService {
      * Date formatter.
      */
     private static final SimpleDateFormat MDY_SDF = new SimpleDateFormat("MM/dd/yyyy");
+
+    /**
+     * View State.
+     */
+    private Element viewState = null;
+
+    /**
+     * View State Generator.
+     */
+    private Element viewStateGenerator = null;
 
     /**
      * Sets HttpClient.
@@ -341,7 +368,7 @@ public class RosterService {
             doLogin();
             getSearchMembersPage();
             if (!existsUser(member.getFirstName(), member.getLastName())) {
-                // TODO: add user
+                LOGGER.info(buildNewUserRequestBodyString(member));
             }
         } catch (ResourceNotFoundException e) {
             LOGGER.error(e.getMessage(), e);
@@ -568,9 +595,8 @@ public class RosterService {
         }
     }
 
-
     /**
-     * Performs login to EAA's roster management system.
+     * Gets searchmembers page in EAA's roster management system.
      */
     private void getSearchMembersPage() {
         final String uriStr = EAA_CHAPTERS_SITE_BASE + "/searchmembers.aspx";
@@ -587,8 +613,9 @@ public class RosterService {
                     HttpResponse.BodyHandlers.ofString());
 
             final Document doc = Jsoup.parse(response.body());
-            final Element viewState = doc.getElementById(RosterConstants.VIEW_STATE);
-            headers.put(RosterConstants.VIEW_STATE, viewState.attr("value"));
+            viewState = doc.getElementById(RosterConstants.VIEW_STATE);
+            viewStateGenerator = doc.getElementById(RosterConstants.VIEW_STATE_GENERATOR);
+            headers.put(RosterConstants.VIEW_STATE, getViewStateValue());
         } catch (Exception e) {
             LOGGER.error("[Search Page] Error", e);
         }
@@ -660,8 +687,12 @@ public class RosterService {
         }
         headers.put(RosterConstants.EVENT_TARGET, "");
         headers.put(RosterConstants.EVENT_ARGUMENT, "");
-        headers.put(RosterConstants.VIEW_STATE, "/wEPDwUKMTY1NDU2MTA1MmRkuOlmdf9IlE5Upbw3feS5bMlNeitv2Tys6h3WSL105GQ=");
-        headers.put(RosterConstants.VIEW_STATE_GENERATOR, "202EA31B");
+        headers.put(RosterConstants.VIEW_STATE, getViewStateValue());
+        if (viewStateGenerator != null) {
+            headers.put(RosterConstants.VIEW_STATE_GENERATOR, viewStateGenerator.attr("value"));
+        } else {
+            headers.put(RosterConstants.VIEW_STATE_GENERATOR, "202EA31B");
+        }
         headers.put(RosterConstants.EVENT_VALIDATION, "/wEdAAaUkhCi8bB8A8YPK1mx/fN+Ob9NwfdsH6h5T4oBt2E/NC/PSAvxybIG70Gi7lMSo2Ha9mxIS56towErq28lcj7mn+o6oHBHkC8q81Z+42F7hK13DHQbwWPwDXbrtkgbgsBJaWfipkuZE5/MRRQAXrNwOiJp3YGlq4qKyVLK8XZVxQ==");
         headers.put(RosterConstants.USERNAME, propertyService.get(PropertyKeyConstants.ROSTER_USER_KEY).getValue());
         headers.put(RosterConstants.PASSWORD, propertyService.get(PropertyKeyConstants.ROSTER_PASS_KEY).getValue());
@@ -805,241 +836,136 @@ public class RosterService {
         return sb.toString();
     }
 
+    private String buildNewUserRequestBodyString(final Member member) {
+        String requestBody = RosterConstants.EVENT_TARGET + EQUALS +
+                AMPERSAND + RosterConstants.EVENT_ARGUMENT + EQUALS +
+                AMPERSAND + RosterConstants.LAST_FOCUS + EQUALS +
+                AMPERSAND + RosterConstants.VIEW_STATE + EQUALS + getViewStateValue() +
+                AMPERSAND + RosterConstants.VIEW_STATE_GENERATOR + EQUALS + getViewStateGeneratorValue() +
+                AMPERSAND + RosterConstants.VIEW_STATE_ENCRYPTED + EQUALS +
+                AMPERSAND + RosterConstants.FIRST_NAME + EQUALS +
+                AMPERSAND + RosterConstants.LAST_NAME + EQUALS + member.getLastName() +
+                AMPERSAND + RosterConstants.STATUS + EQUALS + member.getStatus() +
+                AMPERSAND + RosterConstants.SEARCH_MEMBER_TYPE + EQUALS +
+                AMPERSAND + RosterConstants.CURRENT_STATUS + EQUALS +
+                AMPERSAND + RosterConstants.ADD_NEW_MEMBER_BUTTON + EQUALS + "Add+This+Person" +
+                AMPERSAND + RosterConstants.TEXT_FIRST_NAME + EQUALS + member.getFirstName() +
+                AMPERSAND + RosterConstants.TEXT_LAST_NAME + EQUALS + member.getLastName() +
+                AMPERSAND + RosterConstants.TEXT_NICK_NAME + EQUALS + member.getNickname() +
+                AMPERSAND + RosterConstants.SPOUSE + EQUALS + member.getSpouse() +
+                AMPERSAND + RosterConstants.GENDER + EQUALS + member.getGender() +
+                AMPERSAND + RosterConstants.MEMBER_ID + EQUALS + member.getEaaNumber() +
+                AMPERSAND + RosterConstants.MEMBER_TYPE + EQUALS + member.getMemberType() +
+                AMPERSAND + RosterConstants.CURRENT_STANDING + EQUALS + member.getStatus() +
+                AMPERSAND + RosterConstants.ADMIN_LEVEL + EQUALS + member.getWebAdminAccess() +
+                AMPERSAND + RosterConstants.ADDRESS_LINE_1 + EQUALS + member.getAddressLine1() +
+                AMPERSAND + RosterConstants.ADDRESS_LINE_2 + EQUALS + member.getAddressLine2() +
+                AMPERSAND + RosterConstants.CITY + EQUALS + member.getCity() +
+                AMPERSAND + RosterConstants.STATE + EQUALS + member.getState() +
+                AMPERSAND + RosterConstants.ZIP_CODE + EQUALS + member.getZipCode() +
+                AMPERSAND + RosterConstants.COUNTRY + EQUALS + member.getCountry() +
+                AMPERSAND + RosterConstants.BIRTH_DATE + EQUALS + member.getBirthDate() +
+                AMPERSAND + RosterConstants.JOIN_DATE + EQUALS + member.getJoined() +
+                AMPERSAND + RosterConstants.EXPIRATION_DATE + EQUALS + member.getExpiration() +
+                AMPERSAND + RosterConstants.OTHER_INFO + EQUALS + member.getOtherInfo() +
+                AMPERSAND + RosterConstants.HOME_PHONE + EQUALS + member.getHomePhone() +
+                AMPERSAND + RosterConstants.CELL_PHONE + EQUALS + member.getCellPhone() +
+                AMPERSAND + RosterConstants.EMAIL + EQUALS + member.getEmail() +
+                AMPERSAND + RosterConstants.RATINGS + EQUALS + member.getRatings() +
+                AMPERSAND + RosterConstants.AIRCRAFT_OWNED + EQUALS + member.getAircraftOwned() +
+                AMPERSAND + RosterConstants.AIRCRAFT_PROJECT + EQUALS + member.getAircraftProject() +
+                AMPERSAND + RosterConstants.AIRCRAFT_BUILT + EQUALS + member.getAircraftBuilt() +
+                AMPERSAND + RosterConstants.ROW_COUNT + EQUALS + "50";
+        return URLEncoder.encode(requestBody, StandardCharsets.UTF_8);
+    }
+
+    private String getViewStateValue() {
+        if (viewState != null) {
+            return viewState.attr("value");
+        }
+        return "/wEPDwUKMTY1NDU2MTA1MmRkuOlmdf9IlE5Upbw3feS5bMlNeitv2Tys6h3WSL105GQ=";
+    }
+
+    private String getViewStateGeneratorValue() {
+        if (viewStateGenerator != null) {
+            return viewStateGenerator.attr("value");
+        }
+        return "55FE2EBC";
+    }
+
     private String buildUpdateUserRequestBodyString(final Member member) {
         final StringBuilder sb = new StringBuilder();
+        addFormContent(sb, RosterConstants.EVENT_TARGET, EMPTY_STRING);
+        addFormContent(sb, RosterConstants.EVENT_ARGUMENT, EMPTY_STRING);
+        addFormContent(sb, RosterConstants.LAST_FOCUS, EMPTY_STRING);
+        addFormContent(sb, RosterConstants.VIEW_STATE, headers
+                .get(RosterConstants.VIEW_STATE)
+                .replaceAll("/", "%2F")
+                .replaceAll("=", "%3D")
+                .replaceAll("\\+", "%2B"));
+        addFormContent(sb, RosterConstants.VIEW_STATE_GENERATOR, headers.get(RosterConstants.VIEW_STATE_GENERATOR));
+        addFormContent(sb, RosterConstants.VIEW_STATE_ENCRYPTED, EMPTY_STRING);
+        addFormContent(sb, RosterConstants.FIRST_NAME, EMPTY_STRING);
+        addFormContent(sb, RosterConstants.LAST_NAME, member.getLastName());
+        addFormContent(sb, RosterConstants.STATUS, member.getStatus().toString());
+        addFormContent(sb, RosterConstants.SEARCH_MEMBER_TYPE, EMPTY_STRING);
+        addFormContent(sb, RosterConstants.CURRENT_STATUS, EMPTY_STRING);
+        addFormContent(sb, RosterConstants.UPDATE_THIS_MEMBER_BUTTON, "Update");
+        addFormContent(sb, RosterConstants.TEXT_FIRST_NAME, member.getFirstName());
+        addFormContent(sb, RosterConstants.TEXT_LAST_NAME, member.getLastName());
+        addFormContent(sb, RosterConstants.TEXT_NICK_NAME, member.getNickname());
+        addFormContent(sb, RosterConstants.SPOUSE, member.getSpouse());
+        addFormContent(sb, RosterConstants.GENDER, Gender.getDisplayString(member.getGender()));
+        addFormContent(sb, RosterConstants.MEMBER_ID, member.getEaaNumber());
+        addFormContent(sb, RosterConstants.MEMBER_TYPE, MemberType.toDisplayString(member.getMemberType()));
+        addFormContent(sb, RosterConstants.CURRENT_STANDING, Status.getDisplayString(member.getStatus()));
+        addFormContent(sb, RosterConstants.USER_NAME, member.getUsername());
+        addFormContent(sb, RosterConstants.ADMIN_LEVEL, WebAdminAccess.getDisplayString(member.getWebAdminAccess()));
+        addFormContent(sb, RosterConstants.ADDRESS_LINE_1, member.getAddressLine1());
+        addFormContent(sb, RosterConstants.ADDRESS_LINE_2, member.getAddressLine2());
+        addFormContent(sb, RosterConstants.CITY, member.getCity());
+        addFormContent(sb, RosterConstants.STATE, State.getDisplayString(member.getState()));
+        addFormContent(sb, RosterConstants.ZIP_CODE, member.getZipCode());
+        addFormContent(sb, RosterConstants.COUNTRY, Country.toDisplayString(member.getCountry()));
+        addFormContent(sb, RosterConstants.BIRTH_DATE, MDY_SDF.format(member.getBirthDateAsDate()));
+        addFormContent(sb, RosterConstants.JOIN_DATE, MDY_SDF.format(member.getJoinedAsDate()));
+        addFormContent(sb, RosterConstants.EXPIRATION_DATE, MDY_SDF.format(member.getExpiration()));
+        addFormContent(sb, RosterConstants.OTHER_INFO, member.getOtherInfo());
+        addFormContent(sb, RosterConstants.HOME_PHONE, member.getHomePhone());
+        addFormContent(sb, RosterConstants.CELL_PHONE, member.getCellPhone());
+        addFormContent(sb, RosterConstants.EMAIL, member.getEmail());
+        addFormContent(sb, RosterConstants.RATINGS, member.getRatings());
+        addFormContent(sb, RosterConstants.AIRCRAFT_OWNED, member.getAircraftOwned());
+        addFormContent(sb, RosterConstants.AIRCRAFT_PROJECT, member.getAircraftProject());
+        addFormContent(sb, RosterConstants.AIRCRAFT_BUILT, member.getAircraftBuilt());
+        addFormContent(sb, RosterConstants.IMC, member.isImcClub() ? "on" : "off");
+        addFormContent(sb, RosterConstants.VMC, member.isVmcClub() ? "on" : "off");
+        addFormContent(sb, RosterConstants.YOUNG_EAGLE_PILOT, member.isYePilot() ? "on" : "off");
+        addFormContent(sb, RosterConstants.EAGLE_PILOT, member.isEaglePilot() ? "on" : "off");
         sb
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.EVENT_TARGET)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.EVENT_ARGUMENT)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.LAST_FOCUS)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.VIEW_STATE)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(headers
-                        .get(RosterConstants.VIEW_STATE)
-                        .replaceAll("/", "%2F")
-                        .replaceAll("=", "%3D")
-                        .replaceAll("\\+", "%2B"))
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.VIEW_STATE_GENERATOR)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(headers.get(RosterConstants.VIEW_STATE_GENERATOR))
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.VIEW_STATE_ENCRYPTED)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.FIRST_NAME)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.LAST_NAME)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getLastName())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.STATUS)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getStatus())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.SEARCH_MEMBER_TYPE)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.CURRENT_STATUS)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.UPDATE_THIS_MEMBER_BUTTON)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append("Update")
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.TEXT_FIRST_NAME)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getFirstName())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.TEXT_LAST_NAME)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getLastName())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.TEXT_NICK_NAME)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getNickname())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.SPOUSE)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getSpouse())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.GENDER)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(Gender.getDisplayString(member.getGender()))
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.MEMBER_ID)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getEaaNumber())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.MEMBER_TYPE)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(MemberType.toDisplayString(member.getMemberType()))
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.CURRENT_STANDING)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(Status.getDisplayString(member.getStatus()))
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.USER_NAME)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getUsername())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.ADMIN_LEVEL)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(WebAdminAccess.getDisplayString(member.getWebAdminAccess()))
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.ADDRESS_LINE_1)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getAddressLine1())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.ADDRESS_LINE_2)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getAddressLine2())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.CITY)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getCity())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.STATE)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(State.getDisplayString(member.getState()))
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.ZIP_CODE)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getZipCode())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.COUNTRY)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(Country.toDisplayString(member.getCountry()))
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.BIRTH_DATE)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(MDY_SDF.format(member.getBirthDateAsDate()))
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.JOIN_DATE)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(MDY_SDF.format(member.getJoinedAsDate()))
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.EXPIRATION_DATE)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(MDY_SDF.format(member.getExpiration()))
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.OTHER_INFO)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getOtherInfo())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.HOME_PHONE)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getHomePhone())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.CELL_PHONE)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getCellPhone())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.EMAIL)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getEmail())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.RATINGS)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getRatings())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.AIRCRAFT_OWNED)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getAircraftOwned())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.AIRCRAFT_PROJECT)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getAircraftProject())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.AIRCRAFT_BUILT)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.getAircraftBuilt())
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.IMC)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.isImcClub() ? "on" : "off")
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.VMC)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.isVmcClub() ? "on" : "off")
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.YOUNG_EAGLE_PILOT)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.isYePilot() ? "on" : "off")
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.EAGLE_PILOT)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(member.isEaglePilot() ? "on" : "off")
                 .append(RosterConstants.FORM_BOUNDARY)
                 .append(RosterConstants.PHOTO)
                 .append("\"; filename=\"\"\n")
-                .append("Content-Type: application/octet-stream\n\n")
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.PHOTO_FILE_NAME)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.PHOTO_FILE_TYPE)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append(RosterConstants.FORM_BOUNDARY)
-                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
-                .append(RosterConstants.ROW_COUNT)
-                .append(RosterConstants.FORM_DATA_SEPARATOR)
-                .append("50")
+                .append("Content-Type: application/octet-stream\n\n");
+        addFormContent(sb, RosterConstants.PHOTO_FILE_NAME, EMPTY_STRING);
+        addFormContent(sb, RosterConstants.PHOTO_FILE_TYPE, EMPTY_STRING);
+        addFormContent(sb, RosterConstants.ROW_COUNT, "50");
+        sb
                 .append(RosterConstants.FORM_BOUNDARY)
                 .append("--");
         return sb.toString();
+    }
+
+    /**
+     * Adds a form content section to the provided StringBuilder object.
+     */
+    private void addFormContent(final StringBuilder sb, final String key, final String value) {
+        sb
+                .append(RosterConstants.FORM_BOUNDARY)
+                .append(RosterConstants.CONTENT_DISPOSITION_FORM_DATA_PREFIX)
+                .append(key)
+                .append(RosterConstants.FORM_DATA_SEPARATOR_DOUBLE_NL)
+                .append(value);
     }
 
     /**

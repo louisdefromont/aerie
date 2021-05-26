@@ -72,9 +72,14 @@ public class RosterConstants {
     public final static String CONTENT_DISPOSITION_FORM_DATA_PREFIX = "Content-Disposition: form-data; name=\"";
 
     /**
-     * FORM_DATA_SEPARATOR
+     * FORM_DATA_SEPARATOR_DOUBLE_NL
      */
-    public final static String FORM_DATA_SEPARATOR = "\"\n\n";
+    public final static String FORM_DATA_SEPARATOR_DOUBLE_NL = "\"\n\n";
+
+    /**
+     * FORM_DATA_SEPARATOR_SINGLE_NL
+     */
+    public final static String FORM_DATA_SEPARATOR_SINGLE_NL = "\"\n\n";
 
     /**
      * eaachapters.org Http User-Agent variable.
@@ -150,6 +155,11 @@ public class RosterConstants {
      * eaachapters.org search button variable.
      */
     public final static String SEARCH_BUTTON = "ctl00$ContentPlaceHolder1$btnSearch=Search";
+
+    /**
+     * ADD_NEW_MEMBER_BUTTON.
+     */
+    public final static String ADD_NEW_MEMBER_BUTTON = "ctl00$ContentPlaceHolder1$btnAddThisNewMember";
 
     /**
      * eaachapters.org update member button variable.

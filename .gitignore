@@ -15,6 +15,7 @@
 .factorypath
 .project
 .settings
+.vscode
 
 # Package Files #
 *.jar

@@ -24,6 +24,9 @@ import java.util.Optional;
 
 import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.objects.Personalization;
+
+import org.eaa690.aerie.communication.MessageSender;
+import org.eaa690.aerie.communication.SendGridEmailSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
@@ -46,7 +49,12 @@ import com.sendgrid.helpers.mail.objects.Email;
  * EmailService.
  */
 @Service("emailService")
-public class EmailService {
+public class EmailService extends CommunicatorService{
+
+    @Autowired
+    public EmailService(SendGridEmailSender messageSender) {
+        super(messageSender);
+    }
 
     /**
      * Logger.
@@ -83,12 +91,6 @@ public class EmailService {
     private QueuedEmailRepository queuedEmailRepository;
 
     /**
-     * SendGrid.
-     */
-    @Autowired
-    private SendGrid sendGrid;
-
-    /**
      * Count of manually sent messages.
      */
     private long manualMsgSentCount = 0;
@@ -102,17 +104,6 @@ public class EmailService {
     @Autowired
     public void setPropertyService(final PropertyService value) {
         propertyService = value;
-    }
-
-    /**
-     * Sets SendGrid.
-     * Note: mostly used for unit test mocks
-     *
-     * @param value SendGrid
-     */
-    @Autowired
-    public void setSendGrid(final SendGrid value) {
-        sendGrid = value;
     }
 
     /**
@@ -147,6 +138,7 @@ public class EmailService {
     public void setQueuedEmailRepository(final QueuedEmailRepository qeRepository) {
         queuedEmailRepository = qeRepository;
     }
+
 
     /**
      * Queues email to be sent.
@@ -268,14 +260,9 @@ public class EmailService {
      * @throws IOException upon message delivery failure
      */
     private void sendEmail(final Mail mail) throws ResourceNotFoundException, IOException {
-        final Request request = new Request();
-        request.setMethod(Method.POST);
-        request.setEndpoint("mail/send");
-        request.setBody(mail.build());
         if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
-            final Response response = sendGrid.api(request);
-            LOGGER.info(String.format("Response... statusCode [%s]; body [%s]; headers [%s]",
-                    response.getStatusCode(), response.getBody(), response.getHeaders()));
+            final String response = sendMessage(null, mail, propertyService);
+            LOGGER.info(response);
         } else {
             LOGGER.info("Not sending email due to enabled flag set to false.");
         }

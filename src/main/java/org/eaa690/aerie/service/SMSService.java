@@ -18,6 +18,9 @@ package org.eaa690.aerie.service;
 
 import com.twilio.Twilio;
 import com.twilio.type.PhoneNumber;
+
+import org.eaa690.aerie.communication.MessageSender;
+import org.eaa690.aerie.communication.TwilioSMSSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
@@ -33,7 +36,12 @@ import java.util.Date;
  * SMSService.
  */
 @Service
-public class SMSService {
+public class SMSService extends CommunicatorService{
+
+    @Autowired
+    public SMSService(TwilioSMSSender messageSender) {
+        super(messageSender);
+    }
 
     /**
      * Logger.
@@ -154,11 +162,7 @@ public class SMSService {
         if (to != null && text != null &&
                 Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_ENABLED_KEY).getValue())) {
             LOGGER.info(String.format("Sending %s to %s", text, to));
-            com.twilio.rest.api.v2010.account.Message
-                    .creator(new PhoneNumber(to),
-                            new PhoneNumber(propertyService.get(PropertyKeyConstants.SMS_FROM_ADDRESS_KEY).getValue()),
-                            text)
-                    .create();
+            sendMessage(to, text, propertyService);
         }
     }
 

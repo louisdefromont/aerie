@@ -17,10 +17,14 @@
 package org.eaa690.aerie.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * TinyURL Response Object.
  */
+@Getter
+@Setter
 public class TinyURLResponse {
     /**
      * Code.
@@ -38,28 +42,4 @@ public class TinyURLResponse {
     @JsonIgnore
     private String errors;
 
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public TinyURLData getData() {
-        return data;
-    }
-
-    public void setData(TinyURLData data) {
-        this.data = data;
-    }
-
-    public String getErrors() {
-        return errors;
-    }
-
-    public void setErrors(String errors) {
-        this.errors = errors;
-    }
 }

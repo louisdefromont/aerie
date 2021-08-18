@@ -25,6 +25,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -41,6 +44,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
                 "createdAt", "updatedAt"
         },
         allowGetters = true)
+@Getter
+@Setter
 public class BaseEntity implements Serializable {
 
     /**
@@ -68,59 +73,5 @@ public class BaseEntity implements Serializable {
     @Column(name = "updated_at", nullable = false)
     @LastModifiedDate
     private Date updatedAt;
-
-    /**
-     * Retrieves the value for {@link #id}.
-     *
-     * @return the current value
-     */
-    public Long getId() {
-        return id;
-    }
-
-    /**
-     * Provides a value for {@link #id}.
-     *
-     * @param value the new value to set
-     */
-    public void setId(final Long value) {
-        id = value;
-    }
-
-    /**
-     * Retrieves the value for {@link #createdAt}.
-     *
-     * @return the current value
-     */
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    /**
-     * Provides a value for {@link #createdAt}.
-     *
-     * @param value the new value to set
-     */
-    public void setCreatedAt(final Date value) {
-        createdAt = value;
-    }
-
-    /**
-     * Retrieves the value for {@link #updatedAt}.
-     *
-     * @return the current value
-     */
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    /**
-     * Provides a value for {@link #updatedAt}.
-     *
-     * @param value the new value to set
-     */
-    public void setUpdatedAt(final Date value) {
-        updatedAt = value;
-    }
 
 }

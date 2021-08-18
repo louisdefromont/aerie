@@ -46,7 +46,7 @@ public class SlackService implements SlackMessagePostedListener {
     /**
      * SimpleDateFormat.
      */
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy");
 
     /**
      * PropertyService.
@@ -61,7 +61,7 @@ public class SlackService implements SlackMessagePostedListener {
     private JotFormService jotFormService;
 
     /**
-     * SlackSession
+     * SlackSession.
      */
     @Autowired
     private SlackSession slackSession;
@@ -105,7 +105,7 @@ public class SlackService implements SlackMessagePostedListener {
      * @param member Member
      */
     public void sendNewMembershipMsg(final Member member) {
-        if (member != null && member.getSlack() != null && member.slackEnabled()) {
+        if (member != null && member.getSlack() != null && member.isSlackEnabled()) {
             try {
                 String to = member.getSlack();
                 if (Boolean.parseBoolean(
@@ -127,7 +127,7 @@ public class SlackService implements SlackMessagePostedListener {
      * @param member Member
      */
     public void sendRenewMembershipMsg(final Member member) {
-        if (member != null && member.getSlack() != null && member.slackEnabled()) {
+        if (member != null && member.getSlack() != null && member.isSlackEnabled()) {
             try {
                 String to = member.getSlack();
                 if (Boolean.parseBoolean(
@@ -166,6 +166,7 @@ public class SlackService implements SlackMessagePostedListener {
      * Gets all Slack users.
      *
      * @return list of users
+     * @throws ResourceNotFoundException when no users are found
      */
     public List<String> allSlackUsers() throws ResourceNotFoundException {
         final List<String> users = new ArrayList<>();
@@ -185,8 +186,12 @@ public class SlackService implements SlackMessagePostedListener {
      */
     private String getMessage(final Member member, final String msgKey) {
         try {
-            final String expiration = member.getExpiration() != null ?
-                    sdf.format(member.getExpiration()) : sdf.format(new Date());
+            final String expiration;
+            if (member.getExpiration() != null) {
+                expiration = SIMPLE_DATE_FORMAT.format(member.getExpiration());
+            } else {
+                expiration = SIMPLE_DATE_FORMAT.format(new Date());
+            }
             return propertyService
                     .get(msgKey)
                     .getValue()

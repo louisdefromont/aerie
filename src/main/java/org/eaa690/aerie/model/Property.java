@@ -16,6 +16,8 @@
 
 package org.eaa690.aerie.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.eaa690.aerie.constant.CommonConstants;
 
 import javax.persistence.Column;
@@ -29,6 +31,8 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "PROPERTY")
+@Getter
+@Setter
 public class Property extends BaseEntity implements Comparable<Property> {
 
     /**
@@ -54,42 +58,6 @@ public class Property extends BaseEntity implements Comparable<Property> {
     public Property() {
         super.setCreatedAt(new Date());
         super.setUpdatedAt(new Date());
-    }
-
-    /**
-     * Retrieves the value for {@link #key}.
-     *
-     * @return the current value
-     */
-    public String getKey() {
-        return key;
-    }
-
-    /**
-     * Provides a value for {@link #value}.
-     *
-     * @param k the new value to set
-     */
-    public void setKey(final String k) {
-        key = k;
-    }
-
-    /**
-     * Retrieves the value for {@link #value}.
-     *
-     * @return the current value
-     */
-    public String getValue() {
-        return value;
-    }
-
-    /**
-     * Provides a value for {@link #value}.
-     *
-     * @param v the new value to set
-     */
-    public void setValue(final String v) {
-        value = v;
     }
 
     /**

@@ -16,16 +16,18 @@
 
 package org.eaa690.aerie.model.roster;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eaa690.aerie.service.RosterService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
+@Getter
+@Setter
 public class OtherInfoBuilder {
 
     /**
@@ -36,27 +38,27 @@ public class OtherInfoBuilder {
     /**
      * Family Pattern.
      */
-    public static Pattern additionalFamilyPattern = Pattern.compile("Family=\\[(.*?)\\]");
+    private static Pattern additionalFamilyPattern = Pattern.compile("Family=\\[(.*?)\\]");
 
     /**
      * # of Family Pattern.
      */
-    public static Pattern numOfFamilyPattern = Pattern.compile("# of Family=\\[(.*?)\\]");
+    private static Pattern numOfFamilyPattern = Pattern.compile("# of Family=\\[(.*?)\\]");
 
     /**
      * Slack Pattern.
      */
-    public static Pattern slackPattern = Pattern.compile("Slack=\\[(.*?)\\]");
+    private static Pattern slackPattern = Pattern.compile("Slack=\\[(.*?)\\]");
 
     /**
      * RFID Pattern.
      */
-    public static Pattern rfidPattern = Pattern.compile("RFID=\\[(.*?)\\]");
+    private static Pattern rfidPattern = Pattern.compile("RFID=\\[(.*?)\\]");
 
     /**
      * Additional Info Pattern.
      */
-    public static Pattern additionalInfoPattern = Pattern.compile("Additional Info=\\[(.*?)\\]");
+    private static Pattern additionalInfoPattern = Pattern.compile("Additional Info=\\[(.*?)\\]");
 
     /**
      * Additional Family.
@@ -90,46 +92,11 @@ public class OtherInfoBuilder {
         // Default constructor
     }
 
-    public String getAdditionalFamily() {
-        return additionalFamily;
-    }
-
-    public void setAdditionalFamily(String additionalFamily) {
-        this.additionalFamily = additionalFamily;
-    }
-
-    public Long getNumberOfFamily() {
-        return numOfFamily;
-    }
-
-    public void setNumberOfFamily(Long numOfFamily) {
-        this.numOfFamily = numOfFamily;
-    }
-
-    public String getSlack() {
-        return slack;
-    }
-
-    public void setSlack(String slack) {
-        this.slack = slack;
-    }
-
-    public String getAdditionalInfo() {
-        return additionalInfo;
-    }
-
-    public void setAdditionalInfo(String additionalInfo) {
-        this.additionalInfo = additionalInfo;
-    }
-
-    public String getRfid() {
-        return rfid;
-    }
-
-    public void setRfid(String rfid) {
-        this.rfid = rfid;
-    }
-
+    /**
+     * Gets raw value.
+     *
+     * @return raw value
+     */
     public String getRaw() {
         final List<String> parts = new ArrayList<>();
         if (additionalFamily != null) {
@@ -150,50 +117,60 @@ public class OtherInfoBuilder {
         return String.join("; ", parts);
     }
 
-    public void setRaw(String raw) {
+    /**
+     * Sets raw value.
+     *
+     * @param raw string
+     */
+    public void setRaw(final String raw) {
         boolean matched = false;
         if (raw != null) {
             final Matcher additionalFamilyMatcher = additionalFamilyPattern.matcher(raw);
             if (additionalFamilyMatcher.find()) {
                 matched = true;
                 setAdditionalFamily(additionalFamilyMatcher.group(1));
-                LOGGER.info("Set additional family to ["+getAdditionalFamily()+"]");
+                LOGGER.info("Set additional family to [" + getAdditionalFamily() + "]");
             }
             final Matcher numOfFamilyMatcher = numOfFamilyPattern.matcher(raw);
             if (numOfFamilyMatcher.find()) {
                 try {
-                    setNumberOfFamily(Long.parseLong(numOfFamilyMatcher.group(1)));
+                    setNumOfFamily(Long.parseLong(numOfFamilyMatcher.group(1)));
                     matched = true;
-                    LOGGER.info("Set number of family to ["+getNumberOfFamily()+"]");
+                    LOGGER.info("Set number of family to [" + getNumOfFamily() + "]");
                 } catch (NumberFormatException nfe) {
-                    LOGGER.info("Unable to parse number of family value=["+numOfFamilyMatcher.group(1)+"]");
+                    LOGGER.info("Unable to parse number of family value=[" + numOfFamilyMatcher.group(1) + "]");
                 }
             }
             final Matcher slackMatcher = slackPattern.matcher(raw);
             if (slackMatcher.find()) {
                 matched = true;
                 setSlack(slackMatcher.group(1));
-                LOGGER.info("Set Slack to ["+getSlack()+"]");
+                LOGGER.info("Set Slack to [" + getSlack() + "]");
             }
             final Matcher rfidMatcher = rfidPattern.matcher(raw);
             if (rfidMatcher.find()) {
                 matched = true;
                 setRfid(rfidMatcher.group(1));
-                LOGGER.info("Set RFID to ["+getRfid()+"]");
+                LOGGER.info("Set RFID to [" + getRfid() + "]");
             }
             final Matcher additionalInfoMatcher = additionalInfoPattern.matcher(raw);
             if (additionalInfoMatcher.find()) {
                 matched = true;
                 setAdditionalInfo(additionalInfoMatcher.group(1));
-                LOGGER.info("Set additional info to ["+getAdditionalInfo()+"]");
+                LOGGER.info("Set additional info to [" + getAdditionalInfo() + "]");
             }
             if (!matched) {
-                LOGGER.info("No patterns matched.  Setting additional info to ["+raw+"]");
+                LOGGER.info("No patterns matched.  Setting additional info to [" + raw + "]");
                 setAdditionalInfo(raw);
             }
         }
     }
 
+    /**
+     * toString.
+     *
+     * @return raw string
+     */
     @Override
     public String toString() {
         return getRaw();

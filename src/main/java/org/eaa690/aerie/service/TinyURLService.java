@@ -89,16 +89,17 @@ public class TinyURLService {
                     .uri(URI.create(propertyService.get(PropertyKeyConstants.TINY_URL_CREATE_API_KEY).getValue()))
                     .setHeader("accept", "application/json")
                     .setHeader("Content-Type", "application/json")
-                    .setHeader("Authorization", "Bearer " +
-                            propertyService.get(PropertyKeyConstants.TINY_URL_API_KEY).getValue())
-                    .POST(HttpRequest.BodyPublishers.ofString("{\"url\":\"" +
-                            originalValue +
-                            "\",\"domain\":\"tiny.one\"}"));
-            final HttpResponse<String> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+                    .setHeader("Authorization", "Bearer "
+                            + propertyService.get(PropertyKeyConstants.TINY_URL_API_KEY).getValue())
+                    .POST(HttpRequest.BodyPublishers.ofString("{\"url\":\""
+                            + originalValue
+                            + "\",\"domain\":\"tiny.one\"}"));
+            final HttpResponse<String> response =
+                    httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
             final TinyURLResponse tuResponse = mapper.readValue(response.body(), TinyURLResponse.class);
-            return tuResponse.getData().getTiny_url();
+            return tuResponse.getData().getTinyUrl();
         } catch (Exception e) {
-            System.out.println("[Get Tiny URL] Error: " + e.getMessage());
+            LOGGER.info("[Get Tiny URL] Error: " + e.getMessage());
         }
         return null;
     }

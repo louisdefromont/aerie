@@ -79,7 +79,15 @@ public class MailChimpService {
         mailChimpConnection = value;
     }
 
-    public void addOrUpdateMember(String firstName, String lastName, String emailAddress)
+    /**
+     * Adds or updates a member.
+     *
+     * @param firstName First name
+     * @param lastName Last name
+     * @param emailAddress Email address
+     * @throws ResourceNotFoundException when properties are not found
+     */
+    public void addOrUpdateMember(final String firstName, final String lastName, final String emailAddress)
             throws ResourceNotFoundException {
         final String listId = propertyService.get(PropertyKeyConstants.MAILCHIMP_MEMBERS_LIST_ID_KEY).getValue();
         addOrUpdateMember(listId, firstName, lastName, emailAddress);
@@ -87,19 +95,27 @@ public class MailChimpService {
         for (Member member : members) {
             final String email = member.getEmailAddress();
             final Map<String, Object> mergeFields = member.getMergeFields();
-            final String first = (String)mergeFields.get("FNAME");
-            final String last = (String)mergeFields.get("LNAME");
+            final String first = (String) mergeFields.get("FNAME");
+            final String last = (String) mergeFields.get("LNAME");
             final String memberId = member.getId();
-            if (emailAddress.equalsIgnoreCase(email) &&
-                    firstName.equalsIgnoreCase(first) &&
-                    lastName.equalsIgnoreCase(last)) {
+            if (emailAddress.equalsIgnoreCase(email)
+                    && firstName.equalsIgnoreCase(first)
+                    && lastName.equalsIgnoreCase(last)) {
                 deleteMember(propertyService
                         .get(PropertyKeyConstants.MAILCHIMP_NON_MEMBERS_LIST_ID_KEY).getValue(), memberId);
             }
         }
     }
 
-    public void addOrUpdateNonMember(String firstName, String lastName, String emailAddress)
+    /**
+     * Adds or updates a non-member.
+     *
+     * @param firstName First name
+     * @param lastName Last name
+     * @param emailAddress Email address
+     * @throws ResourceNotFoundException when a property is not found
+     */
+    public void addOrUpdateNonMember(final String firstName, final String lastName, final String emailAddress)
             throws ResourceNotFoundException {
         final String listId = propertyService.get(PropertyKeyConstants.MAILCHIMP_NON_MEMBERS_LIST_ID_KEY).getValue();
         addOrUpdateMember(listId, firstName, lastName, emailAddress);
@@ -107,29 +123,32 @@ public class MailChimpService {
         for (Member member : members) {
             final String email = member.getEmailAddress();
             final Map<String, Object> mergeFields = member.getMergeFields();
-            final String first = (String)mergeFields.get("FNAME");
-            final String last = (String)mergeFields.get("LNAME");
+            final String first = (String) mergeFields.get("FNAME");
+            final String last = (String) mergeFields.get("LNAME");
             final String memberId = member.getId();
-            if (emailAddress.equalsIgnoreCase(email) &&
-                    firstName.equalsIgnoreCase(first) &&
-                    lastName.equalsIgnoreCase(last)) {
+            if (emailAddress.equalsIgnoreCase(email)
+                    && firstName.equalsIgnoreCase(first)
+                    && lastName.equalsIgnoreCase(last)) {
                 deleteMember(propertyService
                         .get(PropertyKeyConstants.MAILCHIMP_MEMBERS_LIST_ID_KEY).getValue(), memberId);
             }
         }
     }
 
-    private List<Member> getMemberList(String listId) throws ResourceNotFoundException {
+    private List<Member> getMemberList(final String listId) throws ResourceNotFoundException {
         try {
             final MailChimpList yourList = mailChimpConnection.getList(listId);
-            return yourList.getMembers(0,0);
+            return yourList.getMembers(0, 0);
         } catch (URISyntaxException | TransportException | MalformedURLException e) {
             LOGGER.error("ERROR", e);
         }
         throw new ResourceNotFoundException();
     }
 
-    private void addOrUpdateMember(String listId, String firstName, String lastName, String emailAddress) {
+    private void addOrUpdateMember(final String listId,
+                                   final String firstName,
+                                   final String lastName,
+                                   final String emailAddress) {
         try {
             Map<String, Object> mergeFields = new HashMap<>();
             mergeFields.put("FNAME", firstName);
@@ -155,7 +174,7 @@ public class MailChimpService {
         }
     }
 
-    private void deleteMember(String listId, String memberId) {
+    private void deleteMember(final String listId, final String memberId) {
         try {
             final MailChimpList yourList = mailChimpConnection.getList(listId);
             yourList.deleteMemberFromList(memberId);

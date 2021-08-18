@@ -24,8 +24,14 @@ import org.eaa690.aerie.model.RFIDRequest;
 import org.eaa690.aerie.model.roster.MembershipReport;
 import org.eaa690.aerie.service.RosterService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,7 +109,7 @@ public class RosterController {
      * @throws ResourceNotFoundException when no member data is found
      */
     @PutMapping(path = {"/{memberId}/rfid"})
-    public void updateRFID(@PathVariable("memberId") final Long memberId, @RequestBody RFIDRequest rfidRequest)
+    public void updateRFID(@PathVariable("memberId") final Long memberId, @RequestBody final RFIDRequest rfidRequest)
             throws ResourceNotFoundException {
         rosterService.updateMemberRFID(memberId, rfidRequest.getRfid());
     }
@@ -113,10 +119,10 @@ public class RosterController {
      *
      * @param rfidRequest RFIDRequest
      * @return FindByRFIDResponse
-     * @throws ResourceNotFoundException
+     * @throws ResourceNotFoundException when RFID is not found
      */
     @PostMapping(path = {"/find-by-id"})
-    public FindByRFIDResponse findByRFID(@RequestBody RFIDRequest rfidRequest) throws ResourceNotFoundException {
+    public FindByRFIDResponse findByRFID(@RequestBody final RFIDRequest rfidRequest) throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRFID(rfidRequest.getRfid());
         final FindByRFIDResponse rfidResponse = new FindByRFIDResponse();
         rfidResponse.setId(member.getId());

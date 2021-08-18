@@ -16,9 +16,14 @@
 
 package org.eaa690.aerie.model.roster;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * MembershipReport.
  */
+@Getter
+@Setter
 public class MembershipReport {
 
     /**
@@ -121,163 +126,4 @@ public class MembershipReport {
      */
     private Long nonMemberCount = 0L;
 
-    public Long getRegularMemberCount() {
-        return regularMemberCount;
-    }
-
-    public void setRegularMemberCount(Long regularMemberCount) {
-        this.regularMemberCount = regularMemberCount;
-    }
-
-    public Long getFamilyMemberCount() {
-        return familyMemberCount;
-    }
-
-    public void setFamilyMemberCount(Long familyMemberCount) {
-        this.familyMemberCount = familyMemberCount;
-    }
-
-    public Long getFamilyMembershipCount() {
-        return familyMembershipCount;
-    }
-
-    public void setFamilyMembershipCount(Long familyMembershipCount) {
-        this.familyMembershipCount = familyMembershipCount;
-    }
-
-    public Long getLifetimeMemberCount() {
-        return lifetimeMemberCount;
-    }
-
-    public void setLifetimeMemberCount(Long lifetimeMemberCount) {
-        this.lifetimeMemberCount = lifetimeMemberCount;
-    }
-
-    public Long getHonoraryMemberCount() {
-        return honoraryMemberCount;
-    }
-
-    public void setHonoraryMemberCount(Long honoraryMemberCount) {
-        this.honoraryMemberCount = honoraryMemberCount;
-    }
-
-    public Long getStudentMemberCount() {
-        return studentMemberCount;
-    }
-
-    public void setStudentMemberCount(Long studentMemberCount) {
-        this.studentMemberCount = studentMemberCount;
-    }
-
-    public Long getProspectMemberCount() {
-        return prospectMemberCount;
-    }
-
-    public void setProspectMemberCount(Long prospectMemberCount) {
-        this.prospectMemberCount = prospectMemberCount;
-    }
-
-    public Long getNonMemberCount() {
-        return nonMemberCount;
-    }
-
-    public void setNonMemberCount(Long nonMemberCount) {
-        this.nonMemberCount = nonMemberCount;
-    }
-
-    public Long getRegularMemberExpiredCount() {
-        return regularMemberExpiredCount;
-    }
-
-    public void setRegularMemberExpiredCount(Long regularMemberExpiredCount) {
-        this.regularMemberExpiredCount = regularMemberExpiredCount;
-    }
-
-    public Long getFamilyMembershipExpiredCount() {
-        return familyMembershipExpiredCount;
-    }
-
-    public void setFamilyMembershipExpiredCount(Long familyMembershipExpiredCount) {
-        this.familyMembershipExpiredCount = familyMembershipExpiredCount;
-    }
-
-    public Long getStudentMemberExpiredCount() {
-        return studentMemberExpiredCount;
-    }
-
-    public void setStudentMemberExpiredCount(Long studentMemberExpiredCount) {
-        this.studentMemberExpiredCount = studentMemberExpiredCount;
-    }
-
-    public Long getRegularMemberWillExpire30DaysCount() {
-        return regularMemberWillExpire30DaysCount;
-    }
-
-    public void setRegularMemberWillExpire30DaysCount(Long regularMemberWillExpire30DaysCount) {
-        this.regularMemberWillExpire30DaysCount = regularMemberWillExpire30DaysCount;
-    }
-
-    public Long getRegularMemberWillExpire7DaysCount() {
-        return regularMemberWillExpire7DaysCount;
-    }
-
-    public void setRegularMemberWillExpire7DaysCount(Long regularMemberWillExpire7DaysCount) {
-        this.regularMemberWillExpire7DaysCount = regularMemberWillExpire7DaysCount;
-    }
-
-    public Long getFamilyMembershipWillExpire30DaysCount() {
-        return familyMembershipWillExpire30DaysCount;
-    }
-
-    public void setFamilyMembershipWillExpire30DaysCount(Long familyMembershipWillExpire30DaysCount) {
-        this.familyMembershipWillExpire30DaysCount = familyMembershipWillExpire30DaysCount;
-    }
-
-    public Long getFamilyMembershipWillExpire7DaysCount() {
-        return familyMembershipWillExpire7DaysCount;
-    }
-
-    public void setFamilyMembershipWillExpire7DaysCount(Long familyMembershipWillExpire7DaysCount) {
-        this.familyMembershipWillExpire7DaysCount = familyMembershipWillExpire7DaysCount;
-    }
-
-    public Long getStudentMemberWillExpire30DaysCount() {
-        return studentMemberWillExpire30DaysCount;
-    }
-
-    public void setStudentMemberWillExpire30DaysCount(Long studentMemberWillExpire30DaysCount) {
-        this.studentMemberWillExpire30DaysCount = studentMemberWillExpire30DaysCount;
-    }
-
-    public Long getStudentMemberWillExpire7DaysCount() {
-        return studentMemberWillExpire7DaysCount;
-    }
-
-    public void setStudentMemberWillExpire7DaysCount(Long studentMemberWillExpire7DaysCount) {
-        this.studentMemberWillExpire7DaysCount = studentMemberWillExpire7DaysCount;
-    }
-
-    public Long getFamilyMemberExpiredCount() {
-        return familyMemberExpiredCount;
-    }
-
-    public void setFamilyMemberExpiredCount(Long familyMemberExpiredCount) {
-        this.familyMemberExpiredCount = familyMemberExpiredCount;
-    }
-
-    public Long getFamilyMemberWillExpire30DaysCount() {
-        return familyMemberWillExpire30DaysCount;
-    }
-
-    public void setFamilyMemberWillExpire30DaysCount(Long familyMemberWillExpire30DaysCount) {
-        this.familyMemberWillExpire30DaysCount = familyMemberWillExpire30DaysCount;
-    }
-
-    public Long getFamilyMemberWillExpire7DaysCount() {
-        return familyMemberWillExpire7DaysCount;
-    }
-
-    public void setFamilyMemberWillExpire7DaysCount(Long familyMemberWillExpire7DaysCount) {
-        this.familyMemberWillExpire7DaysCount = familyMemberWillExpire7DaysCount;
-    }
 }

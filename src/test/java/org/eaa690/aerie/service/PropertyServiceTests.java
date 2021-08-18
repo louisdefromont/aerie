@@ -18,6 +18,7 @@ package org.eaa690.aerie.service;
 
 import java.util.Optional;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,13 +56,18 @@ public class PropertyServiceTests {
     private Property notificationGCPStorageProperty;
 
     /**
+     * Mockito mocks closeable.
+     */
+    private AutoCloseable closeable;
+
+    /**
      * Test setup.
      *
      * @throws ResourceNotFoundException when a test error occurs
      */
     @Before
     public void before() throws ResourceNotFoundException {
-        MockitoAnnotations.initMocks(this);
+        closeable = MockitoAnnotations.openMocks(this);
 
         notificationGCPStorageProperty = TestDataFactory
                 .getProperty(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY, CommonConstants.ID);
@@ -73,6 +79,16 @@ public class PropertyServiceTests {
 
         propertyService = new PropertyService();
         propertyService.setPropertyRepository(propertyRepository);
+    }
+
+    /**
+     * Test teardown.
+     *
+     * @throws Exception when an error occurs
+     */
+    @After
+    public void releaseMocks() throws Exception {
+        closeable.close();
     }
 
     /**

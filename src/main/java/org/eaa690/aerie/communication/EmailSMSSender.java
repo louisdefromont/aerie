@@ -1,18 +1,23 @@
 package org.eaa690.aerie.communication;
 
-import org.eaa690.aerie.service.PropertyService;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class EmailSMSSender implements MessageSender {
+public class EmailSMSSender extends MessageSender {
+
+    public EmailSMSSender() {
+        super("SMS_by_Email");
+    }
 
     private MessageSender messageSender;
 
+    @Autowired
     public void setMessageSender(SendGridEmailSender messageSender) {
         this.messageSender = messageSender;
     }
 
     @Override
-    public String sendMessage(String recipientAddress, String message, PropertyService propertyService) {
-        return messageSender.sendMessage(recipientAddress, message, propertyService);
+    public String sendMessage(Message message) {
+        return messageSender.sendMessage(message);
     }
     
 }

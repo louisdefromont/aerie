@@ -22,10 +22,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.sendgrid.SendGrid;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
 
-import org.eaa690.aerie.communication.MessageSender;
+import org.eaa690.aerie.communication.AcceptsEmailPredicate;
+import org.eaa690.aerie.communication.Message;
 import org.eaa690.aerie.communication.SendGridEmailSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
@@ -39,12 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.sendgrid.Method;
-import com.sendgrid.Request;
-import com.sendgrid.Response;
-import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Email;
-
 /**
  * EmailService.
  */
@@ -52,8 +48,8 @@ import com.sendgrid.helpers.mail.objects.Email;
 public class EmailService extends CommunicatorService{
 
     @Autowired
-    public EmailService(SendGridEmailSender messageSender) {
-        super(messageSender);
+    public EmailService(SendGridEmailSender messageSender, AcceptsEmailPredicate acceptsMessagePredicate) {
+        super(messageSender, acceptsMessagePredicate);
     }
 
     /**
@@ -189,82 +185,27 @@ public class EmailService extends CommunicatorService{
                         .forEach(qe -> {
                             final Optional<Member> memberOpt = memberRepository.findById(qe.getMemberId());
                             if (memberOpt.isPresent()) {
-                                sendMsg(qe.getTemplateIdKey(), qe.getSubjectKey(), memberOpt.get());
+                                try {
+                                    Message message = new Message();
+                                
+                                    message.setMessageSubject(propertyService.get(qe.getSubjectKey()).getValue());
+                                
+                                    message.setRecipientAddress(memberOpt.get().getEmail());
+                                    message.setRecipientMember(memberOpt.get());
+                                    message.setTemplateId(propertyService.get(qe.getTemplateIdKey()).getValue());
+                                    sendMessage(message);
+
+                                } catch (ResourceNotFoundException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+
                                 queuedEmailRepository.delete(qe);
                             }
                         });
             } catch (ResourceNotFoundException e) {
                 LOGGER.error("Error", e);
             }
-        }
-    }
-
-    /**
-     * Sends email to a member.
-     *
-     * @param member Member to be messaged
-     */
-    public void sendMsg(final String templateIdKey, final String subjectKey, final Member member) {
-        if (member != null && member.getEmail() != null && member.emailEnabled()) {
-            try {
-                String to = member.getEmail();
-                if (Boolean.parseBoolean(
-                        propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_ENABLED_KEY).getValue())) {
-                    to = propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue();
-                }
-                final String qualifier =
-                        Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue()) ?
-                                "S" : "Not s";
-                LOGGER.info(String.format("%sending email... toAddress [%s];", qualifier, to));
-                final Mail mail = new Mail();
-                mail.setSubject(propertyService.get(subjectKey).getValue());
-                mail.setTemplateId(propertyService.get(templateIdKey).getValue());
-                mail.setFrom(new Email(propertyService
-                        .get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()));
-                mail.addPersonalization(personalize(member, to));
-                sendEmail(mail);
-            } catch (IOException | ResourceNotFoundException ex) {
-                LOGGER.error(ex.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Personalizes an email to the member.
-     *
-     * @param member Member
-     * @param to address
-     * @return Personalization
-     * @throws ResourceNotFoundException when property is not found
-     */
-    private Personalization personalize(final Member member, final String to) throws ResourceNotFoundException {
-        final Personalization personalization = new Personalization();
-        personalization.addTo(new Email(to));
-        personalization.addBcc(new Email(propertyService.get(PropertyKeyConstants.EMAIL_BCC_KEY).getValue()));
-        personalization.addDynamicTemplateData("firstName", member.getFirstName());
-        personalization.addDynamicTemplateData("lastName", member.getLastName());
-        personalization.addDynamicTemplateData("url", jotFormService.buildRenewMembershipUrl(member));
-        if (member.getExpiration() == null) {
-            personalization.addDynamicTemplateData("expirationDate", sdf.format(new Date()));
-        } else {
-            personalization.addDynamicTemplateData("expirationDate", sdf.format(member.getExpiration()));
-        }
-        return personalization;
-    }
-
-    /**
-     * Sends email to member.
-     *
-     * @param mail message
-     * @throws ResourceNotFoundException when property is not found
-     * @throws IOException upon message delivery failure
-     */
-    private void sendEmail(final Mail mail) throws ResourceNotFoundException, IOException {
-        if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
-            final String response = sendMessage(null, mail, propertyService);
-            LOGGER.info(response);
-        } else {
-            LOGGER.info("Not sending email due to enabled flag set to false.");
         }
     }
 

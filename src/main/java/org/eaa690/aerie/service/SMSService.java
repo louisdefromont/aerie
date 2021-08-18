@@ -19,6 +19,8 @@ package org.eaa690.aerie.service;
 import com.twilio.Twilio;
 import com.twilio.type.PhoneNumber;
 
+import org.eaa690.aerie.communication.AcceptsSMSPredicate;
+import org.eaa690.aerie.communication.Message;
 import org.eaa690.aerie.communication.MessageSender;
 import org.eaa690.aerie.communication.TwilioSMSSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
@@ -39,8 +41,8 @@ import java.util.Date;
 public class SMSService extends CommunicatorService{
 
     @Autowired
-    public SMSService(TwilioSMSSender messageSender) {
-        super(messageSender);
+    public SMSService(TwilioSMSSender messageSender, AcceptsSMSPredicate acceptsMessagePredicate) {
+        super(messageSender, acceptsMessagePredicate);
     }
 
     /**
@@ -93,18 +95,8 @@ public class SMSService extends CommunicatorService{
      * @param member Member
      */
     public void sendNewMembershipMsg(final Member member) {
-        if (member != null && member.smsEnabled() && (member.getCellPhone() != null || member.getHomePhone() != null)) {
-            try {
-                String to = member.getCellPhone() != null ? member.getCellPhone() : member.getHomePhone();
-                if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
-                    to = propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_RECIPIENT_KEY).getValue();
-                }
-                //"Welcome %s to EAA 690!"
-                sendSMSMessage(to, getMessage(member, PropertyKeyConstants.SMS_NEW_MEMBER_MSG_KEY));
-            } catch (ResourceNotFoundException ex) {
-                LOGGER.error(ex.getMessage());
-            }
-        }
+        //"Welcome %s to EAA 690!"
+        sendSMSMessage(member, getMessage(member, PropertyKeyConstants.SMS_NEW_MEMBER_MSG_KEY));
     }
 
     /**
@@ -113,18 +105,8 @@ public class SMSService extends CommunicatorService{
      * @param member Member
      */
     public void sendRenewMembershipMsg(final Member member) {
-        if (member != null && member.smsEnabled() && (member.getCellPhone() != null || member.getHomePhone() != null)) {
-            try {
-                String to = member.getCellPhone() != null ? member.getCellPhone() : member.getHomePhone();
-                if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
-                    to = propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_RECIPIENT_KEY).getValue();
-                }
-                //"Hi %s, please be sure to renew your EAA 690 chapter membership before %s!"
-                sendSMSMessage(to, getMessage(member, PropertyKeyConstants.SMS_RENEW_MEMBER_MSG_KEY));
-            } catch (ResourceNotFoundException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
+        //"Hi %s, please be sure to renew your EAA 690 chapter membership before %s!"
+        sendSMSMessage(member, getMessage(member, PropertyKeyConstants.SMS_RENEW_MEMBER_MSG_KEY));
     }
 
     /**
@@ -158,11 +140,20 @@ public class SMSService extends CommunicatorService{
      * @param text Message text
      * @throws ResourceNotFoundException when SMS properties are not found
      */
-    private void sendSMSMessage(final String to, final String text) throws ResourceNotFoundException {
-        if (to != null && text != null &&
-                Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_ENABLED_KEY).getValue())) {
-            LOGGER.info(String.format("Sending %s to %s", text, to));
-            sendMessage(to, text, propertyService);
+    private void sendSMSMessage(final Member member, final String messageBody) {
+        try {
+            String to = member.getCellPhone() != null ? member.getCellPhone() : member.getHomePhone();
+            if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
+                to = propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_RECIPIENT_KEY).getValue();
+            }
+            Message message = new Message();
+            message.setMessageBody(messageBody);
+            message.setRecipientAddress(to);
+            message.setRecipientMember(member);
+            sendMessage(message);
+            
+        } catch (ResourceNotFoundException e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

@@ -20,7 +20,8 @@ public class EmailSMSSender extends MessageSender {
 
     @Override
     public String sendMessage(Message message) {
-        //TODO: Phone number to email conversion
+        String recipientAddress = message.getRecipientAddress() + "@" + message.getRecipientMember().getCellPhoneProvider().getCellPhoneProviderEmailDomain();
+        message.setRecipientAddress(recipientAddress);
         return messageSender.sendMessage(message);
     }
     

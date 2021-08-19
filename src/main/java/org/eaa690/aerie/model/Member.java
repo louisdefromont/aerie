@@ -25,6 +25,8 @@ import org.eaa690.aerie.model.roster.Status;
 import org.eaa690.aerie.model.roster.WebAdminAccess;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -250,6 +252,7 @@ public class Member extends BaseEntity implements Comparable<Member> {
      */
     private String cellPhone;
 
+    @Enumerated(EnumType.STRING)
     private CellPhoneProvider cellPhoneProvider;
 
     /**

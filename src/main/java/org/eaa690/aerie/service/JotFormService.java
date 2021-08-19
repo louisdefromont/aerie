@@ -228,10 +228,11 @@ public class JotFormService {
 
         if (!renewMembersMap.isEmpty()) {
             LOGGER.info("RenewMembersMap size is " + renewMembersMap.size());
-            for (String key : renewMembersMap.keySet()) {
+            for (final Map.Entry<String, Member> entry : renewMembersMap.entrySet()) {
+                final String key = entry.getKey();
                 if (submissionsCache.getIfPresent(key) == null) {
                     submissionsCache.put(key, key);
-                    rosterService.saveRenewingMember(renewMembersMap.get(key));
+                    rosterService.saveRenewingMember(entry.getValue());
                 }
             }
         }
@@ -256,10 +257,11 @@ public class JotFormService {
 
         if (!newMembersMap.isEmpty()) {
             LOGGER.info("NewMembersMap size is " + newMembersMap.size());
-            for (String key : newMembersMap.keySet()) {
+            for (final Map.Entry<String, Member> entry : newMembersMap.entrySet()) {
+                final String key = entry.getKey();
                 if (submissionsCache.getIfPresent(key) == null) {
                     try {
-                        final Member member = rosterService.saveNewMember(newMembersMap.get(key));
+                        final Member member = rosterService.saveNewMember(entry.getValue());
                         submissionsCache.put(key, key);
                         emailService.queueMsg(
                                 PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID,

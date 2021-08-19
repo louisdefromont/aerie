@@ -21,7 +21,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.restassured.RestAssured;
 import org.apache.http.HttpStatus;
-import org.eaa690.aerie.steps.BaseSteps;
 
 /**
  * Common cucumber test steps.

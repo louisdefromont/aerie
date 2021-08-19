@@ -19,12 +19,13 @@ package org.eaa690.aerie.steps;
 import java.io.IOException;
 import java.util.Properties;
 import io.restassured.response.Response;
+import org.eaa690.aerie.AerieApplicationTests;
 import org.eaa690.aerie.TestContext;
 
 /**
  * Base class for Cucumber test implementation classes.
  */
-public class BaseSteps {
+public class BaseSteps extends AerieApplicationTests {
 
     private static final boolean PRINT = false;
 

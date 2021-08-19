@@ -19,7 +19,6 @@ package org.eaa690.aerie.steps;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
-import org.eaa690.aerie.steps.BaseSteps;
 import org.hamcrest.Matchers;
 
 /**
@@ -39,9 +38,7 @@ public class WeatherSteps extends BaseSteps {
 
     @When("^I request the (.*) METAR$")
     public void iRequestTheMETAR(String icao) {
-        final Response response =
-                testContext.getRequest().when().get(getAerieBaseUrl() + WEATHER + "metars/" + icao);
-        testContext.setResponse(response);
+        testContext.setResponse(testContext.getRequest().when().get(getAerieBaseUrl() + WEATHER + "metars/" + icao));
     }
 
     @When("^I request the (.*) TAF$")

@@ -602,8 +602,8 @@ public class RosterService {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .GET();
-        for (final String key : headers.keySet()) {
-            builder.setHeader(key, headers.get(key));
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.setHeader(entry.getKey(), entry.getValue());
         }
         final HttpRequest request = builder.build();
 
@@ -636,8 +636,8 @@ public class RosterService {
         headers.remove(RosterConstants.VIEW_STATE);
         headers.put(RosterConstants.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image"
                 + "/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-        for (final String key : headers.keySet()) {
-            builder.setHeader(key, headers.get(key));
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.setHeader(entry.getKey(), entry.getValue());
         }
         final HttpRequest request = builder.build();
 
@@ -666,8 +666,8 @@ public class RosterService {
         headers.remove(RosterConstants.VIEW_STATE);
         headers.put(RosterConstants.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image"
                 + "/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-        for (final String key : headers.keySet()) {
-            builder.setHeader(key, headers.get(key));
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.setHeader(entry.getKey(), entry.getValue());
         }
         final HttpRequest request = builder.build();
 

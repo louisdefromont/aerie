@@ -47,7 +47,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * JotForm API - Java Client.
@@ -146,10 +145,9 @@ public class JotForm {
                 URI uri = null;
                 URIBuilder ub = new URIBuilder(req.getURI());
 
-                Set<String> keys = params.keySet();
-                for (String key: keys) {
+                for (final Map.Entry<String, String> entry : params.entrySet()) {
                     try {
-                        uri = ub.addParameter(key, params.get(key)).build();
+                        uri = ub.addParameter(entry.getKey(), entry.getValue()).build();
                     } catch (URISyntaxException e) {
                         e.printStackTrace();
                     }
@@ -161,12 +159,10 @@ public class JotForm {
             req.addHeader("apiKey", this.apiKey);
 
             if (params != null) {
-                Set<String> keys = params.keySet();
+                List<NameValuePair> parameters = new ArrayList<>(params.size());
 
-                List<NameValuePair> parameters = new ArrayList<NameValuePair>(params.size());
-
-                for (String key : keys) {
-                    parameters.add(new BasicNameValuePair(key, params.get(key)));
+                for (final Map.Entry<String, String> entry : params.entrySet()) {
+                    parameters.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
                 }
 
                 UrlEncodedFormEntity entity = new UrlEncodedFormEntity(parameters, "UTF-8");
@@ -227,10 +223,10 @@ public class JotForm {
         args.put("limit", limit);
         args.put("orderby", orderBy);
 
-        Set<String> keys = args.keySet();
-        for (String key: keys) {
+        for (final Map.Entry<String, String> entry : args.entrySet()) {
+            final String key = entry.getKey();
             if (StringUtils.isNotBlank(args.get(key))) {
-                params.put(key, args.get(key));
+                params.put(key, entry.getValue());
             }
         }
 

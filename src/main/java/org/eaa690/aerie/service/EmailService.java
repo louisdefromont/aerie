@@ -17,8 +17,9 @@
 package org.eaa690.aerie.service;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,11 +53,6 @@ public class EmailService {
      * Logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
-
-    /**
-     * SimpleDateFormat.
-     */
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy");
 
     /**
      * PropertyService.
@@ -259,9 +255,12 @@ public class EmailService {
         personalization.addDynamicTemplateData("lastName", member.getLastName());
         personalization.addDynamicTemplateData("url", jotFormService.buildRenewMembershipUrl(member));
         if (member.getExpiration() == null) {
-            personalization.addDynamicTemplateData("expirationDate", SIMPLE_DATE_FORMAT.format(new Date()));
+            personalization.addDynamicTemplateData("expirationDate",
+                    ZonedDateTime.now().format(DateTimeFormatter.ofPattern("MMM d, yyyy")));
         } else {
-            personalization.addDynamicTemplateData("expirationDate", SIMPLE_DATE_FORMAT.format(member.getExpiration()));
+            personalization.addDynamicTemplateData("expirationDate",
+                    ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
+                    ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MMM d, yyyy")));
         }
         return personalization;
     }

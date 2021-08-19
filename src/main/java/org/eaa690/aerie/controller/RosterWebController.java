@@ -132,6 +132,15 @@ public class RosterWebController {
     }
 
     /**
+     * Constructor.
+     *
+     * @param rService RosterService
+     */
+    public RosterWebController(final RosterService rService) {
+        this.rosterService = rService;
+    }
+
+    /**
      * Membership Report.
      *
      * @param model Model

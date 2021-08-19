@@ -27,8 +27,8 @@ import org.eaa690.aerie.model.roster.WebAdminAccess;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Objects;
 
@@ -260,11 +260,6 @@ public class Member extends BaseEntity implements Comparable<Member> {
     private Date expiration;
 
     /**
-     * SimpleDateFormat.
-     */
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("MM/dd/yy");
-
-    /**
      * Email Enabled Flag.
      */
     private boolean emailEnabled = false;
@@ -300,11 +295,7 @@ public class Member extends BaseEntity implements Comparable<Member> {
         if (birthDate == null || "".equals(birthDate)) {
             return ZERO_DATE;
         }
-        try {
-            return SDF.parse(birthDate);
-        } catch (ParseException e) {
-            return ZERO_DATE;
-        }
+        return Date.from(ZonedDateTime.parse(birthDate, DateTimeFormatter.ofPattern("MM/dd/yy")).toInstant());
     }
 
     /**
@@ -316,11 +307,7 @@ public class Member extends BaseEntity implements Comparable<Member> {
         if (joined == null || "".equals(joined)) {
             return ZERO_DATE;
         }
-        try {
-            return SDF.parse(joined);
-        } catch (ParseException e) {
-            return ZERO_DATE;
-        }
+        return Date.from(ZonedDateTime.parse(joined, DateTimeFormatter.ofPattern("MM/dd/yy")).toInstant());
     }
 
     /**

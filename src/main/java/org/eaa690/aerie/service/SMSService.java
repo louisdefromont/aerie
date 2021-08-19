@@ -25,8 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * SMSService.
@@ -38,11 +39,6 @@ public class SMSService {
      * Logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(SMSService.class);
-
-    /**
-     * SimpleDateFormat.
-     */
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy");
 
     /**
      * PropertyService.
@@ -139,9 +135,10 @@ public class SMSService {
      */
     private String getMessage(final Member member, final String msgKey) {
         try {
-            String expiration = SIMPLE_DATE_FORMAT.format(new Date());
+            String expiration = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
             if (member.getExpiration() != null) {
-                expiration = SIMPLE_DATE_FORMAT.format(member.getExpiration());
+                expiration = ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
+                        ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
             }
             return propertyService
                     .get(msgKey)

@@ -16,6 +16,7 @@
 
 package org.eaa690.aerie.service;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -24,8 +25,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
@@ -133,12 +136,7 @@ public class RosterService {
     /**
      * Date formatter.
      */
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
-
-    /**
-     * Date formatter.
-     */
-    private static final SimpleDateFormat MDY_SDF = new SimpleDateFormat("MM/dd/yyyy");
+    //private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
      * View State.
@@ -257,9 +255,12 @@ public class RosterService {
                                 || member.getMemberType() == MemberType.Student)
                         .forEach(member -> {
                             try {
-                                final String expirationDate = SDF.format(member.getExpiration());
+                                final String expirationDate =
+                                        ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
+                                                ZoneId.systemDefault()).format(
+                                                        DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                                 if (expirationDate.equals(
-                                        getDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_FIRST_MSG_DAYS_KEY))) {
+                                        getFutureDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_FIRST_MSG_DAYS_KEY))) {
                                     emailService.queueMsg(
                                             PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                                             PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
@@ -267,8 +268,8 @@ public class RosterService {
                                     smsService.sendRenewMembershipMsg(member);
                                     slackService.sendRenewMembershipMsg(member);
                                 }
-                                if (expirationDate.equals(
-                                        getDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_SECOND_MSG_DAYS_KEY))) {
+                                if (expirationDate.equals(getFutureDateStr(
+                                                PropertyKeyConstants.MEMBERSHIP_RENEWAL_SECOND_MSG_DAYS_KEY))) {
                                     emailService.queueMsg(
                                             PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                                             PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
@@ -277,7 +278,7 @@ public class RosterService {
                                     slackService.sendRenewMembershipMsg(member);
                                 }
                                 if (expirationDate.equals(
-                                        getDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_THIRD_MSG_DAYS_KEY))) {
+                                        getFutureDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_THIRD_MSG_DAYS_KEY))) {
                                     emailService.queueMsg(
                                             PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                                             PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
@@ -285,7 +286,9 @@ public class RosterService {
                                     smsService.sendRenewMembershipMsg(member);
                                     slackService.sendRenewMembershipMsg(member);
                                 }
-                                if (expirationDate.equals(SDF.format(new Date()))) {
+                                if (expirationDate.equals(ZonedDateTime.ofInstant(Instant.now(),
+                                        ZoneId.systemDefault()).format(
+                                        DateTimeFormatter.ofPattern("yyyy-MM-dd")))) {
                                     LOGGER.info("addOrUpdateNonMember");
                                     //mailChimpService.addOrUpdateNonMember(
                                     //        member.getFirstName(),
@@ -579,8 +582,8 @@ public class RosterService {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBodyStr));
-        for (final String key : headers.keySet()) {
-            builder.setHeader(key, headers.get(key));
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.setHeader(entry.getKey(), entry.getValue());
         }
         final HttpRequest request = builder.build();
 
@@ -612,7 +615,7 @@ public class RosterService {
             viewState = doc.getElementById(RosterConstants.VIEW_STATE);
             viewStateGenerator = doc.getElementById(RosterConstants.VIEW_STATE_GENERATOR);
             headers.put(RosterConstants.VIEW_STATE, getViewStateValue());
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             LOGGER.error("[Search Page] Error", e);
         }
     }
@@ -643,7 +646,7 @@ public class RosterService {
             HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
             sb.append(response.body());
-        } catch (Exception e) {
+        } catch (InterruptedException | IOException e) {
             LOGGER.error("[FETCH] Error", e);
         }
         return sb.toString().contains("lnkViewUpdateMember");
@@ -673,7 +676,7 @@ public class RosterService {
             HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
             sb.append(response.body());
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             LOGGER.error("[FETCH] Error", e);
         }
         return sb.toString();
@@ -687,7 +690,7 @@ public class RosterService {
             final HttpHeaders responseHeaders = response.headers();
             final String cookieStr = responseHeaders.firstValue("set-cookie").orElse("");
             headers.put("cookie", cookieStr.substring(0, cookieStr.indexOf(";")));
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             LOGGER.error("Error", e);
         }
         headers.put(RosterConstants.EVENT_TARGET, "");
@@ -729,7 +732,8 @@ public class RosterService {
         data.add(RosterConstants.USERNAME);
         data.add(RosterConstants.PASSWORD);
         data.add(RosterConstants.BUTTON);
-        for (final String key : headers.keySet()) {
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            final String key = entry.getKey();
             if (data.contains(key)) {
                 if (sb.length() > 0) {
                     sb.append("&");
@@ -743,12 +747,12 @@ public class RosterService {
                 }
                 sb.append("=");
                 if (RosterConstants.VIEW_STATE.equals(key) || RosterConstants.EVENT_VALIDATION.equals(key)) {
-                    sb.append(headers.get(key)
+                    sb.append(entry.getValue()
                             .replaceAll("/", "%2F")
                             .replaceAll("=", "%3D")
                             .replaceAll("\\+", "%2B"));
                 } else {
-                    sb.append(headers.get(key));
+                    sb.append(entry.getValue());
                 }
             }
         }
@@ -771,7 +775,8 @@ public class RosterService {
         data.add(RosterConstants.SEARCH_MEMBER_TYPE);
         data.add(RosterConstants.CURRENT_STATUS);
         data.add(RosterConstants.ROW_COUNT);
-        for (final String key : headers.keySet()) {
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            final String key = entry.getKey();
             if (data.contains(key)) {
                 if (sb.length() > 0) {
                     sb.append("&");
@@ -789,12 +794,12 @@ public class RosterService {
                 }
                 sb.append("=");
                 if (RosterConstants.VIEW_STATE.equals(key) || RosterConstants.EVENT_VALIDATION.equals(key)) {
-                    sb.append(headers.get(key)
+                    sb.append(entry.getValue()
                             .replaceAll("/", "%2F")
                             .replaceAll("=", "%3D")
                             .replaceAll("\\+", "%2B"));
                 } else {
-                    sb.append(headers.get(key));
+                    sb.append(entry.getValue());
                 }
             }
         }
@@ -815,7 +820,8 @@ public class RosterService {
         data.add(RosterConstants.STATUS + "=Active");
         data.add(RosterConstants.SEARCH_MEMBER_TYPE);
         data.add(RosterConstants.CURRENT_STATUS);
-        for (final String key : headers.keySet()) {
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            final String key = entry.getKey();
             if (data.contains(key)) {
                 if (sb.length() > 0) {
                     sb.append("&");
@@ -833,12 +839,12 @@ public class RosterService {
                 }
                 sb.append("=");
                 if (RosterConstants.VIEW_STATE.equals(key) || RosterConstants.EVENT_VALIDATION.equals(key)) {
-                    sb.append(headers.get(key)
+                    sb.append(entry.getValue()
                             .replaceAll("/", "%2F")
                             .replaceAll("=", "%3D")
                             .replaceAll("\\+", "%2B"));
                 } else {
-                    sb.append(headers.get(key));
+                    sb.append(entry.getValue());
                 }
             }
         }
@@ -936,9 +942,12 @@ public class RosterService {
         addFormContent(sb, RosterConstants.STATE, State.getDisplayString(member.getState()));
         addFormContent(sb, RosterConstants.ZIP_CODE, member.getZipCode());
         addFormContent(sb, RosterConstants.COUNTRY, Country.toDisplayString(member.getCountry()));
-        addFormContent(sb, RosterConstants.BIRTH_DATE, MDY_SDF.format(member.getBirthDateAsDate()));
-        addFormContent(sb, RosterConstants.JOIN_DATE, MDY_SDF.format(member.getJoinedAsDate()));
-        addFormContent(sb, RosterConstants.EXPIRATION_DATE, MDY_SDF.format(member.getExpiration()));
+        addFormContent(sb, RosterConstants.BIRTH_DATE, ZonedDateTime.ofInstant(member.getBirthDateAsDate().toInstant(),
+                ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+        addFormContent(sb, RosterConstants.JOIN_DATE, ZonedDateTime.ofInstant(member.getJoinedAsDate().toInstant(),
+                ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+        addFormContent(sb, RosterConstants.EXPIRATION_DATE, ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
+                ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
         addFormContent(sb, RosterConstants.OTHER_INFO, member.getOtherInfo());
         addFormContent(sb, RosterConstants.HOME_PHONE, member.getHomePhone());
         addFormContent(sb, RosterConstants.CELL_PHONE, member.getCellPhone());
@@ -1143,7 +1152,8 @@ public class RosterService {
                     member.setJoined(column.text().trim());
                     break;
                 case CommonConstants.TWENTY_ONE:
-                    member.setExpiration(SDF.parse(column.text().trim()));
+                    member.setExpiration(Date.from(ZonedDateTime.parse(column.text().trim(),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd")).toInstant()));
                     break;
                 case CommonConstants.TWENTY_TWO:
                     setOtherInfo(slackUsers, member, column);
@@ -1392,17 +1402,18 @@ public class RosterService {
     /**
      * Gets date string for provided property key.
      *
-     * @param key proprty key
+     * @param key property key
      * @return date string
      * @throws ResourceNotFoundException when property not found
      */
-    private String getDateStr(final String key) throws ResourceNotFoundException {
-        return SDF.format(Date.from(Instant
+    private String getFutureDateStr(final String key) throws ResourceNotFoundException {
+        return ZonedDateTime.ofInstant(Instant
                 .now()
                 .plus(Integer.parseInt(propertyService
                                 .get(key)
                                 .getValue()),
-                        ChronoUnit.DAYS)));
+                        ChronoUnit.DAYS),
+                ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
 }

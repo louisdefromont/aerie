@@ -16,9 +16,10 @@
 
 package org.eaa690.aerie.service;
 
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.ullink.slack.simpleslackapi.SlackSession;
@@ -42,11 +43,6 @@ public class SlackService implements SlackMessagePostedListener {
      * Logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(SlackService.class);
-
-    /**
-     * SimpleDateFormat.
-     */
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy");
 
     /**
      * PropertyService.
@@ -188,9 +184,10 @@ public class SlackService implements SlackMessagePostedListener {
         try {
             final String expiration;
             if (member.getExpiration() != null) {
-                expiration = SIMPLE_DATE_FORMAT.format(member.getExpiration());
+                expiration = ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
+                        ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
             } else {
-                expiration = SIMPLE_DATE_FORMAT.format(new Date());
+                expiration = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
             }
             return propertyService
                     .get(msgKey)

@@ -18,12 +18,16 @@ import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.service.JotFormService;
 import org.eaa690.aerie.service.PropertyService;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SendGridEmailSender extends MessageSender {
 
-    public SendGridEmailSender() {
-        super("Send_Grid_Email");
+    @Autowired
+    public SendGridEmailSender(AcceptsEmailPredicate acceptsMessagePredicate) {
+        super("Send_Grid_Email", acceptsMessagePredicate);
     }
 
     @Autowired
@@ -32,8 +36,7 @@ public class SendGridEmailSender extends MessageSender {
     @Autowired
     private PropertyService propertyService;
 
-    @Autowired
-    private Logger LOGGER;
+    private Logger LOGGER = LoggerFactory.getLogger(SendGridEmailSender.class);
 
     @Autowired
     private JotFormService jotFormService;

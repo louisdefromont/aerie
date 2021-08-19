@@ -16,17 +16,10 @@
 
 package org.eaa690.aerie.service;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Email;
-import com.sendgrid.helpers.mail.objects.Personalization;
-
-import org.eaa690.aerie.communication.AcceptsEmailPredicate;
 import org.eaa690.aerie.communication.Message;
 import org.eaa690.aerie.communication.SendGridEmailSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
@@ -48,8 +41,8 @@ import org.springframework.stereotype.Service;
 public class EmailService extends CommunicatorService{
 
     @Autowired
-    public EmailService(SendGridEmailSender messageSender, AcceptsEmailPredicate acceptsMessagePredicate) {
-        super(messageSender, acceptsMessagePredicate);
+    public EmailService(SendGridEmailSender messageSender) {
+        super(messageSender);
     }
 
     /**

@@ -15,8 +15,9 @@ public class TwilioSMSSender extends MessageSender {
     @Autowired
     PropertyService propertyService;
 
-    public TwilioSMSSender() {
-        super("Twilio_SMS");
+    @Autowired
+    public TwilioSMSSender(AcceptsSMSPredicate acceptsMessagePredicate) {
+        super("Twilio_SMS", acceptsMessagePredicate);
     }
 
     @Override

@@ -7,7 +7,9 @@ import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.service.PropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AcceptsSMSPredicate implements Predicate<Member> {
 
     @Autowired

@@ -16,6 +16,7 @@
 
 package org.eaa690.aerie.model;
 
+import org.eaa690.aerie.model.roster.CellPhoneProvider;
 import org.eaa690.aerie.model.roster.Country;
 import org.eaa690.aerie.model.roster.Gender;
 import org.eaa690.aerie.model.roster.MemberType;
@@ -248,6 +249,8 @@ public class Member extends BaseEntity implements Comparable<Member> {
      * Cell Phone.
      */
     private String cellPhone;
+
+    private CellPhoneProvider cellPhoneProvider;
 
     /**
      * Membership Expiration.
@@ -666,6 +669,14 @@ public class Member extends BaseEntity implements Comparable<Member> {
 
     public void setAdditionalInfo(String additionalInfo) {
         this.additionalInfo = additionalInfo;
+    }
+
+    public CellPhoneProvider getCellPhoneProvider() {
+        return cellPhoneProvider;
+    }
+
+    public void setCellPhoneProvider(CellPhoneProvider cellPhoneProvider) {
+        this.cellPhoneProvider = cellPhoneProvider;
     }
 
     /**

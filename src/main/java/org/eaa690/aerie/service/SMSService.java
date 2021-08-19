@@ -16,12 +16,10 @@
 
 package org.eaa690.aerie.service;
 
-import com.twilio.Twilio;
-import com.twilio.type.PhoneNumber;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import org.eaa690.aerie.communication.AcceptsSMSPredicate;
 import org.eaa690.aerie.communication.Message;
-import org.eaa690.aerie.communication.MessageSender;
 import org.eaa690.aerie.communication.TwilioSMSSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
@@ -31,9 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
  * SMSService.
  */
@@ -41,8 +36,8 @@ import java.util.Date;
 public class SMSService extends CommunicatorService{
 
     @Autowired
-    public SMSService(TwilioSMSSender messageSender, AcceptsSMSPredicate acceptsMessagePredicate) {
-        super(messageSender, acceptsMessagePredicate);
+    public SMSService(TwilioSMSSender messageSender) {
+        super(messageSender);
     }
 
     /**

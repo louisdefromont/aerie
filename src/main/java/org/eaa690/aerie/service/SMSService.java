@@ -19,6 +19,7 @@ package org.eaa690.aerie.service;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.eaa690.aerie.communication.CommunicatorService;
 import org.eaa690.aerie.communication.Message;
 import org.eaa690.aerie.communication.TwilioSMSSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;

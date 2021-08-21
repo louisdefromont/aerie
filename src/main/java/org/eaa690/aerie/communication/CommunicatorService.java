@@ -1,7 +1,5 @@
-package org.eaa690.aerie.service;
+package org.eaa690.aerie.communication;
 
-import org.eaa690.aerie.communication.Message;
-import org.eaa690.aerie.communication.MessageSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

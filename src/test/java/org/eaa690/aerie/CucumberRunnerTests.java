@@ -16,15 +16,15 @@
 
 package org.eaa690.aerie;
 
+import io.cucumber.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.client.RestTemplate;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-		classes = AerieApplication.class,
-		webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public abstract class AerieApplicationTests {
-
+@RunWith(Cucumber.class)
+@CucumberOptions(plugin = "pretty",
+        features = {"src/test/resources/features"},
+        glue = {"org.eaa690.aerie"},
+        tags = "not @disabled"
+)
+public class CucumberRunnerTests {
 }

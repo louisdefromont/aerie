@@ -14,13 +14,13 @@ Feature: weather
       | KLZU  |
       | KFFC  |
 
-  @metar
+  @metar @disabled
   Scenario: Retrieve METAR information for the Atlanta TAC
     Given I am an unauthenticated user
     When I request the Atlanta METAR
     Then The request should be successful
 
-  @metar
+  @metar @disabled
   Scenario: Retrieve METAR information for the Atlanta Sectional
     Given I am an unauthenticated user
     When I request the AtlantaSectional METAR
@@ -40,14 +40,14 @@ Feature: weather
       | KLZU  | raw_text        |
       | KFFC  | observed        |
 
-  @metar
+  @metar @disabled
   Scenario: Retrieve METAR information for a single station
     Given I am an unauthenticated user
     When I request the atlanta METAR
     Then The request should be successful
     And I should receive data for multiple stations
 
-  @tafm @disabled
+  @taf @disabled
   Scenario Outline: Retrieve TAF information for a single station
     Given I am an unauthenticated user
     When I request the <icao> TAF

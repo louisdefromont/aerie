@@ -20,11 +20,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.eaa690.aerie.communication.CommunicatorService;
-import org.eaa690.aerie.communication.Message;
 import org.eaa690.aerie.communication.TwilioSMSSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
+import org.eaa690.aerie.model.communication.SMS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ import org.springframework.stereotype.Service;
  * SMSService.
  */
 @Service
-public class SMSService extends CommunicatorService{
+public class SMSService extends CommunicatorService<SMS> {
 
     @Autowired
     public SMSService(TwilioSMSSender messageSender) {
@@ -142,11 +142,8 @@ public class SMSService extends CommunicatorService{
             if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
                 to = propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_RECIPIENT_KEY).getValue();
             }
-            Message message = new Message();
-            message.setMessageBody(messageBody);
-            message.setRecipientAddress(to);
-            message.setRecipientMember(member);
-            sendMessage(message);
+            SMS sms = new SMS(to, member, messageBody);
+            sendMessage(sms);
             
         } catch (ResourceNotFoundException e) {
             LOGGER.error(e.getMessage(), e);

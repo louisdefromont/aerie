@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.eaa690.aerie.communication.CommunicatorService;
-import org.eaa690.aerie.communication.Message;
 import org.eaa690.aerie.communication.SendGridEmailSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
@@ -29,6 +28,7 @@ import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
 import org.eaa690.aerie.model.QueuedEmail;
 import org.eaa690.aerie.model.QueuedEmailRepository;
+import org.eaa690.aerie.model.communication.Email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ import org.springframework.stereotype.Service;
  * EmailService.
  */
 @Service("emailService")
-public class EmailService extends CommunicatorService{
+public class EmailService extends CommunicatorService<Email> {
 
     @Autowired
     public EmailService(SendGridEmailSender messageSender) {
@@ -180,14 +180,12 @@ public class EmailService extends CommunicatorService{
                             final Optional<Member> memberOpt = memberRepository.findById(qe.getMemberId());
                             if (memberOpt.isPresent()) {
                                 try {
-                                    Message message = new Message();
-                                
-                                    message.setMessageSubject(propertyService.get(qe.getSubjectKey()).getValue());
-                                
-                                    message.setRecipientAddress(memberOpt.get().getEmail());
-                                    message.setRecipientMember(memberOpt.get());
-                                    message.setTemplateId(propertyService.get(qe.getTemplateIdKey()).getValue());
-                                    sendMessage(message);
+                                    Email email = new Email(
+                                        memberOpt.get().getEmail(), 
+                                        memberOpt.get(), 
+                                        propertyService.get(qe.getSubjectKey()).getValue(), 
+                                        propertyService.get(qe.getTemplateIdKey()).getValue(), null);
+                                    sendMessage(email);
 
                                 } catch (ResourceNotFoundException e) {
                                     // TODO Auto-generated catch block

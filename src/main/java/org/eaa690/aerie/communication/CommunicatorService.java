@@ -1,18 +1,19 @@
 package org.eaa690.aerie.communication;
 
+import org.eaa690.aerie.model.communication.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class CommunicatorService {
-    private MessageSender messageSender;
+public abstract class CommunicatorService<T extends Message> {
+    private MessageSender<T> messageSender;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommunicatorService.class);
 
-    public CommunicatorService(MessageSender messageSender) {
+    public CommunicatorService(MessageSender<T> messageSender) {
         this.messageSender = messageSender;
     }
 
-    public String sendMessage(Message message) {
+    public String sendMessage(T message) {
         String response = null;
         if (messageSender.getAcceptsMessagePredicate().test(message.getRecipientMember())) {
             LOGGER.info(String.format("Sending %s to member of id: %d", messageSender.getMessageType(), message.getRecipientMember().getId()));

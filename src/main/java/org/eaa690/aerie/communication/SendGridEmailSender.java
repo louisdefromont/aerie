@@ -9,6 +9,7 @@ import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
 
@@ -23,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SendGridEmailSender extends MessageSender {
+public class SendGridEmailSender extends MessageSender<org.eaa690.aerie.model.communication.Email> {
 
     @Autowired
     public SendGridEmailSender(AcceptsEmailPredicate acceptsMessagePredicate) {
@@ -43,7 +44,7 @@ public class SendGridEmailSender extends MessageSender {
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
 
-    public String sendMessage(Message message) {
+    public String sendMessage(org.eaa690.aerie.model.communication.Email message) {
         try {
             String to = message.getRecipientAddress();
             if (Boolean.parseBoolean(
@@ -52,11 +53,15 @@ public class SendGridEmailSender extends MessageSender {
             }
 
             final Mail mail = new Mail();
-            mail.setSubject(message.getMessageSubject());
-            mail.setTemplateId(message.getTemplateId());
+            mail.setSubject(message.getSubject());
+            if (message.getTemplateID() != null) {
+                mail.setTemplateId(message.getTemplateID());
+                mail.addPersonalization(personalize(message.getRecipientMember(), to));
+            } else {
+                mail.addContent(new Content("text/plain", message.getBody()));
+            }
             mail.setFrom(new Email(propertyService
                     .get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()));
-            mail.addPersonalization(personalize(message.getRecipientMember(), to));
 
             final Request request = new Request();
             request.setMethod(Method.POST);

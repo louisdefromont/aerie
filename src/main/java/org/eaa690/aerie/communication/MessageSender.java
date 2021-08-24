@@ -3,8 +3,9 @@ package org.eaa690.aerie.communication;
 import java.util.function.Predicate;
 
 import org.eaa690.aerie.model.Member;
+import org.eaa690.aerie.model.communication.Message;
 
-public abstract class MessageSender {
+public abstract class MessageSender<T extends Message> {
     private String messageType;
     private Predicate<Member> acceptsMessagePredicate;
 
@@ -21,5 +22,5 @@ public abstract class MessageSender {
         return acceptsMessagePredicate;
     }
 
-    public abstract String sendMessage(Message message);
+    public abstract String sendMessage(T message);
 }

@@ -1,4 +1,4 @@
-@weather
+@weather @disabled
 Feature: weather
   METAR, TAF, and Station information
 
@@ -19,6 +19,7 @@ Feature: weather
     Given I am an unauthenticated user
     When I request the Atlanta METAR
     Then The request should be successful
+    And I should receive data for multiple stations
 
   @metar
   Scenario: Retrieve METAR information for an unprovided station
@@ -39,13 +40,6 @@ Feature: weather
       | KATL  | flight_category |
       | KLZU  | raw_text        |
       | KFFC  | observed        |
-
-  @metar
-  Scenario: Retrieve METAR information for a single station
-    Given I am an unauthenticated user
-    When I request the Atlanta METAR
-    Then The request should be successful
-    And I should receive data for multiple stations
 
   @metar
   Scenario Outline: Retrieve METAR information for an invalid station

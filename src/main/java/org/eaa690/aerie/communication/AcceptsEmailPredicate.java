@@ -10,7 +10,7 @@ public class AcceptsEmailPredicate implements Predicate<Member> {
 
     @Override
     public boolean test(Member member) {
-        return (member != null && member.getEmail() != null && member.emailEnabled());
+        return (member != null && member.getEmail() != null && member.isEmailEnabled());
     }
     
 }

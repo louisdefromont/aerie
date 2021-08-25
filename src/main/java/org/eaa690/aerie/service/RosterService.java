@@ -26,6 +26,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -1152,8 +1153,9 @@ public class RosterService {
                     member.setJoined(column.text().trim());
                     break;
                 case CommonConstants.TWENTY_ONE:
-                    member.setExpiration(Date.from(ZonedDateTime.parse(column.text().trim(),
-                            DateTimeFormatter.ofPattern("yyyy-MM-dd")).toInstant()));
+                    member.setExpiration(Date.from(LocalDate.parse(column.text().trim(),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                            .atStartOfDay(ZoneId.systemDefault()).toInstant()));
                     break;
                 case CommonConstants.TWENTY_TWO:
                     setOtherInfo(slackUsers, member, column);

@@ -52,7 +52,7 @@ public class RosterSteps extends BaseSteps {
         testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()
-                .get(ROSTER + "update")
+                .post(ROSTER + "update")
                 .then());
     }
 

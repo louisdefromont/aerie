@@ -1,7 +1,7 @@
 @roster
 Feature: Roster functions
 
-  @update @disabled
+  @update
   Scenario: Update roster data from roster management system
     Given I am an unauthenticated user
     When I request an update of the roster data
@@ -13,10 +13,10 @@ Feature: Roster functions
     When I request the roster membership report
     Then The request should be successful
 
-  @expiration @disabled
+  @expiration
   Scenario: Retrieve member expiration
     Given I am an unauthenticated user
-    When I request the expiration data for member with ID 1
+    When I request the expiration data for member with ID 42648
     Then The request should be successful
 
   @rfid @disabled

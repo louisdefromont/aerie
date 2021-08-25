@@ -17,6 +17,8 @@
 package org.eaa690.aerie.steps;
 
 import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.http.ContentType;
 import org.eaa690.aerie.TestContext;
@@ -41,7 +43,7 @@ public class WeatherSteps extends BaseSteps {
         super(testContext);
     }
 
-    @And("^I want (.*) information$")
+    @Given("^I want (.*) information$")
     public void iOnlyWantSpecificInformation(String field) {
         requestSpecification().param("data", field);
     }
@@ -93,14 +95,14 @@ public class WeatherSteps extends BaseSteps {
                 .then());
     }
 
-    @And("^I should receive the (.*) data$")
+    @Then("^I should receive the (.*) data$")
     public void iShouldReceiveSpecificData(String field) {
         testContext.getValidatableResponse()
                 .assertThat()
                 .body(field, Matchers.notNullValue());
     }
 
-    @And("^I should receive data for multiple stations$")
+    @Then("^I should receive data for multiple stations$")
     public void iShouldReceiveDataForMultipleStations() {
         testContext.getValidatableResponse()
                 .assertThat()

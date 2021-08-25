@@ -18,12 +18,17 @@ package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 /**
  * Forecast timestamp object received from api.checkwx.com.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class ForecastTimestamp implements Serializable {
 
     /**
@@ -42,41 +47,5 @@ public class ForecastTimestamp implements Serializable {
      */
     @JsonProperty("forecast_to")
     private String forecastTo;
-
-    /**
-     * Get Forecast From.
-     *
-     * @return Forecast From
-     */
-    public String getForecastFrom() {
-        return forecastFrom;
-    }
-
-    /**
-     * Set Forecast From.
-     *
-     * @param value Forecast From
-     */
-    public void setForecastFrom(final String value) {
-        forecastFrom = value;
-    }
-
-    /**
-     * Get Forecast To.
-     *
-     * @return Forecast To
-     */
-    public String getForecastTo() {
-        return forecastTo;
-    }
-
-    /**
-     * Set Forecast To.
-     *
-     * @param value Forecast To
-     */
-    public void setForecastTo(final String value) {
-        forecastTo = value;
-    }
 
 }

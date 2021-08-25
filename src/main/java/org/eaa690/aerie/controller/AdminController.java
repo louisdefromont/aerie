@@ -16,8 +16,13 @@
 
 package org.eaa690.aerie.controller;
 
-import java.util.List;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
@@ -36,6 +41,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * AdminController.
  */
@@ -44,6 +51,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping({
         "/admin"
 })
+@Tag(name = "admin", description = "the Admin API")
 public class AdminController {
 
     /**
@@ -51,7 +59,10 @@ public class AdminController {
      */
     private static final Log LOGGER = LogFactory.getLog(AdminController.class);
 
-    private final static String SEND_MSG_MESSAGE = "Sending %s %s to %s %s at %s";
+    /**
+     * Send message string.
+     */
+    private static final String SEND_MSG_MESSAGE = "Sending %s %s to %s %s at %s";
 
     /**
      * RosterService.
@@ -146,6 +157,7 @@ public class AdminController {
      *
      * @param rosterId Member Roster ID
      * @param order first, second, or third reminder message
+     * @throws ResourceNotFoundException when member is not found
      */
     // @PostMapping(path = {"/email/{rosterId}/renew-membership/{order}"})
     // public void testRenewMembershipEmail(
@@ -189,6 +201,7 @@ public class AdminController {
      * Sends a new membership email to the provided address.
      *
      * @param rosterId Member Roster ID
+     * @throws ResourceNotFoundException when member is not found
      */
     // @PostMapping(path = {"/email/{rosterId}/new-membership"})
     // public void testNewMembershipEmail(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
@@ -204,7 +217,16 @@ public class AdminController {
 
     /**
      * Gets queued email count.
+     *
+     * @return queue count
      */
+    @Operation(summary = "Email queue count",
+            description = "The current number of emails in the email queue waiting to be sent",
+            tags = {"admin"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "successful operation")
+    })
     @GetMapping(path = {"/email/queue-count"})
     public int getQueuedEmailCount() {
         return emailService.getQueuedMsgCount();
@@ -214,6 +236,7 @@ public class AdminController {
      * Sends a renew membership SMS to the provided address.
      *
      * @param rosterId Member Roster ID
+     * @throws ResourceNotFoundException when member is not found
      */
     @PostMapping(path = {"/sms/{rosterId}/renew-membership"})
     public void testRenewMembershipSMS(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
@@ -227,6 +250,7 @@ public class AdminController {
      * Sends a new membership SMS to the provided address.
      *
      * @param rosterId Member Roster ID
+     * @throws ResourceNotFoundException when member is not found
      */
     @PostMapping(path = {"/sms/{rosterId}/new-membership"})
     public void testNewMembershipSMS(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
@@ -240,6 +264,7 @@ public class AdminController {
      * Sends a renew membership Slack message to the provided address.
      *
      * @param rosterId Member Roster ID
+     * @throws ResourceNotFoundException when member is not found
      */
     @PostMapping(path = {"/slack/{rosterId}/renew-membership"})
     public void testRenewMembershipSlack(@PathVariable("rosterId") final Long rosterId)
@@ -254,6 +279,7 @@ public class AdminController {
      * Sends a new membership Slack message to the provided address.
      *
      * @param rosterId Member Roster ID
+     * @throws ResourceNotFoundException when member is not found
      */
     @PostMapping(path = {"/slack/{rosterId}/new-membership"})
     public void testNewMembershipSlack(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
@@ -265,7 +291,18 @@ public class AdminController {
 
     /**
      * Gets all Slack users.
+     *
+     * @return All slack users
+     * @throws ResourceNotFoundException when member is not found
      */
+    @Operation(summary = "All Slack users",
+            description = "List of all Slack users",
+            tags = {"admin"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "successful operation",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class))))
+    })
     @GetMapping(path = {"/slack/users"})
     public List<String> getAllSlackUsers() throws ResourceNotFoundException {
         return slackService.allSlackUsers();
@@ -275,6 +312,7 @@ public class AdminController {
      * Adds a person to the member audience in Mail Chimp.
      *
      * @param rosterId Member Roster ID
+     * @throws ResourceNotFoundException when member is not found
      */
     @PostMapping(path = {"/mailchimp/{rosterId}/add-member"})
     public void addOrUpdateMemberToMailChimp(@PathVariable("rosterId") final Long rosterId)
@@ -287,6 +325,7 @@ public class AdminController {
      * Adds a person to the non-member audience in Mail Chimp.
      *
      * @param rosterId Member Roster ID
+     * @throws ResourceNotFoundException when member is not found
      */
     @PostMapping(path = {"/mailchimp/{rosterId}/add-non-member"})
     public void addOrUpdateNonMemberToMailChimp(@PathVariable("rosterId") final Long rosterId)

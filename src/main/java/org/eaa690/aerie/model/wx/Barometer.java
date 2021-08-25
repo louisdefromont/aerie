@@ -17,12 +17,17 @@
 package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 /**
  * Barometer observation.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class Barometer implements Serializable {
 
     /**
@@ -44,59 +49,5 @@ public class Barometer implements Serializable {
      * Millibars.
      */
     private Double mb;
-
-    /**
-     * Get Inches of Mercury.
-     *
-     * @return Inches of Mercury
-     */
-    public Double getHg() {
-        return hg;
-    }
-
-    /**
-     * Set Inches of Mercury.
-     *
-     * @param value Inches of Mercury
-     */
-    public void setHg(final Double value) {
-        hg = value;
-    }
-
-    /**
-     * Get Kilopascals.
-     *
-     * @return Kilopascals
-     */
-    public Double getKpa() {
-        return kpa;
-    }
-
-    /**
-     * Set Kilopascals.
-     *
-     * @param value Kilopascals
-     */
-    public void setKpa(final Double value) {
-        kpa = value;
-    }
-
-    /**
-     * Get Millibars.
-     *
-     * @return Kilopascals
-     */
-    public Double getMb() {
-        return mb;
-    }
-
-    /**
-     * Set Kilopascals.
-     *
-     * @param value Kilopascals
-     */
-    public void setMb(final Double value) {
-        mb = value;
-    }
 
 }

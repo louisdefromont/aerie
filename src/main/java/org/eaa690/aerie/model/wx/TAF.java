@@ -21,6 +21,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.eaa690.aerie.model.BaseEntity;
 
 /**
@@ -28,6 +30,8 @@ import org.eaa690.aerie.model.BaseEntity;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Getter
+@Setter
 public class TAF extends BaseEntity {
 
     /**
@@ -55,77 +59,5 @@ public class TAF extends BaseEntity {
      * Forecast.
      */
     private List<Forecast> forecast;
-
-    /**
-     * Get ICAO.
-     *
-     * @return ICAO
-     */
-    public String getIcao() {
-        return icao;
-    }
-
-    /**
-     * Set ICAO.
-     *
-     * @param value ICAO
-     */
-    public void setIcao(final String value) {
-        icao = value;
-    }
-
-    /**
-     * Get RAW Text.
-     *
-     * @return RAW Text
-     */
-    public String getRawText() {
-        return rawText;
-    }
-
-    /**
-     * Set RAW Text.
-     *
-     * @param value RAW Text
-     */
-    public void setRawText(final String value) {
-        rawText = value;
-    }
-
-    /**
-     * Get Timestamp.
-     *
-     * @return Timestamp
-     */
-    public Timestamp getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * Set Timestamp.
-     *
-     * @param value Timestamp
-     */
-    public void setTimestamp(final Timestamp value) {
-        timestamp = value;
-    }
-
-    /**
-     * Get Forecast.
-     *
-     * @return Forecast
-     */
-    public List<Forecast> getForecast() {
-        return forecast;
-    }
-
-    /**
-     * Set Forecast.
-     *
-     * @param value Forecast
-     */
-    public void setForecast(final List<Forecast> value) {
-        forecast = value;
-    }
 
 }

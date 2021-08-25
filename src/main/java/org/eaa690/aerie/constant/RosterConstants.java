@@ -24,306 +24,306 @@ public class RosterConstants {
     /**
      * eaachapters.org username variable.
      */
-    public final static String USERNAME = "ctl00$txtID";
+    public static final String USERNAME = "ctl00$txtID";
 
     /**
      * eaachapters.org password variable.
      */
-    public final static String PASSWORD = "ctl00$txtPassword";
+    public static final String PASSWORD = "ctl00$txtPassword";
 
     /**
      * eaachapters.org signon button variable.
      */
-    public final static String BUTTON = "ctl00$btnSignon";
+    public static final String BUTTON = "ctl00$btnSignon";
 
     /**
      * eaachapters.org event target variable.
      */
-    public final static String EVENT_TARGET = "__EVENTTARGET";
+    public static final String EVENT_TARGET = "__EVENTTARGET";
 
     /**
      * eaachapters.org event argument variable.
      */
-    public final static String EVENT_ARGUMENT = "__EVENTARGUMENT";
+    public static final String EVENT_ARGUMENT = "__EVENTARGUMENT";
 
     /**
      * eaachapters.org view state variable.
      */
-    public final static String VIEW_STATE = "__VIEWSTATE";
+    public static final String VIEW_STATE = "__VIEWSTATE";
 
     /**
      * eaachapters.org view state generator variable.
      */
-    public final static String VIEW_STATE_GENERATOR = "__VIEWSTATEGENERATOR";
+    public static final String VIEW_STATE_GENERATOR = "__VIEWSTATEGENERATOR";
 
     /**
      * eaachapters.org event validation variable.
      */
-    public final static String EVENT_VALIDATION = "__EVENTVALIDATION";
+    public static final String EVENT_VALIDATION = "__EVENTVALIDATION";
 
     /**
      * FORM_BOUNDARY.
      */
-    public final static String FORM_BOUNDARY = "\n----WebKitFormBoundaryDHOOYZkOpd5AhOOp\n";
+    public static final String FORM_BOUNDARY = "\n----WebKitFormBoundaryDHOOYZkOpd5AhOOp\n";
 
     /**
      * CONTENT_DISPOSITION_FORM_DATA_PREFIX.
      */
-    public final static String CONTENT_DISPOSITION_FORM_DATA_PREFIX = "Content-Disposition: form-data; name=\"";
+    public static final String CONTENT_DISPOSITION_FORM_DATA_PREFIX = "Content-Disposition: form-data; name=\"";
 
     /**
-     * FORM_DATA_SEPARATOR_DOUBLE_NL
+     * FORM_DATA_SEPARATOR_DOUBLE_NL.
      */
-    public final static String FORM_DATA_SEPARATOR_DOUBLE_NL = "\"\n\n";
+    public static final String FORM_DATA_SEPARATOR_DOUBLE_NL = "\"\n\n";
 
     /**
-     * FORM_DATA_SEPARATOR_SINGLE_NL
+     * FORM_DATA_SEPARATOR_SINGLE_NL.
      */
-    public final static String FORM_DATA_SEPARATOR_SINGLE_NL = "\"\n\n";
+    public static final String FORM_DATA_SEPARATOR_SINGLE_NL = "\"\n\n";
 
     /**
      * eaachapters.org Http User-Agent variable.
      */
-    public final static String USER_AGENT = "User-Agent";
+    public static final String USER_AGENT = "User-Agent";
 
     /**
      * eaachapters.org Http Content-Type variable.
      */
-    public final static String CONTENT_TYPE = "Content-Type";
+    public static final String CONTENT_TYPE = "Content-Type";
 
     /**
      * eaachapters.org last focus variable.
      */
-    public final static String LAST_FOCUS = "__LASTFOCUS";
+    public static final String LAST_FOCUS = "__LASTFOCUS";
 
     /**
      * eaachapters.org view state encrypted variable.
      */
-    public final static String VIEW_STATE_ENCRYPTED = "__VIEWSTATEENCRYPTED";
+    public static final String VIEW_STATE_ENCRYPTED = "__VIEWSTATEENCRYPTED";
 
     /**
      * eaachapters.org first name variable.
      */
-    public final static String FIRST_NAME = "ctl00$ContentPlaceHolder1$txtFirstName";
+    public static final String FIRST_NAME = "ctl00$ContentPlaceHolder1$txtFirstName";
 
     /**
      * eaachapters.org last name variable.
      */
-    public final static String LAST_NAME = "ctl00$ContentPlaceHolder1$txtLastName";
+    public static final String LAST_NAME = "ctl00$ContentPlaceHolder1$txtLastName";
 
     /**
      * eaachapters.org spouse variable.
      */
-    public final static String SPOUSE = "ctl00$ContentPlaceHolder1$txtSpouse";
+    public static final String SPOUSE = "ctl00$ContentPlaceHolder1$txtSpouse";
 
     /**
      * eaachapters.org gender variable.
      */
-    public final static String GENDER = "ctl00$ContentPlaceHolder1$ddlGender";
+    public static final String GENDER = "ctl00$ContentPlaceHolder1$ddlGender";
 
     /**
      * eaachapters.org member ID variable.
      */
-    public final static String MEMBER_ID = "ctl00$ContentPlaceHolder1$txtMemberID";
+    public static final String MEMBER_ID = "ctl00$ContentPlaceHolder1$txtMemberID";
 
     /**
      * eaachapters.org member type variable.
      */
-    public final static String MEMBER_TYPE = "ctl00$ContentPlaceHolder1$ddlMemberType";
+    public static final String MEMBER_TYPE = "ctl00$ContentPlaceHolder1$ddlMemberType";
 
     /**
      * eaachapters.org first name variable.
      */
-    public final static String TEXT_FIRST_NAME = "ctl00$ContentPlaceHolder1$textFirstName";
+    public static final String TEXT_FIRST_NAME = "ctl00$ContentPlaceHolder1$textFirstName";
 
     /**
      * eaachapters.org last name variable.
      */
-    public final static String TEXT_LAST_NAME = "ctl00$ContentPlaceHolder1$textLastName";
+    public static final String TEXT_LAST_NAME = "ctl00$ContentPlaceHolder1$textLastName";
 
     /**
      * eaachapters.org nick name variable.
      */
-    public final static String TEXT_NICK_NAME = "ctl00$ContentPlaceHolder1$textNickName";
+    public static final String TEXT_NICK_NAME = "ctl00$ContentPlaceHolder1$textNickName";
 
     /**
      * eaachapters.org export button variable.
      */
-    public final static String EXPORT_BUTTON = "ctl00$ContentPlaceHolder1$btnExport";
+    public static final String EXPORT_BUTTON = "ctl00$ContentPlaceHolder1$btnExport";
 
     /**
      * eaachapters.org search button variable.
      */
-    public final static String SEARCH_BUTTON = "ctl00$ContentPlaceHolder1$btnSearch=Search";
+    public static final String SEARCH_BUTTON = "ctl00$ContentPlaceHolder1$btnSearch=Search";
 
     /**
      * ADD_NEW_MEMBER_BUTTON.
      */
-    public final static String ADD_NEW_MEMBER_BUTTON = "ctl00$ContentPlaceHolder1$btnAddThisNewMember";
+    public static final String ADD_NEW_MEMBER_BUTTON = "ctl00$ContentPlaceHolder1$btnAddThisNewMember";
 
     /**
      * eaachapters.org update member button variable.
      */
-    public final static String UPDATE_THIS_MEMBER_BUTTON = "ctl00$ContentPlaceHolder1$btnUpdateThisMember";
+    public static final String UPDATE_THIS_MEMBER_BUTTON = "ctl00$ContentPlaceHolder1$btnUpdateThisMember";
 
     /**
      * eaachapters.org status variable.
      */
-    public final static String STATUS = "ctl00$ContentPlaceHolder1$ddlStatus";
+    public static final String STATUS = "ctl00$ContentPlaceHolder1$ddlStatus";
 
     /**
      * eaachapters.org search member type variable.
      */
-    public final static String SEARCH_MEMBER_TYPE = "ctl00$ContentPlaceHolder1$ddlSearchMemberType";
+    public static final String SEARCH_MEMBER_TYPE = "ctl00$ContentPlaceHolder1$ddlSearchMemberType";
 
     /**
      * eaachapters.org current status variable.
      */
-    public final static String CURRENT_STATUS = "ctl00$ContentPlaceHolder1$ddlCurrentStatus";
+    public static final String CURRENT_STATUS = "ctl00$ContentPlaceHolder1$ddlCurrentStatus";
 
     /**
      * eaachapters.org current standing variable.
      */
-    public final static String CURRENT_STANDING = "ctl00$ContentPlaceHolder1$ddlCurrentStanding";
+    public static final String CURRENT_STANDING = "ctl00$ContentPlaceHolder1$ddlCurrentStanding";
 
     /**
      * eaachapters.org row count variable.
      */
-    public final static String ROW_COUNT = "ctl00$ContentPlaceHolder1$ddlRowCount";
+    public static final String ROW_COUNT = "ctl00$ContentPlaceHolder1$ddlRowCount";
 
     /**
      * eaachapters.org user name variable.
      */
-    public final static String USER_NAME = "ctl00$ContentPlaceHolder1$txtUserName";
+    public static final String USER_NAME = "ctl00$ContentPlaceHolder1$txtUserName";
 
     /**
      * eaachapters.org admin level variable.
      */
-    public final static String ADMIN_LEVEL = "ctl00$ContentPlaceHolder1$ddlAdminLevel";
+    public static final String ADMIN_LEVEL = "ctl00$ContentPlaceHolder1$ddlAdminLevel";
 
     /**
      * eaachapters.org address line 1 variable.
      */
-    public final static String ADDRESS_LINE_1 = "ctl00$ContentPlaceHolder1$txtAddress1";
+    public static final String ADDRESS_LINE_1 = "ctl00$ContentPlaceHolder1$txtAddress1";
 
     /**
      * eaachapters.org address line 2 variable.
      */
-    public final static String ADDRESS_LINE_2 = "ctl00$ContentPlaceHolder1$txtAddress2";
+    public static final String ADDRESS_LINE_2 = "ctl00$ContentPlaceHolder1$txtAddress2";
 
     /**
      * eaachapters.org city variable.
      */
-    public final static String CITY = "ctl00$ContentPlaceHolder1$txtPreferredCity";
+    public static final String CITY = "ctl00$ContentPlaceHolder1$txtPreferredCity";
 
     /**
      * eaachapters.org state variable.
      */
-    public final static String STATE = "ctl00$ContentPlaceHolder1$ddlPreferredState";
+    public static final String STATE = "ctl00$ContentPlaceHolder1$ddlPreferredState";
 
     /**
      * eaachapters.org zip code variable.
      */
-    public final static String ZIP_CODE = "ctl00$ContentPlaceHolder1$txtZipCode";
+    public static final String ZIP_CODE = "ctl00$ContentPlaceHolder1$txtZipCode";
 
     /**
      * eaachapters.org country variable.
      */
-    public final static String COUNTRY = "ctl00$ContentPlaceHolder1$ddlCountry";
+    public static final String COUNTRY = "ctl00$ContentPlaceHolder1$ddlCountry";
 
     /**
      * eaachapters.org birth date variable.
      */
-    public final static String BIRTH_DATE = "ctl00$ContentPlaceHolder1$txtBirthDate";
+    public static final String BIRTH_DATE = "ctl00$ContentPlaceHolder1$txtBirthDate";
 
     /**
      * eaachapters.org join date variable.
      */
-    public final static String JOIN_DATE = "ctl00$ContentPlaceHolder1$txtJoinDate";
+    public static final String JOIN_DATE = "ctl00$ContentPlaceHolder1$txtJoinDate";
 
     /**
      * eaachapters.org expiration date variable.
      */
-    public final static String EXPIRATION_DATE = "ctl00$ContentPlaceHolder1$txtExpirationDate";
+    public static final String EXPIRATION_DATE = "ctl00$ContentPlaceHolder1$txtExpirationDate";
 
     /**
      * eaachapters.org other info variable.
      */
-    public final static String OTHER_INFO = "ctl00$ContentPlaceHolder1$txtOtherInfo";
+    public static final String OTHER_INFO = "ctl00$ContentPlaceHolder1$txtOtherInfo";
 
     /**
      * eaachapters.org home phone variable.
      */
-    public final static String HOME_PHONE = "ctl00$ContentPlaceHolder1$txtHomePhone";
+    public static final String HOME_PHONE = "ctl00$ContentPlaceHolder1$txtHomePhone";
 
     /**
      * eaachapters.org cell phone variable.
      */
-    public final static String CELL_PHONE = "ctl00$ContentPlaceHolder1$txtCellPhone";
+    public static final String CELL_PHONE = "ctl00$ContentPlaceHolder1$txtCellPhone";
 
     /**
      * eaachapters.org email variable.
      */
-    public final static String EMAIL = "ctl00$ContentPlaceHolder1$txtEmail";
+    public static final String EMAIL = "ctl00$ContentPlaceHolder1$txtEmail";
 
     /**
      * eaachapters.org ratings variable.
      */
-    public final static String RATINGS = "ctl00$ContentPlaceHolder1$txtRatings";
+    public static final String RATINGS = "ctl00$ContentPlaceHolder1$txtRatings";
 
     /**
      * eaachapters.org aircraft owned variable.
      */
-    public final static String AIRCRAFT_OWNED = "ctl00$ContentPlaceHolder1$txtAircraftOwned";
+    public static final String AIRCRAFT_OWNED = "ctl00$ContentPlaceHolder1$txtAircraftOwned";
 
     /**
      * eaachapters.org aircraft project variable.
      */
-    public final static String AIRCRAFT_PROJECT = "ctl00$ContentPlaceHolder1$txtAircraftProject";
+    public static final String AIRCRAFT_PROJECT = "ctl00$ContentPlaceHolder1$txtAircraftProject";
 
     /**
      * eaachapters.org aircraft built variable.
      */
-    public final static String AIRCRAFT_BUILT = "ctl00$ContentPlaceHolder1$txtAircraftBuilt";
+    public static final String AIRCRAFT_BUILT = "ctl00$ContentPlaceHolder1$txtAircraftBuilt";
 
     /**
      * eaachapters.org IMC variable.
      */
-    public final static String IMC = "ctl00$ContentPlaceHolder1$cbxIMC";
+    public static final String IMC = "ctl00$ContentPlaceHolder1$cbxIMC";
 
     /**
      * eaachapters.org VMC variable.
      */
-    public final static String VMC = "ctl00$ContentPlaceHolder1$cbxVMC";
+    public static final String VMC = "ctl00$ContentPlaceHolder1$cbxVMC";
 
     /**
      * eaachapters.org young eagle pilot variable.
      */
-    public final static String YOUNG_EAGLE_PILOT = "ctl00$ContentPlaceHolder1$cbxYoungEaglePilot";
+    public static final String YOUNG_EAGLE_PILOT = "ctl00$ContentPlaceHolder1$cbxYoungEaglePilot";
 
     /**
      * eaachapters.org eagle pilot variable.
      */
-    public final static String EAGLE_PILOT = "ctl00$ContentPlaceHolder1$cbxEaglePilot";
+    public static final String EAGLE_PILOT = "ctl00$ContentPlaceHolder1$cbxEaglePilot";
 
     /**
      * eaachapters.org photo variable.
      */
-    public final static String PHOTO = "ctl00$ContentPlaceHolder1$Photo1";
+    public static final String PHOTO = "ctl00$ContentPlaceHolder1$Photo1";
 
     /**
      * eaachapters.org photo file name variable.
      */
-    public final static String PHOTO_FILE_NAME = "ctl00$ContentPlaceHolder1$PhotoFileName1";
+    public static final String PHOTO_FILE_NAME = "ctl00$ContentPlaceHolder1$PhotoFileName1";
 
     /**
      * eaachapters.org photo file type variable.
      */
-    public final static String PHOTO_FILE_TYPE = "ctl00$ContentPlaceHolder1$PhotoFileType1";
+    public static final String PHOTO_FILE_TYPE = "ctl00$ContentPlaceHolder1$PhotoFileType1";
 
     /**
      * eaachapters.org Http Accept variable.
      */
-    public final static String ACCEPT = "Accept";
+    public static final String ACCEPT = "Accept";
 
 }

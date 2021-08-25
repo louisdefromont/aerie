@@ -66,9 +66,10 @@ public enum State {
     /**
      * Gets displayable string value.
      *
+     * @param state State
      * @return displayable value
      */
-    public static String getDisplayString(State state) {
+    public static String getDisplayString(final State state) {
         if (ALABAMA.equals(state)) {
             return "AL";
         } else if (FLORIDA.equals(state)) {

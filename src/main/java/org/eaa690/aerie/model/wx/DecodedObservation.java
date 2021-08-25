@@ -17,6 +17,9 @@
 package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -24,6 +27,8 @@ import java.util.List;
  * DecodedObservation object received from api.checkwx.com.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class DecodedObservation implements Serializable {
 
     /**
@@ -50,77 +55,5 @@ public class DecodedObservation implements Serializable {
      * Forecast List.
      */
     private List<Forecast> forecasts;
-
-    /**
-     * Get ICAO.
-     *
-     * @return icao
-     */
-    public String getIcao() {
-        return icao;
-    }
-
-    /**
-     * Set ICAO.
-     *
-     * @param value icao
-     */
-    public void setIcao(final String value) {
-        icao = value;
-    }
-
-    /**
-     * Get ForecastTimestamp.
-     *
-     * @return ForecastTimestamp
-     */
-    public ForecastTimestamp getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * Set ForecastTimestamp.
-     *
-     * @param value ForecastTimestamp
-     */
-    public void setTimestamp(final ForecastTimestamp value) {
-        timestamp = value;
-    }
-
-    /**
-     * Get RAW Text.
-     *
-     * @return RAW Text
-     */
-    public String getRawText() {
-        return rawText;
-    }
-
-    /**
-     * Set RAW Text.
-     *
-     * @param value RAW Text
-     */
-    public void setRawText(final String value) {
-        rawText = value;
-    }
-
-    /**
-     * Get Forecast List.
-     *
-     * @return Forecast List
-     */
-    public List<Forecast> getForecasts() {
-        return forecasts;
-    }
-
-    /**
-     * Set Forecast List.
-     *
-     * @param value Forecast List
-     */
-    public void setForecasts(final List<Forecast> value) {
-        forecasts = value;
-    }
 
 }

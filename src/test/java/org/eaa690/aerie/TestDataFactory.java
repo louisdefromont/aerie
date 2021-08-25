@@ -16,14 +16,27 @@
 
 package org.eaa690.aerie;
 
+import com.github.javafaker.Faker;
 import org.eaa690.aerie.constant.CommonConstants;
+import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.Property;
 import org.eaa690.aerie.model.WeatherProduct;
+import org.eaa690.aerie.model.roster.Country;
+import org.eaa690.aerie.model.roster.Gender;
+import org.eaa690.aerie.model.roster.MemberType;
+import org.eaa690.aerie.model.roster.State;
+import org.eaa690.aerie.model.roster.Status;
+import org.eaa690.aerie.model.roster.WebAdminAccess;
 
 /**
  * TestDataFactory.
  */
 public class TestDataFactory {
+
+    /**
+     * Test data faker.
+     */
+    private static Faker faker = new Faker();
 
     /**
      * Initializes an instance of <code>TestDataFactory</code> with the default data.
@@ -59,5 +72,27 @@ public class TestDataFactory {
         weatherProduct.setValue(CommonConstants.ID);
         return weatherProduct;
     }
+
+    /**
+     * Builds a Member for testing.
+     *
+     * @return Member
+     */
+    public static Member getMember() {
+        final Member member = new Member();
+        member.setMemberType(MemberType.Regular);
+        member.setFirstName(faker.name().firstName());
+        member.setLastName(faker.name().lastName());
+        member.setAddressLine1(faker.address().streetAddress());
+        member.setCity(faker.address().city());
+        member.setState(State.GEORGIA);
+        member.setCountry(Country.USA);
+        member.setEaaNumber(faker.numerify("#######"));
+        member.setGender(Gender.MALE);
+        member.setStatus(Status.ACTIVE);
+        member.setWebAdminAccess(WebAdminAccess.NO_ACCESS);
+        return member;
+    }
+
 
 }

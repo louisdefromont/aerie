@@ -33,7 +33,7 @@ public enum Gender {
      */
     UNKNOWN;
 
-    public static String getDisplayString(Gender gender) {
+    public static String getDisplayString(final Gender gender) {
         if (MALE.equals(gender)) {
             return "Male";
         } else if (FEMALE.equals(gender)) {

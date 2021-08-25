@@ -17,12 +17,17 @@
 package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 /**
  * Elevation object received from api.checkwx.com.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class Elevation implements Serializable {
 
     /**
@@ -44,59 +49,5 @@ public class Elevation implements Serializable {
      * Method.
      */
     private String method;
-
-    /**
-     * Get Feet.
-     *
-     * @return Feet
-     */
-    public String getFeet() {
-        return feet;
-    }
-
-    /**
-     * Set Feet.
-     *
-     * @param value Feet
-     */
-    public void setFeet(final String value) {
-        feet = value;
-    }
-
-    /**
-     * Get Meters.
-     *
-     * @return Meters
-     */
-    public String getMeters() {
-        return meters;
-    }
-
-    /**
-     * Set Meters.
-     *
-     * @param value Meters
-     */
-    public void setMeters(final String value) {
-        meters = value;
-    }
-
-    /**
-     * Get Method.
-     *
-     * @return Method
-     */
-    public String getMethod() {
-        return method;
-    }
-
-    /**
-     * Set Method.
-     *
-     * @param value Method
-     */
-    public void setMethod(final String value) {
-        method = value;
-    }
 
 }

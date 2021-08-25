@@ -16,7 +16,6 @@
 
 package org.eaa690.aerie.service;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,11 +49,6 @@ public class EmailService extends CommunicatorService<Email> {
      * Logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
-
-    /**
-     * SimpleDateFormat.
-     */
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
 
     /**
      * PropertyService.
@@ -150,6 +144,9 @@ public class EmailService extends CommunicatorService<Email> {
         return queuedEmailRepository.findAll().map(List::size).orElse(0);
     }
 
+    /**
+     * Manually increments the message count.
+     */
     public void incrementManualMessageCount() {
         manualMsgSentCount++;
     }
@@ -158,7 +155,7 @@ public class EmailService extends CommunicatorService<Email> {
      * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
      */
     @Scheduled(cron = "0 0 2 * * *")
-    private void clearManualMessageCount() {
+    public void clearManualMessageCount() {
         manualMsgSentCount = 0;
     }
 
@@ -166,7 +163,7 @@ public class EmailService extends CommunicatorService<Email> {
      * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
      */
     @Scheduled(cron = "0 0 10 * * *")
-    private void processQueue() {
+    public void processQueue() {
         final Optional<List<QueuedEmail>> allQueuedMessages = queuedEmailRepository.findAll();
         if (allQueuedMessages.isPresent()) {
             try {

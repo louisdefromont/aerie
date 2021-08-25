@@ -16,6 +16,7 @@
 
 package org.eaa690.aerie.service;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -23,12 +24,23 @@ import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eaa690.aerie.constant.CommonConstants;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.constant.RosterConstants;
 import org.eaa690.aerie.exception.ResourceExistsException;
@@ -64,22 +76,22 @@ public class RosterService {
     /**
      * Base URL for EAA Chapters.
      */
-    private final String EAA_CHAPTERS_SITE_BASE = "https://www.eaachapters.org";
+    private String eaaChaptersSiteBase = "https://www.eaachapters.org";
 
     /**
      * Empty string constant.
      */
-    private final static String EMPTY_STRING = "";
+    private static final String EMPTY_STRING = "";
 
     /**
      * Ampersand.
      */
-    private final static String AMPERSAND = "&";
+    private static final String AMPERSAND = "&";
 
     /**
      * Equals.
      */
-    private final static String EQUALS = "=";
+    private static final String EQUALS = "=";
 
     /**
      * PropertyService.
@@ -98,12 +110,6 @@ public class RosterService {
      */
     @Autowired
     private SMSService smsService;
-
-    /**
-     * MailChimpService.
-     */
-    @Autowired
-    private MailChimpService mailChimpService;
 
     /**
      * SlackService.
@@ -131,12 +137,7 @@ public class RosterService {
     /**
      * Date formatter.
      */
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
-
-    /**
-     * Date formatter.
-     */
-    private static final SimpleDateFormat MDY_SDF = new SimpleDateFormat("MM/dd/yyyy");
+    //private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
      * View State.
@@ -168,17 +169,6 @@ public class RosterService {
     @Autowired
     public void setPropertyService(final PropertyService value) {
         propertyService = value;
-    }
-
-    /**
-     * Sets MailChimpService.
-     * Note: mostly used for unit test mocks
-     *
-     * @param value MailChimpService
-     */
-    @Autowired
-    public void setMailChimpService(final MailChimpService value) {
-        mailChimpService = value;
     }
 
     /**
@@ -252,20 +242,26 @@ public class RosterService {
         }
     }
 
+    /**
+     * Sends membership renewal messages on a scheduled basis.
+     */
     @Scheduled(cron = "0 0 9 * * *")
     public void sendMembershipRenewalMessages() {
         memberRepository
                 .findAll()
                 .ifPresent(members -> members
                         .stream()
-                        .filter(member -> member.getMemberType() == MemberType.Regular ||
-                                member.getMemberType() == MemberType.Family ||
-                                member.getMemberType() == MemberType.Student)
+                        .filter(member -> member.getMemberType() == MemberType.Regular
+                                || member.getMemberType() == MemberType.Family
+                                || member.getMemberType() == MemberType.Student)
                         .forEach(member -> {
                             try {
-                                final String expirationDate = SDF.format(member.getExpiration());
+                                final String expirationDate =
+                                        ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
+                                                ZoneId.systemDefault()).format(
+                                                        DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                                 if (expirationDate.equals(
-                                        getDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_FIRST_MSG_DAYS_KEY))) {
+                                        getFutureDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_FIRST_MSG_DAYS_KEY))) {
                                     emailService.queueMsg(
                                             PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                                             PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
@@ -273,8 +269,8 @@ public class RosterService {
                                     smsService.sendRenewMembershipMsg(member);
                                     slackService.sendRenewMembershipMsg(member);
                                 }
-                                if (expirationDate.equals(
-                                        getDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_SECOND_MSG_DAYS_KEY))) {
+                                if (expirationDate.equals(getFutureDateStr(
+                                                PropertyKeyConstants.MEMBERSHIP_RENEWAL_SECOND_MSG_DAYS_KEY))) {
                                     emailService.queueMsg(
                                             PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                                             PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
@@ -283,7 +279,7 @@ public class RosterService {
                                     slackService.sendRenewMembershipMsg(member);
                                 }
                                 if (expirationDate.equals(
-                                        getDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_THIRD_MSG_DAYS_KEY))) {
+                                        getFutureDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_THIRD_MSG_DAYS_KEY))) {
                                     emailService.queueMsg(
                                             PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
                                             PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
@@ -291,8 +287,10 @@ public class RosterService {
                                     smsService.sendRenewMembershipMsg(member);
                                     slackService.sendRenewMembershipMsg(member);
                                 }
-                                if (expirationDate.equals(SDF.format(new Date()))) {
-                                    // TODO: move member to non-member distro list in MailChimp
+                                if (expirationDate.equals(ZonedDateTime.ofInstant(Instant.now(),
+                                        ZoneId.systemDefault()).format(
+                                        DateTimeFormatter.ofPattern("yyyy-MM-dd")))) {
+                                    LOGGER.info("addOrUpdateNonMember");
                                     //mailChimpService.addOrUpdateNonMember(
                                     //        member.getFirstName(),
                                     //        member.getLastName(),
@@ -316,7 +314,7 @@ public class RosterService {
         if (member.isPresent()) {
             return member.get();
         }
-        throw new ResourceNotFoundException("No member found matching RFID="+rfid);
+        throw new ResourceNotFoundException("No member found matching RFID=" + rfid);
     }
 
     /**
@@ -331,7 +329,7 @@ public class RosterService {
         if (member.isPresent()) {
             return member.get();
         }
-        throw new ResourceNotFoundException("No member found matching ID="+id);
+        throw new ResourceNotFoundException("No member found matching ID=" + id);
     }
 
     /**
@@ -360,6 +358,8 @@ public class RosterService {
      * Saves member information to roster.
      *
      * @param member Member to be saved
+     * @return saved member
+     * @throws ResourceExistsException when member is not found
      */
     public Member saveNewMember(final Member member) throws ResourceExistsException {
         LOGGER.info("Saving new member: " + member);
@@ -380,6 +380,7 @@ public class RosterService {
      * Saves member information to roster.
      *
      * @param member Member to be saved
+     * @return saved member
      */
     public Member saveRenewingMember(final Member member) {
         LOGGER.info("Saving renewing member: " + member);
@@ -388,7 +389,6 @@ public class RosterService {
             doLogin();
             getSearchMembersPage();
             if (existsUser(member.getFirstName(), member.getLastName())) {
-                // TODO: update user
                 LOGGER.info(buildUpdateUserRequestBodyString(member));
             }
         } catch (ResourceNotFoundException e) {
@@ -578,13 +578,13 @@ public class RosterService {
      * Performs login to EAA's roster management system.
      */
     private void doLogin() {
-        final String uriStr = EAA_CHAPTERS_SITE_BASE + "/main.aspx";
+        final String uriStr = eaaChaptersSiteBase + "/main.aspx";
         final String requestBodyStr = buildLoginRequestBodyString();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBodyStr));
-        for (final String key : headers.keySet()) {
-            builder.setHeader(key, headers.get(key));
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.setHeader(entry.getKey(), entry.getValue());
         }
         final HttpRequest request = builder.build();
 
@@ -599,12 +599,12 @@ public class RosterService {
      * Gets searchmembers page in EAA's roster management system.
      */
     private void getSearchMembersPage() {
-        final String uriStr = EAA_CHAPTERS_SITE_BASE + "/searchmembers.aspx";
+        final String uriStr = eaaChaptersSiteBase + "/searchmembers.aspx";
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .GET();
-        for (final String key : headers.keySet()) {
-            builder.setHeader(key, headers.get(key));
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.setHeader(entry.getKey(), entry.getValue());
         }
         final HttpRequest request = builder.build();
 
@@ -616,24 +616,29 @@ public class RosterService {
             viewState = doc.getElementById(RosterConstants.VIEW_STATE);
             viewStateGenerator = doc.getElementById(RosterConstants.VIEW_STATE_GENERATOR);
             headers.put(RosterConstants.VIEW_STATE, getViewStateValue());
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             LOGGER.error("[Search Page] Error", e);
         }
     }
 
     /**
      * Checks if a user exists in EAA's roster management system.
+     *
+     * @param firstName First name
+     * @param lastName Last name
+     * @return if user exists
      */
     private boolean existsUser(final String firstName, final String lastName) {
-        final String uriStr = EAA_CHAPTERS_SITE_BASE + "/searchmembers.aspx";
+        final String uriStr = eaaChaptersSiteBase + "/searchmembers.aspx";
         final String requestBodyStr = buildExistsUserRequestBodyString(firstName, lastName);
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBodyStr));
         headers.remove(RosterConstants.VIEW_STATE);
-        headers.put(RosterConstants.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-        for (final String key : headers.keySet()) {
-            builder.setHeader(key, headers.get(key));
+        headers.put(RosterConstants.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image"
+                + "/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.setHeader(entry.getKey(), entry.getValue());
         }
         final HttpRequest request = builder.build();
 
@@ -642,7 +647,7 @@ public class RosterService {
             HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
             sb.append(response.body());
-        } catch (Exception e) {
+        } catch (InterruptedException | IOException e) {
             LOGGER.error("[FETCH] Error", e);
         }
         return sb.toString().contains("lnkViewUpdateMember");
@@ -650,17 +655,20 @@ public class RosterService {
 
     /**
      * Fetch's data from EAA's roster management system.
+     *
+     * @return fetched data
      */
     private String fetchData() {
-        final String uriStr = EAA_CHAPTERS_SITE_BASE + "/searchmembers.aspx";
+        final String uriStr = eaaChaptersSiteBase + "/searchmembers.aspx";
         final String requestBodyStr = buildFetchDataRequestBodyString();
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .POST(HttpRequest.BodyPublishers.ofString(requestBodyStr));
         headers.remove(RosterConstants.VIEW_STATE);
-        headers.put(RosterConstants.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-        for (final String key : headers.keySet()) {
-            builder.setHeader(key, headers.get(key));
+        headers.put(RosterConstants.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image"
+                + "/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.setHeader(entry.getKey(), entry.getValue());
         }
         final HttpRequest request = builder.build();
 
@@ -669,20 +677,21 @@ public class RosterService {
             HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
             sb.append(response.body());
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             LOGGER.error("[FETCH] Error", e);
         }
         return sb.toString();
     }
 
     private void getHttpHeaders() throws ResourceNotFoundException {
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(EAA_CHAPTERS_SITE_BASE + "/main.aspx")).GET().build();
+        HttpRequest request =
+                HttpRequest.newBuilder().uri(URI.create(eaaChaptersSiteBase + "/main.aspx")).GET().build();
         try {
             final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             final HttpHeaders responseHeaders = response.headers();
             final String cookieStr = responseHeaders.firstValue("set-cookie").orElse("");
             headers.put("cookie", cookieStr.substring(0, cookieStr.indexOf(";")));
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             LOGGER.error("Error", e);
         }
         headers.put(RosterConstants.EVENT_TARGET, "");
@@ -693,11 +702,14 @@ public class RosterService {
         } else {
             headers.put(RosterConstants.VIEW_STATE_GENERATOR, "202EA31B");
         }
-        headers.put(RosterConstants.EVENT_VALIDATION, "/wEdAAaUkhCi8bB8A8YPK1mx/fN+Ob9NwfdsH6h5T4oBt2E/NC/PSAvxybIG70Gi7lMSo2Ha9mxIS56towErq28lcj7mn+o6oHBHkC8q81Z+42F7hK13DHQbwWPwDXbrtkgbgsBJaWfipkuZE5/MRRQAXrNwOiJp3YGlq4qKyVLK8XZVxQ==");
+        headers.put(RosterConstants.EVENT_VALIDATION, "/wEdAAaUkhCi8bB8A8YPK1mx/fN+Ob9NwfdsH6h5T4oBt2E/NC/PSAvxybIG70"
+                + "Gi7lMSo2Ha9mxIS56towErq28lcj7mn+o6oHBHkC8q81Z+42F7hK13DHQbwWPwDXbrtkgbgsBJaWfipkuZE5/MRRQAXrNwOiJp"
+                + "3YGlq4qKyVLK8XZVxQ==");
         headers.put(RosterConstants.USERNAME, propertyService.get(PropertyKeyConstants.ROSTER_USER_KEY).getValue());
         headers.put(RosterConstants.PASSWORD, propertyService.get(PropertyKeyConstants.ROSTER_PASS_KEY).getValue());
         headers.put(RosterConstants.BUTTON, "Submit");
-        headers.put(RosterConstants.USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36");
+        headers.put(RosterConstants.USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 "
+                + "(KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36");
         headers.put(RosterConstants.CONTENT_TYPE, "application/x-www-form-urlencoded");
         headers.put(RosterConstants.EXPORT_BUTTON, "Results+To+Excel");
         headers.put(RosterConstants.STATUS, "Active");
@@ -721,25 +733,27 @@ public class RosterService {
         data.add(RosterConstants.USERNAME);
         data.add(RosterConstants.PASSWORD);
         data.add(RosterConstants.BUTTON);
-        for (final String key : headers.keySet()) {
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            final String key = entry.getKey();
             if (data.contains(key)) {
                 if (sb.length() > 0) {
                     sb.append("&");
                 }
-                if (RosterConstants.USERNAME.equals(key) ||
-                        RosterConstants.PASSWORD.equals(key) || RosterConstants.BUTTON.equals(key)) {
+                if (RosterConstants.USERNAME.equals(key)
+                        || RosterConstants.PASSWORD.equals(key)
+                        || RosterConstants.BUTTON.equals(key)) {
                     sb.append(key.replaceAll("\\$", "%24"));
                 } else {
                     sb.append(key);
                 }
                 sb.append("=");
                 if (RosterConstants.VIEW_STATE.equals(key) || RosterConstants.EVENT_VALIDATION.equals(key)) {
-                    sb.append(headers.get(key)
+                    sb.append(entry.getValue()
                             .replaceAll("/", "%2F")
                             .replaceAll("=", "%3D")
                             .replaceAll("\\+", "%2B"));
                 } else {
-                    sb.append(headers.get(key));
+                    sb.append(entry.getValue());
                 }
             }
         }
@@ -762,30 +776,31 @@ public class RosterService {
         data.add(RosterConstants.SEARCH_MEMBER_TYPE);
         data.add(RosterConstants.CURRENT_STATUS);
         data.add(RosterConstants.ROW_COUNT);
-        for (final String key : headers.keySet()) {
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            final String key = entry.getKey();
             if (data.contains(key)) {
                 if (sb.length() > 0) {
                     sb.append("&");
                 }
-                if (RosterConstants.FIRST_NAME.equals(key) ||
-                        RosterConstants.LAST_NAME.equals(key) ||
-                        RosterConstants.EXPORT_BUTTON.equals(key) ||
-                        RosterConstants.STATUS.equals(key) ||
-                        RosterConstants.SEARCH_MEMBER_TYPE.equals(key) ||
-                        RosterConstants.CURRENT_STATUS.equals(key) ||
-                        RosterConstants.ROW_COUNT.equals(key)) {
+                if (RosterConstants.FIRST_NAME.equals(key)
+                        || RosterConstants.LAST_NAME.equals(key)
+                        || RosterConstants.EXPORT_BUTTON.equals(key)
+                        || RosterConstants.STATUS.equals(key)
+                        || RosterConstants.SEARCH_MEMBER_TYPE.equals(key)
+                        || RosterConstants.CURRENT_STATUS.equals(key)
+                        || RosterConstants.ROW_COUNT.equals(key)) {
                     sb.append(key.replaceAll("\\$", "%24"));
                 } else {
                     sb.append(key);
                 }
                 sb.append("=");
                 if (RosterConstants.VIEW_STATE.equals(key) || RosterConstants.EVENT_VALIDATION.equals(key)) {
-                    sb.append(headers.get(key)
+                    sb.append(entry.getValue()
                             .replaceAll("/", "%2F")
                             .replaceAll("=", "%3D")
                             .replaceAll("\\+", "%2B"));
                 } else {
-                    sb.append(headers.get(key));
+                    sb.append(entry.getValue());
                 }
             }
         }
@@ -806,30 +821,31 @@ public class RosterService {
         data.add(RosterConstants.STATUS + "=Active");
         data.add(RosterConstants.SEARCH_MEMBER_TYPE);
         data.add(RosterConstants.CURRENT_STATUS);
-        for (final String key : headers.keySet()) {
+        for (final Map.Entry<String, String> entry : headers.entrySet()) {
+            final String key = entry.getKey();
             if (data.contains(key)) {
                 if (sb.length() > 0) {
                     sb.append("&");
                 }
-                if (RosterConstants.FIRST_NAME.equals(key) ||
-                        RosterConstants.LAST_NAME.equals(key) ||
-                        RosterConstants.EXPORT_BUTTON.equals(key) ||
-                        RosterConstants.STATUS.equals(key) ||
-                        RosterConstants.SEARCH_MEMBER_TYPE.equals(key) ||
-                        RosterConstants.CURRENT_STATUS.equals(key) ||
-                        RosterConstants.ROW_COUNT.equals(key)) {
+                if (RosterConstants.FIRST_NAME.equals(key)
+                        || RosterConstants.LAST_NAME.equals(key)
+                        || RosterConstants.EXPORT_BUTTON.equals(key)
+                        || RosterConstants.STATUS.equals(key)
+                        || RosterConstants.SEARCH_MEMBER_TYPE.equals(key)
+                        || RosterConstants.CURRENT_STATUS.equals(key)
+                        || RosterConstants.ROW_COUNT.equals(key)) {
                     sb.append(key.replaceAll("\\$", "%24"));
                 } else {
                     sb.append(key);
                 }
                 sb.append("=");
                 if (RosterConstants.VIEW_STATE.equals(key) || RosterConstants.EVENT_VALIDATION.equals(key)) {
-                    sb.append(headers.get(key)
+                    sb.append(entry.getValue()
                             .replaceAll("/", "%2F")
                             .replaceAll("=", "%3D")
                             .replaceAll("\\+", "%2B"));
                 } else {
-                    sb.append(headers.get(key));
+                    sb.append(entry.getValue());
                 }
             }
         }
@@ -837,45 +853,45 @@ public class RosterService {
     }
 
     private String buildNewUserRequestBodyString(final Member member) {
-        String requestBody = RosterConstants.EVENT_TARGET + EQUALS +
-                AMPERSAND + RosterConstants.EVENT_ARGUMENT + EQUALS +
-                AMPERSAND + RosterConstants.LAST_FOCUS + EQUALS +
-                AMPERSAND + RosterConstants.VIEW_STATE + EQUALS + getViewStateValue() +
-                AMPERSAND + RosterConstants.VIEW_STATE_GENERATOR + EQUALS + getViewStateGeneratorValue() +
-                AMPERSAND + RosterConstants.VIEW_STATE_ENCRYPTED + EQUALS +
-                AMPERSAND + RosterConstants.FIRST_NAME + EQUALS +
-                AMPERSAND + RosterConstants.LAST_NAME + EQUALS + member.getLastName() +
-                AMPERSAND + RosterConstants.STATUS + EQUALS + member.getStatus() +
-                AMPERSAND + RosterConstants.SEARCH_MEMBER_TYPE + EQUALS +
-                AMPERSAND + RosterConstants.CURRENT_STATUS + EQUALS +
-                AMPERSAND + RosterConstants.ADD_NEW_MEMBER_BUTTON + EQUALS + "Add+This+Person" +
-                AMPERSAND + RosterConstants.TEXT_FIRST_NAME + EQUALS + member.getFirstName() +
-                AMPERSAND + RosterConstants.TEXT_LAST_NAME + EQUALS + member.getLastName() +
-                AMPERSAND + RosterConstants.TEXT_NICK_NAME + EQUALS + member.getNickname() +
-                AMPERSAND + RosterConstants.SPOUSE + EQUALS + member.getSpouse() +
-                AMPERSAND + RosterConstants.GENDER + EQUALS + member.getGender() +
-                AMPERSAND + RosterConstants.MEMBER_ID + EQUALS + member.getEaaNumber() +
-                AMPERSAND + RosterConstants.MEMBER_TYPE + EQUALS + member.getMemberType() +
-                AMPERSAND + RosterConstants.CURRENT_STANDING + EQUALS + member.getStatus() +
-                AMPERSAND + RosterConstants.ADMIN_LEVEL + EQUALS + member.getWebAdminAccess() +
-                AMPERSAND + RosterConstants.ADDRESS_LINE_1 + EQUALS + member.getAddressLine1() +
-                AMPERSAND + RosterConstants.ADDRESS_LINE_2 + EQUALS + member.getAddressLine2() +
-                AMPERSAND + RosterConstants.CITY + EQUALS + member.getCity() +
-                AMPERSAND + RosterConstants.STATE + EQUALS + member.getState() +
-                AMPERSAND + RosterConstants.ZIP_CODE + EQUALS + member.getZipCode() +
-                AMPERSAND + RosterConstants.COUNTRY + EQUALS + member.getCountry() +
-                AMPERSAND + RosterConstants.BIRTH_DATE + EQUALS + member.getBirthDate() +
-                AMPERSAND + RosterConstants.JOIN_DATE + EQUALS + member.getJoined() +
-                AMPERSAND + RosterConstants.EXPIRATION_DATE + EQUALS + member.getExpiration() +
-                AMPERSAND + RosterConstants.OTHER_INFO + EQUALS + member.getOtherInfo() +
-                AMPERSAND + RosterConstants.HOME_PHONE + EQUALS + member.getHomePhone() +
-                AMPERSAND + RosterConstants.CELL_PHONE + EQUALS + member.getCellPhone() +
-                AMPERSAND + RosterConstants.EMAIL + EQUALS + member.getEmail() +
-                AMPERSAND + RosterConstants.RATINGS + EQUALS + member.getRatings() +
-                AMPERSAND + RosterConstants.AIRCRAFT_OWNED + EQUALS + member.getAircraftOwned() +
-                AMPERSAND + RosterConstants.AIRCRAFT_PROJECT + EQUALS + member.getAircraftProject() +
-                AMPERSAND + RosterConstants.AIRCRAFT_BUILT + EQUALS + member.getAircraftBuilt() +
-                AMPERSAND + RosterConstants.ROW_COUNT + EQUALS + "50";
+        String requestBody = RosterConstants.EVENT_TARGET + EQUALS
+                + AMPERSAND + RosterConstants.EVENT_ARGUMENT + EQUALS
+                + AMPERSAND + RosterConstants.LAST_FOCUS + EQUALS
+                + AMPERSAND + RosterConstants.VIEW_STATE + EQUALS + getViewStateValue()
+                + AMPERSAND + RosterConstants.VIEW_STATE_GENERATOR + EQUALS + getViewStateGeneratorValue()
+                + AMPERSAND + RosterConstants.VIEW_STATE_ENCRYPTED + EQUALS
+                + AMPERSAND + RosterConstants.FIRST_NAME + EQUALS
+                + AMPERSAND + RosterConstants.LAST_NAME + EQUALS + member.getLastName()
+                + AMPERSAND + RosterConstants.STATUS + EQUALS + member.getStatus()
+                + AMPERSAND + RosterConstants.SEARCH_MEMBER_TYPE + EQUALS
+                + AMPERSAND + RosterConstants.CURRENT_STATUS + EQUALS
+                + AMPERSAND + RosterConstants.ADD_NEW_MEMBER_BUTTON + EQUALS + "Add+This+Person"
+                + AMPERSAND + RosterConstants.TEXT_FIRST_NAME + EQUALS + member.getFirstName()
+                + AMPERSAND + RosterConstants.TEXT_LAST_NAME + EQUALS + member.getLastName()
+                + AMPERSAND + RosterConstants.TEXT_NICK_NAME + EQUALS + member.getNickname()
+                + AMPERSAND + RosterConstants.SPOUSE + EQUALS + member.getSpouse()
+                + AMPERSAND + RosterConstants.GENDER + EQUALS + member.getGender()
+                + AMPERSAND + RosterConstants.MEMBER_ID + EQUALS + member.getEaaNumber()
+                + AMPERSAND + RosterConstants.MEMBER_TYPE + EQUALS + member.getMemberType()
+                + AMPERSAND + RosterConstants.CURRENT_STANDING + EQUALS + member.getStatus()
+                + AMPERSAND + RosterConstants.ADMIN_LEVEL + EQUALS + member.getWebAdminAccess()
+                + AMPERSAND + RosterConstants.ADDRESS_LINE_1 + EQUALS + member.getAddressLine1()
+                + AMPERSAND + RosterConstants.ADDRESS_LINE_2 + EQUALS + member.getAddressLine2()
+                + AMPERSAND + RosterConstants.CITY + EQUALS + member.getCity()
+                + AMPERSAND + RosterConstants.STATE + EQUALS + member.getState()
+                + AMPERSAND + RosterConstants.ZIP_CODE + EQUALS + member.getZipCode()
+                + AMPERSAND + RosterConstants.COUNTRY + EQUALS + member.getCountry()
+                + AMPERSAND + RosterConstants.BIRTH_DATE + EQUALS + member.getBirthDate()
+                + AMPERSAND + RosterConstants.JOIN_DATE + EQUALS + member.getJoined()
+                + AMPERSAND + RosterConstants.EXPIRATION_DATE + EQUALS + member.getExpiration()
+                + AMPERSAND + RosterConstants.OTHER_INFO + EQUALS + member.getOtherInfo()
+                + AMPERSAND + RosterConstants.HOME_PHONE + EQUALS + member.getHomePhone()
+                + AMPERSAND + RosterConstants.CELL_PHONE + EQUALS + member.getCellPhone()
+                + AMPERSAND + RosterConstants.EMAIL + EQUALS + member.getEmail()
+                + AMPERSAND + RosterConstants.RATINGS + EQUALS + member.getRatings()
+                + AMPERSAND + RosterConstants.AIRCRAFT_OWNED + EQUALS + member.getAircraftOwned()
+                + AMPERSAND + RosterConstants.AIRCRAFT_PROJECT + EQUALS + member.getAircraftProject()
+                + AMPERSAND + RosterConstants.AIRCRAFT_BUILT + EQUALS + member.getAircraftBuilt()
+                + AMPERSAND + RosterConstants.ROW_COUNT + EQUALS + "50";
         return URLEncoder.encode(requestBody, StandardCharsets.UTF_8);
     }
 
@@ -927,9 +943,12 @@ public class RosterService {
         addFormContent(sb, RosterConstants.STATE, State.getDisplayString(member.getState()));
         addFormContent(sb, RosterConstants.ZIP_CODE, member.getZipCode());
         addFormContent(sb, RosterConstants.COUNTRY, Country.toDisplayString(member.getCountry()));
-        addFormContent(sb, RosterConstants.BIRTH_DATE, MDY_SDF.format(member.getBirthDateAsDate()));
-        addFormContent(sb, RosterConstants.JOIN_DATE, MDY_SDF.format(member.getJoinedAsDate()));
-        addFormContent(sb, RosterConstants.EXPIRATION_DATE, MDY_SDF.format(member.getExpiration()));
+        addFormContent(sb, RosterConstants.BIRTH_DATE, ZonedDateTime.ofInstant(member.getBirthDateAsDate().toInstant(),
+                ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+        addFormContent(sb, RosterConstants.JOIN_DATE, ZonedDateTime.ofInstant(member.getJoinedAsDate().toInstant(),
+                ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+        addFormContent(sb, RosterConstants.EXPIRATION_DATE, ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
+                ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
         addFormContent(sb, RosterConstants.OTHER_INFO, member.getOtherInfo());
         addFormContent(sb, RosterConstants.HOME_PHONE, member.getHomePhone());
         addFormContent(sb, RosterConstants.CELL_PHONE, member.getCellPhone());
@@ -938,10 +957,10 @@ public class RosterService {
         addFormContent(sb, RosterConstants.AIRCRAFT_OWNED, member.getAircraftOwned());
         addFormContent(sb, RosterConstants.AIRCRAFT_PROJECT, member.getAircraftProject());
         addFormContent(sb, RosterConstants.AIRCRAFT_BUILT, member.getAircraftBuilt());
-        addFormContent(sb, RosterConstants.IMC, member.isImcClub() ? "on" : "off");
-        addFormContent(sb, RosterConstants.VMC, member.isVmcClub() ? "on" : "off");
-        addFormContent(sb, RosterConstants.YOUNG_EAGLE_PILOT, member.isYePilot() ? "on" : "off");
-        addFormContent(sb, RosterConstants.EAGLE_PILOT, member.isEaglePilot() ? "on" : "off");
+        addFormContent(sb, RosterConstants.IMC, isInIMCClub(member));
+        addFormContent(sb, RosterConstants.VMC, isInVMCClub(member));
+        addFormContent(sb, RosterConstants.YOUNG_EAGLE_PILOT, isYoungEaglePilot(member));
+        addFormContent(sb, RosterConstants.EAGLE_PILOT, isEaglePilot(member));
         sb
                 .append(RosterConstants.FORM_BOUNDARY)
                 .append(RosterConstants.PHOTO)
@@ -957,7 +976,67 @@ public class RosterService {
     }
 
     /**
+     * Is member in VMC club.
+     *
+     * @param member Member
+     * @return member
+     */
+    private String isInVMCClub(final Member member) {
+        String value = "off";
+        if (member.isVmcClub()) {
+            value = "on";
+        }
+        return value;
+    }
+
+    /**
+     * Is member in VMC club.
+     *
+     * @param member Member
+     * @return member
+     */
+    private String isInIMCClub(final Member member) {
+        String value = "off";
+        if (member.isImcClub()) {
+            value = "on";
+        }
+        return value;
+    }
+
+    /**
+     * Is member a YoungEagle pilot.
+     *
+     * @param member Member
+     * @return member
+     */
+    private String isYoungEaglePilot(final Member member) {
+        String value = "off";
+        if (member.isYePilot()) {
+            value = "on";
+        }
+        return value;
+    }
+
+    /**
+     * Is member an Eagle pilot.
+     *
+     * @param member Member
+     * @return member
+     */
+    private String isEaglePilot(final Member member) {
+        String value = "off";
+        if (member.isEaglePilot()) {
+            value = "on";
+        }
+        return value;
+    }
+
+    /**
      * Adds a form content section to the provided StringBuilder object.
+     *
+     * @param sb StringBuilder
+     * @param key Key
+     * @param value Value
      */
     private void addFormContent(final StringBuilder sb, final String key, final String value) {
         sb
@@ -975,12 +1054,7 @@ public class RosterService {
      */
     private List<Member> parseRecords() {
         final List<Member> records = new ArrayList<>();
-        final List<String> slackUsers = new ArrayList<>();
-        try {
-            slackUsers.addAll(slackService.allSlackUsers());
-        } catch (ResourceNotFoundException e) {
-            // Do nothing
-        }
+        final List<String> slackUsers = getAllSlackUsers();
         final Document doc = Jsoup.parse(fetchData());
         final Elements tableRecords = doc.getElementsByTag("tr");
         int rowCount = 0;
@@ -988,178 +1062,8 @@ public class RosterService {
             if (rowCount > 0) {
                 try {
                     final Elements columns = tr.getElementsByTag("td");
-                    int columnCount = 0;
                     final Member member = new Member();
-                    for (Element column : columns) {
-                        switch (columnCount) {
-                            case 0:
-                                member.setRosterId(Long.parseLong(column.text().trim()));
-                                break;
-                            case 1:
-                                member.setMemberType(MemberType.valueOf(column.text().trim().replaceAll("-", "")));
-                                break;
-                            case 2:
-                                member.setNickname(column.text().trim());
-                                break;
-                            case 3:
-                                member.setFirstName(column.text().trim());
-                                break;
-                            case 4:
-                                member.setLastName(column.text().trim());
-                                break;
-                            case 5:
-                                member.setSpouse(column.text().trim());
-                                break;
-                            case 6:
-                                member.setGender(Gender.fromDisplayString(column.text().trim().toUpperCase()));
-                                break;
-                            case 7:
-                                member.setEmail(column.text().trim());
-                                break;
-                            case 8:
-                                // Ignore EmailPrivate
-                                break;
-                            case 9:
-                                member.setUsername(column.text().trim());
-                                break;
-                            case 10:
-                                member.setBirthDate(column.text().trim());
-                                break;
-                            case 11:
-                                member.setAddressLine1(column.text().trim());
-                                break;
-                            case 12:
-                                member.setAddressLine2(column.text().trim());
-                                break;
-                            case 13:
-                                // Ignore AddressPrivate
-                                break;
-                            case 14:
-                                member.setHomePhone(column
-                                        .text()
-                                        .trim()
-                                        .replaceAll(" ", "")
-                                        .replaceAll("-", "")
-                                        .replaceAll("\\(", "")
-                                        .replaceAll("\\)", ""));
-                                break;
-                            case 15:
-                                // Ignore HomePhonePrivate
-                                break;
-                            case 16:
-                                member.setCellPhone(column
-                                        .text()
-                                        .trim()
-                                        .replaceAll(" ", "")
-                                        .replaceAll("-", "")
-                                        .replaceAll("\\(", "")
-                                        .replaceAll("\\)", ""));
-                                break;
-                            case 17:
-                                // Ignore CellPhonePrivate
-                                break;
-                            case 18:
-                                member.setEaaNumber(column.text().trim());
-                                break;
-                            case 19:
-                                member.setStatus(Status.valueOf(column.text().trim().toUpperCase()));
-                                break;
-                            case 20:
-                                member.setJoined(column.text().trim());
-                                break;
-                            case 21:
-                                member.setExpiration(SDF.parse(column.text().trim()));
-                                break;
-                            case 22:
-                                final OtherInfo otherInfo = new OtherInfo(column.text().trim());
-                                member.setRfid(otherInfo.getRfid());
-                                member.setSlack(otherInfo.getSlack());
-                                member.setOtherInfo(otherInfo.getRaw());
-                                member.setAdditionalInfo(otherInfo.getDescription());
-                                if (otherInfo.getFamily() != null) {
-                                    member.setFamily(String.join(", ", otherInfo.getFamily()));
-                                }
-                                if (member.getSlack() == null || "NULL".equalsIgnoreCase(member.getSlack())) {
-                                    setSlack(slackUsers, member);
-                                }
-                                if (otherInfo.getNumOfFamily() != null) {
-                                    member.setNumOfFamily(otherInfo.getNumOfFamily());
-                                }
-                                break;
-                            case 23:
-                                member.setCity(column.text().trim());
-                                break;
-                            case 24:
-                                member.setState(State.fromDisplayString(column.text().trim()));
-                                break;
-                            case 25:
-                                member.setCountry(Country.fromDisplayString(column.text().trim()));
-                                break;
-                            case 26:
-                                member.setZipCode(column.text().trim());
-                                break;
-                            case 27:
-                                member.setRatings(column.text().trim());
-                                break;
-                            case 28:
-                                member.setAircraftOwned(column.text().trim());
-                                break;
-                            case 29:
-                                member.setAircraftProject(column.text().trim());
-                                break;
-                            case 30:
-                                member.setAircraftBuilt(column.text().trim());
-                                break;
-                            case 31:
-                                member.setImcClub("yes".equalsIgnoreCase(column.text().trim()) ?
-                                        Boolean.TRUE : Boolean.FALSE);
-                                break;
-                            case 32:
-                                member.setVmcClub("yes".equalsIgnoreCase(column.text().trim()) ?
-                                        Boolean.TRUE : Boolean.FALSE);
-                                break;
-                            case 33:
-                                member.setYePilot("yes".equalsIgnoreCase(column.text().trim()) ?
-                                        Boolean.TRUE : Boolean.FALSE);
-                                break;
-                            case 34:
-                                member.setYeVolunteer("yes".equalsIgnoreCase(column.text().trim()) ?
-                                        Boolean.TRUE : Boolean.FALSE);
-                                break;
-                            case 35:
-                                member.setEaglePilot("yes".equalsIgnoreCase(column.text().trim()) ?
-                                        Boolean.TRUE : Boolean.FALSE);
-                                break;
-                            case 36:
-                                member.setEagleVolunteer("yes".equalsIgnoreCase(column.text().trim()) ?
-                                        Boolean.TRUE : Boolean.FALSE);
-                                break;
-                            case 37:
-                                // Ignore DateAdded
-                                break;
-                            case 38:
-                                // Ignore DateUpdated
-                                break;
-                            case 39:
-                                member.setEaaExpiration(column.text().trim());
-                                break;
-                            case 40:
-                                member.setYouthProtection(column.text().trim());
-                                break;
-                            case 41:
-                                member.setBackgroundCheck(column.text().trim());
-                                break;
-                            case 42:
-                                // Ignore UpdatedBy
-                                break;
-                            case 43:
-                                member.setWebAdminAccess(WebAdminAccess.fromDisplayString(column.text().trim()));
-                                break;
-                            default:
-                                // Do nothing
-                        }
-                        columnCount++;
-                    }
+                    parseColumn(slackUsers, columns, member);
                     records.add(member);
                 } catch (Exception e) {
                     LOGGER.error("Error", e);
@@ -1171,6 +1075,317 @@ public class RosterService {
     }
 
     /**
+     * Parses a column of data.
+     *
+     * @param slackUsers List of Slack users
+     * @param columns Elements
+     * @param member Member
+     * @throws ParseException
+     */
+    private void parseColumn(final List<String> slackUsers,
+                             final Elements columns,
+                             final Member member)
+            throws ParseException {
+        int columnCount = 0;
+        for (Element column : columns) {
+            switch (columnCount) {
+                case 0:
+                    member.setRosterId(Long.parseLong(column.text().trim()));
+                    break;
+                case 1:
+                    member.setMemberType(MemberType.valueOf(column.text().trim().replaceAll("-", "")));
+                    break;
+                case 2:
+                    member.setNickname(column.text().trim());
+                    break;
+                case CommonConstants.THREE:
+                    member.setFirstName(column.text().trim());
+                    break;
+                case CommonConstants.FOUR:
+                    member.setLastName(column.text().trim());
+                    break;
+                case CommonConstants.FIVE:
+                    member.setSpouse(column.text().trim());
+                    break;
+                case CommonConstants.SIX:
+                    member.setGender(Gender.fromDisplayString(column.text().trim().toUpperCase()));
+                    break;
+                case CommonConstants.SEVEN:
+                    member.setEmail(column.text().trim());
+                    break;
+                case CommonConstants.EIGHT:
+                    // Ignore EmailPrivate
+                    break;
+                case CommonConstants.NINE:
+                    member.setUsername(column.text().trim());
+                    break;
+                case CommonConstants.TEN:
+                    member.setBirthDate(column.text().trim());
+                    break;
+                case CommonConstants.ELEVEN:
+                    member.setAddressLine1(column.text().trim());
+                    break;
+                case CommonConstants.TWELVE:
+                    member.setAddressLine2(column.text().trim());
+                    break;
+                case CommonConstants.THIRTEEN:
+                    // Ignore AddressPrivate
+                    break;
+                case CommonConstants.FOURTEEN:
+                    setHomePhone(member, column);
+                    break;
+                case CommonConstants.FIFTEEN:
+                    // Ignore HomePhonePrivate
+                    break;
+                case CommonConstants.SIXTEEN:
+                    setCellPhone(member, column);
+                    break;
+                case CommonConstants.SEVENTEEN:
+                    // Ignore CellPhonePrivate
+                    break;
+                case CommonConstants.EIGHTEEN:
+                    member.setEaaNumber(column.text().trim());
+                    break;
+                case CommonConstants.NINETEEN:
+                    member.setStatus(Status.valueOf(column.text().trim().toUpperCase()));
+                    break;
+                case CommonConstants.TWENTY:
+                    member.setJoined(column.text().trim());
+                    break;
+                case CommonConstants.TWENTY_ONE:
+                    member.setExpiration(Date.from(LocalDate.parse(column.text().trim(),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                            .atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                    break;
+                case CommonConstants.TWENTY_TWO:
+                    setOtherInfo(slackUsers, member, column);
+                    break;
+                case CommonConstants.TWENTY_THREE:
+                    member.setCity(column.text().trim());
+                    break;
+                case CommonConstants.TWENTY_FOUR:
+                    member.setState(State.fromDisplayString(column.text().trim()));
+                    break;
+                case CommonConstants.TWENTY_FIVE:
+                    member.setCountry(Country.fromDisplayString(column.text().trim()));
+                    break;
+                case CommonConstants.TWENTY_SIX:
+                    member.setZipCode(column.text().trim());
+                    break;
+                case CommonConstants.TWENTY_SEVEN:
+                    member.setRatings(column.text().trim());
+                    break;
+                case CommonConstants.TWENTY_EIGHT:
+                    member.setAircraftOwned(column.text().trim());
+                    break;
+                case CommonConstants.TWENTY_NINE:
+                    member.setAircraftProject(column.text().trim());
+                    break;
+                case CommonConstants.THIRTY:
+                    member.setAircraftBuilt(column.text().trim());
+                    break;
+                case CommonConstants.THIRTY_ONE:
+                    setImcClub(member, column);
+                    break;
+                case CommonConstants.THIRTY_TWO:
+                    setVmcClub(member, column);
+                    break;
+                case CommonConstants.THIRTY_THREE:
+                    setYePilot(member, column);
+                    break;
+                case CommonConstants.THIRTY_FOUR:
+                    setYeVolunteer(member, column);
+                    break;
+                case CommonConstants.THIRTY_FIVE:
+                    setEaglePilot(member, column);
+                    break;
+                case CommonConstants.THIRTY_SIX:
+                    setEagleVolunteer(member, column);
+                    break;
+                case CommonConstants.THIRTY_SEVEN:
+                    // Ignore DateAdded
+                    break;
+                case CommonConstants.THIRTY_EIGHT:
+                    // Ignore DateUpdated
+                    break;
+                case CommonConstants.THIRTY_NINE:
+                    member.setEaaExpiration(column.text().trim());
+                    break;
+                case CommonConstants.FORTY:
+                    member.setYouthProtection(column.text().trim());
+                    break;
+                case CommonConstants.FORTY_ONE:
+                    member.setBackgroundCheck(column.text().trim());
+                    break;
+                case CommonConstants.FORTY_TWO:
+                    // Ignore UpdatedBy
+                    break;
+                case CommonConstants.FORTY_THREE:
+                    member.setWebAdminAccess(WebAdminAccess.fromDisplayString(column.text().trim()));
+                    break;
+                default:
+                    // Do nothing
+            }
+            columnCount++;
+        }
+    }
+
+    /**
+     * Gets all Slack users as a List.
+     *
+     * @return List of all Slack users
+     */
+    private List<String> getAllSlackUsers() {
+        final List<String> slackUsers = new ArrayList<>();
+        try {
+            slackUsers.addAll(slackService.allSlackUsers());
+        } catch (ResourceNotFoundException e) {
+            LOGGER.error("Error: " + e.getMessage(), e);
+        }
+        return slackUsers;
+    }
+
+    /**
+     * Set Eagle Volunteer info.
+     *
+     * @param member Member
+     * @param column Element
+     */
+    private void setEagleVolunteer(final Member member, final Element column) {
+        if ("yes".equalsIgnoreCase(column.text().trim())) {
+            member.setEagleVolunteer(Boolean.TRUE);
+        } else {
+            member.setEagleVolunteer(Boolean.FALSE);
+        }
+    }
+
+    /**
+     * Set Eagle Pilot info.
+     *
+     * @param member Member
+     * @param column Element
+     */
+    private void setEaglePilot(final Member member, final Element column) {
+        if ("yes".equalsIgnoreCase(column.text().trim())) {
+            member.setEaglePilot(Boolean.TRUE);
+        } else {
+            member.setEaglePilot(Boolean.FALSE);
+        }
+    }
+
+    /**
+     * Set YE Volunteer info.
+     *
+     * @param member Member
+     * @param column Element
+     */
+    private void setYeVolunteer(final Member member, final Element column) {
+        if ("yes".equalsIgnoreCase(column.text().trim())) {
+            member.setYeVolunteer(Boolean.TRUE);
+        } else {
+            member.setYeVolunteer(Boolean.FALSE);
+        }
+    }
+
+    /**
+     * Sets YE Pilot info.
+     *
+     * @param member Member
+     * @param column Element
+     */
+    private void setYePilot(final Member member, final Element column) {
+        if ("yes".equalsIgnoreCase(column.text().trim())) {
+            member.setYePilot(Boolean.TRUE);
+        } else {
+            member.setYePilot(Boolean.FALSE);
+        }
+    }
+
+    /**
+     * Sets VMC Club info.
+     *
+     * @param member Member
+     * @param column Element
+     */
+    private void setVmcClub(final Member member, final Element column) {
+        if ("yes".equalsIgnoreCase(column.text().trim())) {
+            member.setVmcClub(Boolean.TRUE);
+        } else {
+            member.setVmcClub(Boolean.FALSE);
+        }
+    }
+
+    /**
+     * Set IMC Club info.
+     *
+     * @param member Member
+     * @param column Element
+     */
+    private void setImcClub(final Member member, final Element column) {
+        if ("yes".equalsIgnoreCase(column.text().trim())) {
+            member.setImcClub(Boolean.TRUE);
+        } else {
+            member.setImcClub(Boolean.FALSE);
+        }
+    }
+
+    /**
+     * Set OtherInfo.
+     *
+     * @param slackUsers List of Slack Users
+     * @param member Member
+     * @param column Element
+     */
+    private void setOtherInfo(final List<String> slackUsers, final Member member, final Element column) {
+        final OtherInfo otherInfo = new OtherInfo(column.text().trim());
+        member.setRfid(otherInfo.getRfid());
+        member.setSlack(otherInfo.getSlack());
+        member.setOtherInfo(otherInfo.getRaw());
+        member.setAdditionalInfo(otherInfo.getDescription());
+        if (otherInfo.getFamily() != null) {
+            member.setFamily(String.join(", ", otherInfo.getFamily()));
+        }
+        if (member.getSlack() == null || "NULL".equalsIgnoreCase(member.getSlack())) {
+            setSlack(slackUsers, member);
+        }
+        if (otherInfo.getNumOfFamily() != null) {
+            member.setNumOfFamily(otherInfo.getNumOfFamily());
+        }
+    }
+
+    /**
+     * Set Cell Phone info.
+     *
+     * @param member Member
+     * @param column Element
+     */
+    private void setCellPhone(final Member member, final Element column) {
+        member.setCellPhone(column
+                .text()
+                .trim()
+                .replaceAll(" ", "")
+                .replaceAll("-", "")
+                .replaceAll("\\(", "")
+                .replaceAll("\\)", ""));
+    }
+
+    /**
+     * Set Home Phone info.
+     *
+     * @param member Member
+     * @param column Element
+     */
+    private void setHomePhone(final Member member, final Element column) {
+        member.setHomePhone(column
+                .text()
+                .trim()
+                .replaceAll(" ", "")
+                .replaceAll("-", "")
+                .replaceAll("\\(", "")
+                .replaceAll("\\)", ""));
+    }
+
+    /**
      * Assigns slack username if not already assigned and a first/last name match is found.
      *
      * @param slackUsers list of all Slack users
@@ -1179,7 +1394,7 @@ public class RosterService {
     private void setSlack(final List<String> slackUsers, final Member member) {
         final String username = member.getFirstName() + " " + member.getLastName();
         slackUsers.forEach(str -> {
-            final String split[] = str.split("\\|");
+            final String[] split = str.split("\\|");
             if (!"NULL".equalsIgnoreCase(split[1]) && str.contains(username)) {
                 member.setSlack(split[1]);
             }
@@ -1189,17 +1404,18 @@ public class RosterService {
     /**
      * Gets date string for provided property key.
      *
-     * @param key proprty key
+     * @param key property key
      * @return date string
      * @throws ResourceNotFoundException when property not found
      */
-    private String getDateStr(final String key) throws ResourceNotFoundException {
-        return SDF.format(Date.from(Instant
+    private String getFutureDateStr(final String key) throws ResourceNotFoundException {
+        return ZonedDateTime.ofInstant(Instant
                 .now()
                 .plus(Integer.parseInt(propertyService
                                 .get(key)
                                 .getValue()),
-                        ChronoUnit.DAYS)));
+                        ChronoUnit.DAYS),
+                ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
 }

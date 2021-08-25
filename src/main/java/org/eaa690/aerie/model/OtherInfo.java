@@ -1,91 +1,87 @@
+/*
+ *  Copyright (C) 2021 Gwinnett County Experimental Aircraft Association
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package org.eaa690.aerie.model;
 
-import org.apache.commons.lang3.StringUtils;
+import lombok.Getter;
+import lombok.Setter;
 import org.eaa690.aerie.model.roster.OtherInfoBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+@Getter
+@Setter
 public class OtherInfo {
 
+    /**
+     * Raw string.
+     */
     private String raw;
 
+    /**
+     * RFID.
+     */
     private String rfid;
 
+    /**
+     * Slack.
+     */
     private String slack;
 
+    /**
+     * Description.
+     */
     private String description;
 
+    /**
+     * Num of Family.
+     */
     private Long numOfFamily;
 
+    /**
+     * Family.
+     */
     private List<String> family;
 
-    public OtherInfo(String otherInfo) {
+    /**
+     * Constructor.
+     *
+     * @param otherInfo raw string
+     */
+    public OtherInfo(final String otherInfo) {
         final OtherInfoBuilder builder = new OtherInfoBuilder();
         builder.setRaw(otherInfo);
         slack = builder.getSlack();
         rfid = builder.getRfid();
         description = builder.getAdditionalInfo();
-        numOfFamily = builder.getNumberOfFamily();
+        numOfFamily = builder.getNumOfFamily();
         if (builder.getAdditionalFamily() != null) {
             family = Arrays.asList(builder.getAdditionalFamily().split(","));
         }
         raw = builder.getRaw();
     }
 
-    public String getRfid() {
-        return rfid;
-    }
-
-    public void setRfid(final String rfid) {
-        this.rfid = rfid;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
-    public String getSlack() {
-        return slack;
-    }
-
-    public void setSlack(final String slack) {
-        this.slack = slack;
-    }
-
-    public List<String> getFamily() {
-        return family;
-    }
-
-    public void setFamily(final List<String> family) {
-        this.family = family;
-    }
-
-    public Long getNumOfFamily() {
-        return numOfFamily;
-    }
-
-    public void setNumOfFamily(Long numOfFamily) {
-        this.numOfFamily = numOfFamily;
-    }
-
-    public String getRaw() {
-        return raw;
-    }
-
-    public void setRaw(String raw) {
-        this.raw = raw;
-    }
-
+    /**
+     * Formatted string for storage purposes.
+     *
+     * @return formatted string
+     */
     public String toString() {
         final List<String> elements = new ArrayList<>();
         elements.add(String.format("RFID=[%s]", rfid));

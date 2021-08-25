@@ -16,12 +16,10 @@
 
 package org.eaa690.aerie.service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.twilio.type.PhoneNumber;
 
 import org.eaa690.aerie.communication.CommunicatorService;
 import org.eaa690.aerie.communication.EmailSMSSender;
-import org.eaa690.aerie.communication.TwilioSMSSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
@@ -30,6 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * SMSService.
@@ -46,11 +48,6 @@ public class SMSService extends CommunicatorService<SMS> {
      * Logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(SMSService.class);
-
-    /**
-     * SimpleDateFormat.
-     */
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
 
     /**
      * PropertyService.
@@ -115,8 +112,11 @@ public class SMSService extends CommunicatorService<SMS> {
      */
     private String getMessage(final Member member, final String msgKey) {
         try {
-            final String expiration = member.getExpiration() != null ?
-                    sdf.format(member.getExpiration()) : sdf.format(new Date());
+            String expiration = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
+            if (member.getExpiration() != null) {
+                expiration = ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
+                        ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
+            }
             return propertyService
                     .get(msgKey)
                     .getValue()

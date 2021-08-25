@@ -17,10 +17,14 @@
 package org.eaa690.aerie.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * TinyURL Data Response.
  */
+@Getter
+@Setter
 public class TinyURLData {
     /**
      * Url.
@@ -46,45 +50,6 @@ public class TinyURLData {
     /**
      * TinyURL.
      */
-    private String tiny_url;
+    private String tinyUrl;
 
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    public String getAlias() {
-        return alias;
-    }
-
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
-
-    public String getTags() {
-        return tags;
-    }
-
-    public void setTags(String tags) {
-        this.tags = tags;
-    }
-
-    public String getTiny_url() {
-        return tiny_url;
-    }
-
-    public void setTiny_url(String tiny_url) {
-        this.tiny_url = tiny_url;
-    }
 }

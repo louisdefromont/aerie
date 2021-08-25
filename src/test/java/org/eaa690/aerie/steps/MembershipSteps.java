@@ -1,0 +1,202 @@
+/*
+ *  Copyright (C) 2021 Gwinnett County Experimental Aircraft Association
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+package org.eaa690.aerie.steps;
+
+import io.cucumber.java.en.Given;
+import io.cucumber.java.PendingException;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import io.restassured.http.ContentType;
+import org.eaa690.aerie.TestContext;
+import org.eaa690.aerie.TestDataFactory;
+import org.eaa690.aerie.model.Member;
+
+/**
+ * Membership test steps.
+ */
+public class MembershipSteps extends BaseSteps {
+
+    /**
+     * Roster service.
+     */
+    private final String ROSTER = "roster/";
+
+    /**
+     * Constructor.
+     *
+     * @param testContext TestContext
+     */
+    public MembershipSteps(final TestContext testContext) {
+        super(testContext);
+    }
+
+    @Given("^I am not a chapter member$")
+    public void iAmANewMember() {
+        final Member member = TestDataFactory.getMember();
+        throw new PendingException();
+    }
+
+    @Given("^I am a chapter member$")
+    public void iAmAnExistingMember() {
+        throw new PendingException();
+    }
+
+    @Given("^I have a record in the roster management system$")
+    public void iHaveARecord() {
+        throw new PendingException();
+    }
+
+    @Given("^I do not have a record in the roster management system$")
+    public void iDoNotHaveARecord() {
+        throw new PendingException();
+    }
+
+    @Given("^I provide an email address$")
+    public void iProvideAnEmailAddress() {
+        throw new PendingException();
+    }
+
+    @Given("^I provide a cell phone number$")
+    public void iProvideACellPhoneNumber() {
+        throw new PendingException();
+    }
+
+    @Given("^I provide a Slack name$")
+    public void iProvideASlackName() {
+        throw new PendingException();
+    }
+
+    @Given("^I do not provide an email address$")
+    public void iDoNotProvideAnEmailAddress() {
+        throw new PendingException();
+    }
+
+    @Given("^I do not provide a cell phone number$")
+    public void iDoNotProvideACellPhoneNumber() {
+        throw new PendingException();
+    }
+
+    @Given("^I do not provide a Slack name$")
+    public void iDoNotProvideASlackName() {
+        throw new PendingException();
+    }
+
+    @Given("^I have enabled sending of messages by email$")
+    public void iHaveEnabledSendingMessagesByEmail() {
+        throw new PendingException();
+    }
+
+    @Given("^I have enabled sending of messages by SMS/Text$")
+    public void iHaveEnabledSendingMessagesBySMS() {
+        throw new PendingException();
+    }
+
+    @Given("^I have enabled sending of messages by Slack$")
+    public void iHaveEnabledSendingMessagesBySlack() {
+        throw new PendingException();
+    }
+
+    @Given("^I have disabled sending of messages by SMS/Text$")
+    public void iHaveDisabledSendingMessagesBySMS() {
+        throw new PendingException();
+    }
+
+    @Given("^I have disabled sending of messages by Slack$")
+    public void iHaveDisabledSendingMessagesBySlack() {
+        throw new PendingException();
+    }
+
+    @When("^I submit a new membership Jot Form$")
+    public void iSubmitANewMembershipJotForm() {
+        throw new PendingException();
+    }
+
+    @When("^I submit a renew membership Jot Form$")
+    public void iSubmitARenewMembershipJotForm() {
+        throw new PendingException();
+    }
+
+    @When("^I check the membership status for member with ID (.*)$")
+    public void iCheckMyMembershipStatus(final String memberId) {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .get(ROSTER + memberId + "/expiration")
+                .then());
+    }
+
+    @Then("^I should have a record in the roster management system$")
+    public void iShouldHaveARecordInTheRosterManagementSystem() {
+        throw new PendingException();
+    }
+
+    @Then("^I should be listed in the members MailChimp audience$")
+    public void iShouldBeListedInTheMembersMailChimpAudience() {
+        throw new PendingException();
+    }
+
+    @Then("^my membership expiration should be set to (.*) from now$")
+    public void iShouldBeListedInTheMembersMailChimpAudience(final String duration) {
+        throw new PendingException();
+    }
+
+    @Then("^I should not receive a new member welcome email message$")
+    public void iShouldNotReceiveANewMemberWelcomeEmailMessage() {
+        throw new PendingException();
+    }
+
+    @Then("^I should receive a new member SMS/Text message$")
+    public void iShouldReceiveANewMemberWelcomeSMSMessage() {
+        throw new PendingException();
+    }
+
+    @Then("^I should not receive a new member Slack message$")
+    public void iShouldNotReceiveANewMemberWelcomeSlackMessage() {
+        throw new PendingException();
+    }
+
+    @Then("^I should receive a new member welcome email message$")
+    public void iShouldReceiveANewMemberWelcomeEmailMessage() {
+        throw new PendingException();
+    }
+
+    @Then("^I should not receive a new member SMS/Text message$")
+    public void iShouldNotReceiveANewMemberWelcomeSMSMessage() {
+        throw new PendingException();
+    }
+
+    @Then("^my membership expiration should be set to (.*) from my previous expiration date$")
+    public void iShouldNotReceiveANewMemberWelcomeSMSMessage(final String duration) {
+        throw new PendingException();
+    }
+
+    @Then("^I should receive a renew member welcome email message$")
+    public void iShouldReceiveARenewMemberWelcomeEmailMessage() {
+        throw new PendingException();
+    }
+
+    @Then("^I should receive a new member Slack message$")
+    public void iShouldReceiveANewMemberWelcomeSlackMessage() {
+        throw new PendingException();
+    }
+
+    @Then("^I should receive my membership details$")
+    public void iShouldReceiveMyMembershipDetails() {
+        throw new PendingException();
+    }
+
+}

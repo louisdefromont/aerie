@@ -17,12 +17,17 @@
 package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 /**
  * Timezone object received from api.checkwx.com.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class Timezone implements Serializable {
 
     /**
@@ -44,59 +49,5 @@ public class Timezone implements Serializable {
      * TZ ID.
      */
     private String tzid;
-
-    /**
-     * Get GMT.
-     *
-     * @return GMT
-     */
-    public String getGmt() {
-        return gmt;
-    }
-
-    /**
-     * Set GMT.
-     *
-     * @param value GMT
-     */
-    public void setGmt(final String value) {
-        gmt = value;
-    }
-
-    /**
-     * Get DST.
-     *
-     * @return DST
-     */
-    public String getDst() {
-        return dst;
-    }
-
-    /**
-     * Set DST.
-     *
-     * @param value DST
-     */
-    public void setDst(final String value) {
-        dst = value;
-    }
-
-    /**
-     * Get TZ ID.
-     *
-     * @return TZ ID
-     */
-    public String getTzid() {
-        return tzid;
-    }
-
-    /**
-     * Set TZ ID.
-     *
-     * @param value TZ ID
-     */
-    public void setTzid(final String value) {
-        tzid = value;
-    }
 
 }

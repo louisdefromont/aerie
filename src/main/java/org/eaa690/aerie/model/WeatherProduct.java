@@ -49,7 +49,7 @@ public class WeatherProduct extends BaseEntity implements Comparable<WeatherProd
     /**
      * Value.
      */
-    @Column(name = "v", length = CommonConstants.ONE_THOUSAND)
+    @Column(name = "v", length = CommonConstants.FOUR_THOUSAND)
     private String value;
 
     /**

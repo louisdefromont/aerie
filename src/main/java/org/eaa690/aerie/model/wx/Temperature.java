@@ -17,12 +17,17 @@
 package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 /**
  * Temperature observation.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class Temperature implements Serializable {
 
     /**
@@ -39,41 +44,5 @@ public class Temperature implements Serializable {
      * Fahrenheit.
      */
     private Integer fahrenheit;
-
-    /**
-     * Get Celsius.
-     *
-     * @return Celsius
-     */
-    public Integer getCelsius() {
-        return celsius;
-    }
-
-    /**
-     * Set Celsius.
-     *
-     * @param value Celsius
-     */
-    public void setCelsius(final Integer value) {
-        celsius = value;
-    }
-
-    /**
-     * Get Farenheit.
-     *
-     * @return Fahrenheit
-     */
-    public Integer getFahrenheit() {
-        return fahrenheit;
-    }
-
-    /**
-     * Set Fahrenheit.
-     *
-     * @param value Fahrenheit
-     */
-    public void setFahrenheit(final Integer value) {
-        fahrenheit = value;
-    }
 
 }

@@ -18,12 +18,17 @@ package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 /**
  * Wind observation.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class Wind implements Serializable {
 
     /**
@@ -77,149 +82,5 @@ public class Wind implements Serializable {
      */
     @JsonProperty("gust_mps")
     private Integer gustMps;
-
-    /**
-     * Get Degrees.
-     *
-     * @return Degrees
-     */
-    public Integer getDegrees() {
-        return degrees;
-    }
-
-    /**
-     * Set Degrees.
-     *
-     * @param value Degrees
-     */
-    public void setDegrees(final Integer value) {
-        degrees = value;
-    }
-
-    /**
-     * Get Speed Kt.
-     *
-     * @return Speed Kt
-     */
-    public Integer getSpeedKt() {
-        return speedKt;
-    }
-
-    /**
-     * Set Speed Kt.
-     *
-     * @param value Speed Kt
-     */
-    public void setSpeedKt(final Integer value) {
-        speedKt = value;
-    }
-
-    /**
-     * Get Speed Kts.
-     *
-     * @return Speed Kts
-     */
-    public Integer getSpeedKts() {
-        return speedKts;
-    }
-
-    /**
-     * Set Speed Kts.
-     *
-     * @param value Speed Kts
-     */
-    public void setSpeedKts(final Integer value) {
-        speedKts = value;
-    }
-
-    /**
-     * Get Speed MPH.
-     *
-     * @return Speed MPH
-     */
-    public Integer getSpeedMph() {
-        return speedMph;
-    }
-
-    /**
-     * Set Speed MPH.
-     *
-     * @param value Speed MPH
-     */
-    public void setSpeedMph(final Integer value) {
-        speedMph = value;
-    }
-
-    /**
-     * Get Speed MPS.
-     *
-     * @return Speed MPS
-     */
-    public Integer getSpeedMps() {
-        return speedMps;
-    }
-
-    /**
-     * Set Speed MPS.
-     *
-     * @param value Speed MPS
-     */
-    public void setSpeedMps(final Integer value) {
-        speedMps = value;
-    }
-
-    /**
-     * Get Gust Kt.
-     *
-     * @return Gust Kt
-     */
-    public Integer getGustKt() {
-        return gustKt;
-    }
-
-    /**
-     * Set Gust Kt.
-     *
-     * @param value Gust Kt
-     */
-    public void setGustKt(final Integer value) {
-        gustKt = value;
-    }
-
-    /**
-     * Get Gust MPH.
-     *
-     * @return Gust MPH
-     */
-    public Integer getGustMph() {
-        return gustMph;
-    }
-
-    /**
-     * Set Gust MPH.
-     *
-     * @param value Gust MPH
-     */
-    public void setGustMph(final Integer value) {
-        gustMph = value;
-    }
-
-    /**
-     * Get Gust MPS.
-     *
-     * @return Gust MPS
-     */
-    public Integer getGustMps() {
-        return gustMps;
-    }
-
-    /**
-     * Set Gust MPS.
-     *
-     * @param value Gust MPS
-     */
-    public void setGustMps(final Integer value) {
-        gustMps = value;
-    }
 
 }

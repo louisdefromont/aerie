@@ -451,8 +451,10 @@ public class WeatherService {
                 }
             }
         } catch (RestClientException rce) {
-            throw new ResourceNotFoundException(
-                    String.format("Unable to retrieve Station for %s: %s", icaoCode, rce.getMessage()));
+            String msg = String.format("[RestClientException] Unable to retrieve STATION for %s: %s",
+                    icaoCode, rce.getMessage());
+            LOGGER.error(msg, rce);
+            throw new ResourceNotFoundException(msg);
         }
         throw new ResourceNotFoundException(String.format("Station information not found for %s", icaoCode));
     }
@@ -535,8 +537,10 @@ public class WeatherService {
                 }
             }
         } catch (RestClientException rce) {
-            throw new ResourceNotFoundException(
-                    String.format("Unable to retrieve TAF for %s: %s", icaoCode, rce.getMessage()));
+            String msg = String.format("[RestClientException] Unable to retrieve TAF for %s: %s",
+                    icaoCode, rce.getMessage());
+            LOGGER.error(msg, rce);
+            throw new ResourceNotFoundException(msg);
         }
         throw new ResourceNotFoundException(String.format("TAF information not found for %s", icaoCode));
     }

@@ -14,40 +14,22 @@
  *  limitations under the License.
  */
 
-package org.eaa690.aerie.model.wx;
+package org.eaa690.aerie;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Getter;
-import lombok.Setter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import java.io.Serializable;
-
-/**
- * Barometer observation.
- */
-@JsonIgnoreProperties(ignoreUnknown = true)
-@Getter
-@Setter
-public class Barometer implements Serializable {
+@Configuration
+public class TestConfiguration {
 
     /**
-     * Default SerialVersionUID.
+     * TestContext.
+     *
+     * @return TestContext
      */
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * Inches of Mercury.
-     */
-    private Double hg;
-
-    /**
-     * Kilopascals.
-     */
-    private Double kpa;
-
-    /**
-     * Millibars.
-     */
-    private Double mb;
+    @Bean
+    public TestContext testContext() {
+        return new TestContext();
+    }
 
 }

@@ -17,19 +17,18 @@
 package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
 
 /**
- * Timestamp object received from api.checkwx.com.
+ * Country object received from api.checkwx.com.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
-public class Timestamp implements Serializable {
+public class Country implements Serializable {
 
     /**
      * Default SerialVersionUID.
@@ -37,25 +36,13 @@ public class Timestamp implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Issued.
+     * Code.
      */
-    private String issued;
+    private String code;
 
     /**
-     * Bulletin.
+     * Name.
      */
-    private String bulletin;
-
-    /**
-     * Valid From.
-     */
-    @JsonProperty("valid_from")
-    private String validFrom;
-
-    /**
-     * Valid To.
-     */
-    @JsonProperty("valid_to")
-    private String validTo;
+    private String name;
 
 }

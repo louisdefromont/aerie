@@ -16,84 +16,28 @@
 
 package org.eaa690.aerie;
 
-import io.cucumber.java.PendingException;
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.cucumber.spring.CucumberContextConfiguration;
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ValidatableResponse;
-import io.restassured.specification.RequestSpecification;
-import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
-
-import static io.restassured.RestAssured.given;
 
 /**
- * Weather tests.
+ * Weather test steps.
  */
-@CucumberContextConfiguration
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class WeatherSteps {
-
-    /**
-     * Server Base URI.
-     */
-    private final static String BASE_URI = "http://localhost";
-
-    /**
-     * Local Server Port.
-     */
-    @LocalServerPort
-    private int port;
-
-    /**
-     * Configure RestAssured to use server base URI and local port.
-     */
-    private void configureRestAssured() {
-        RestAssured.baseURI = BASE_URI;
-        RestAssured.port = port;
-    }
-
-    protected RequestSpecification requestSpecification() {
-        configureRestAssured();
-        return given();
-    }
-
-    private ValidatableResponse validatableResponse;
+public class WeatherSteps extends BaseSteps {
 
     /**
      * Weather service.
      */
-    private String WEATHER = "weather/";
+    private final String WEATHER = "weather/";
 
-    @Given("^I am an unauthenticated user$")
-    public void unauthenticatedUser() {
-        requestSpecification();
-    }
-
-    @Given("^I am an authenticated user$")
-    public void authenticatedUser() {
-        throw new PendingException();
-    }
-
-    @Given("^My username is (.*)$")
-    public void myUsernameIs(String username) {
-        throw new PendingException();
-    }
-
-    @Given("^I have been assigned the (.*) role$")
-    public void iHaveBeenAssignedRole(String role) {
-        throw new PendingException();
-    }
-
-    @Given("^A user with username (.*) exists$")
-    public void userExists(String username) {
-        // TODO: Do something
+    /**
+     * Constructor.
+     *
+     * @param testContext TestContext
+     */
+    public WeatherSteps(final TestContext testContext) {
+        super(testContext);
     }
 
     @And("^I want (.*) information$")
@@ -103,66 +47,63 @@ public class WeatherSteps {
 
     @When("^I request the (.*) METAR$")
     public void iRequestTheMETAR(String icao) {
-        validatableResponse = requestSpecification()
+        testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()
                 .get(WEATHER + "metars/" + icao)
-                .then();
+                .then());
     }
 
     @When("^I request the (.*) TAF$")
     public void iRequestTheTAF(String icao) {
-        validatableResponse = requestSpecification()
+        testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()
                 .get( WEATHER + "tafs/" + icao)
-                .then();
+                .then());
     }
 
     @When("^I request the (.*) station$")
     public void iRequestTheStation(String icao) {
-        validatableResponse = requestSpecification()
+        testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()
                 .get(WEATHER + "stations/" + icao)
-                .then();
+                .then());
+    }
+
+    @When("^I request a (.*) for an unprovided station$")
+    public void iRequestDataForAnInvalidStation(String weatherProduct) {
+        String product;
+        switch (weatherProduct) {
+            case "TAF":
+                product = "tafs/";
+                break;
+            case "station":
+                product = "stations/";
+                break;
+            default:
+                product = "metars/";
+        }
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .get(WEATHER + product)
+                .then());
     }
 
     @And("^I should receive the (.*) data$")
     public void iShouldReceiveSpecificData(String field) {
-        validatableResponse
+        testContext.getValidatableResponse()
                 .assertThat()
                 .body(field, Matchers.notNullValue());
     }
 
     @And("^I should receive data for multiple stations$")
     public void iShouldReceiveDataForMultipleStations() {
-        validatableResponse
+        testContext.getValidatableResponse()
                 .assertThat()
                 .body("size()", Matchers.greaterThan(1));
     }
 
-    @Then("^The request should be successful$")
-    public void requestSuccessful() {
-        validatableResponse
-                .assertThat()
-                .statusCode(Matchers.equalTo(HttpStatus.SC_OK));
-    }
-
-    @Then("^A (.*) exception should be thrown$")
-    public void aExceptionShouldBeThrown(String exception) {
-        switch (exception) {
-            case "unauthorized":
-                validatableResponse
-                        .assertThat()
-                        .statusCode(Matchers.equalTo(HttpStatus.SC_UNAUTHORIZED));
-                break;
-            case "forbidden":
-                validatableResponse
-                        .assertThat()
-                        .statusCode(Matchers.equalTo(HttpStatus.SC_FORBIDDEN));
-                break;
-            default:
-        }
-    }
 }

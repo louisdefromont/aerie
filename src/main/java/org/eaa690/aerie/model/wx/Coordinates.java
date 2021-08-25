@@ -17,12 +17,17 @@
 package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 /**
  * Coordinates object received from api.checkwx.com.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class Coordinates implements Serializable {
 
     /**
@@ -39,41 +44,5 @@ public class Coordinates implements Serializable {
      * Degrees.
      */
     private String degrees;
-
-    /**
-     * Get Decimal.
-     *
-     * @return decimal
-     */
-    public String getDecimal() {
-        return decimal;
-    }
-
-    /**
-     * Set Decimal.
-     *
-     * @param value decimal
-     */
-    public void setDecimal(final String value) {
-        decimal = value;
-    }
-
-    /**
-     * Get Degrees.
-     *
-     * @return degrees
-     */
-    public String getDegrees() {
-        return degrees;
-    }
-
-    /**
-     * Set Degrees.
-     *
-     * @param value degrees
-     */
-    public void setDegrees(final String value) {
-        degrees = value;
-    }
 
 }

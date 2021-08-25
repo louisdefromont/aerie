@@ -18,6 +18,9 @@ package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -25,6 +28,8 @@ import java.util.List;
  * Forecast object received from api.checkwx.com.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class Forecast implements Serializable {
 
     /**
@@ -57,95 +62,5 @@ public class Forecast implements Serializable {
      */
     @JsonProperty("change_indicator")
     private String changeIndicator;
-
-    /**
-     * Get Clouds.
-     *
-     * @return Clouds
-     */
-    public List<Cloud> getClouds() {
-        return clouds;
-    }
-
-    /**
-     * Set Clouds.
-     *
-     * @param value Clouds
-     */
-    public void setClouds(final List<Cloud> value) {
-        clouds = value;
-    }
-
-    /**
-     * Get Visibility.
-     *
-     * @return Visibility
-     */
-    public Visibility getVisibility() {
-        return visibility;
-    }
-
-    /**
-     * Set Visibility.
-     *
-     * @param value Visibility
-     */
-    public void setVisibility(final Visibility value) {
-        visibility = value;
-    }
-
-    /**
-     * Get Wind.
-     *
-     * @return Wind
-     */
-    public Wind getWind() {
-        return wind;
-    }
-
-    /**
-     * Set Wind.
-     *
-     * @param value Wind
-     */
-    public void setWind(final Wind value) {
-        wind = value;
-    }
-
-    /**
-     * Get ForecastTimestamp.
-     *
-     * @return ForecastTimestamp
-     */
-    public ForecastTimestamp getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * Set ForecastTimestamp.
-     *
-     * @param value ForecastTimestamp
-     */
-    public void setTimestamp(final ForecastTimestamp value) {
-        timestamp = value;
-    }
-
-    /**
-     * Get Change Indicator.
-     *
-     * @return Change Indicator
-     */
-    public String getChangeIndicator() {
-        return changeIndicator;
-    }
-
-    /**
-     * Set Change Indicator.
-     *
-     * @param value Change Indicator
-     */
-    public void setChangeIndicator(final String value) {
-        changeIndicator = value;
-    }
 
 }

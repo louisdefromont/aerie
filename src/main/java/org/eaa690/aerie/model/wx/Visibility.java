@@ -17,12 +17,17 @@
 package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 /**
  * Visibility observation.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class Visibility implements Serializable {
 
     /**
@@ -39,41 +44,5 @@ public class Visibility implements Serializable {
      * Meters.
      */
     private String meters;
-
-    /**
-     * Get Miles.
-     *
-     * @return Miles
-     */
-    public String getMiles() {
-        return miles;
-    }
-
-    /**
-     * Set Mile.
-     *
-     * @param value Miles
-     */
-    public void setMiles(final String value) {
-        miles = value;
-    }
-
-    /**
-     * Get Meters.
-     *
-     * @return Meters
-     */
-    public String getMeters() {
-        return meters;
-    }
-
-    /**
-     * Set Meters.
-     *
-     * @param value meters
-     */
-    public void setMeters(final String value) {
-        meters = value;
-    }
 
 }

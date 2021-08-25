@@ -19,7 +19,7 @@ Feature: Roster functions
     When I request the expiration data for member with ID 42648
     Then The request should be successful
 
-  @rfid @disabled
+  @rfid
   Scenario: Retrieve all member's RFID data
     Given I am an unauthenticated user
     When I request RFID data for all members

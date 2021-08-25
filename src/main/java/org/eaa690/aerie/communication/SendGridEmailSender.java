@@ -46,22 +46,24 @@ public class SendGridEmailSender extends MessageSender<org.eaa690.aerie.model.co
 
     public String sendMessage(org.eaa690.aerie.model.communication.Email message) {
         try {
-            String to = message.getRecipientAddress();
+            Email from = new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue());
+            String subject = message.getSubject();
+            Email to = new Email(message.getRecipientAddress());
             if (Boolean.parseBoolean(
                     propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_ENABLED_KEY).getValue())) {
-                to = propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue();
+                to = new Email(propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue());
             }
 
-            final Mail mail = new Mail();
-            mail.setSubject(message.getSubject());
+            final Mail mail;
             if (message.getTemplateID() != null) {
+                mail = new Mail();
+                mail.setSubject(subject);
                 mail.setTemplateId(message.getTemplateID());
                 mail.addPersonalization(personalize(message.getRecipientMember(), to));
+                mail.setFrom(from);
             } else {
-                mail.addContent(new Content("text/plain", message.getBody()));
+                mail = new Mail(from, subject, to, new Content("text/plain", message.getBody()));
             }
-            mail.setFrom(new Email(propertyService
-                    .get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()));
 
             final Request request = new Request();
             request.setMethod(Method.POST);
@@ -86,9 +88,9 @@ public class SendGridEmailSender extends MessageSender<org.eaa690.aerie.model.co
      * @return Personalization
      * @throws ResourceNotFoundException when property is not found
      */
-    private Personalization personalize(final Member member, final String to) throws ResourceNotFoundException {
+    private Personalization personalize(final Member member, final Email to) throws ResourceNotFoundException {
         final Personalization personalization = new Personalization();
-        personalization.addTo(new Email(to));
+        personalization.addTo(to);
         personalization.addBcc(new Email(propertyService.get(PropertyKeyConstants.EMAIL_BCC_KEY).getValue()));
         personalization.addDynamicTemplateData("firstName", member.getFirstName());
         personalization.addDynamicTemplateData("lastName", member.getLastName());

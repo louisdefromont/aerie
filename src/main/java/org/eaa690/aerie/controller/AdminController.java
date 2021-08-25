@@ -16,21 +16,25 @@
 
 package org.eaa690.aerie.controller;
 
-import ch.qos.logback.classic.Logger;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
+import org.eaa690.aerie.model.communication.SMS;
 import org.eaa690.aerie.service.EmailService;
 import org.eaa690.aerie.service.MailChimpService;
 import org.eaa690.aerie.service.RosterService;
 import org.eaa690.aerie.service.SMSService;
 import org.eaa690.aerie.service.SlackService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * AdminController.
@@ -122,6 +126,19 @@ public class AdminController {
     @Autowired
     public void setMailChimpService(final MailChimpService value) {
         mailChimpService = value;
+    }
+    
+    @PostMapping(path = {"/sms/{rosterId}/{textBody}"})
+    public void sendSMS(@PathVariable("rosterId") final Long rosterId, @PathVariable("textBody") final String textBody) {
+        try {
+            Member member = rosterService.getMemberByRosterID(rosterId);
+            SMS sms = new SMS(member.getCellPhone(), member, textBody);
+            smsService.sendMessage(sms);
+        } catch (ResourceNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
     }
 
     /**

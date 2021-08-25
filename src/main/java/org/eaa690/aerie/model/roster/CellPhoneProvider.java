@@ -12,7 +12,8 @@ public enum CellPhoneProvider {
     TING("message.ting.com"),
     US_CELLULAR("email.uscc.net"),
     VERIZON("vtext.com"),
-    VIRGIN_MOBILE("vmol.com");
+    VIRGIN_MOBILE("vmol.com"),
+    XFINITY("vtext.com");
 
     private String cellPhoneProviderEmailDomain;
     private CellPhoneProvider(String cellPhoneProviderEmailDomain) {

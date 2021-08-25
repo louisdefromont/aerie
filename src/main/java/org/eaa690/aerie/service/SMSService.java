@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.eaa690.aerie.communication.CommunicatorService;
+import org.eaa690.aerie.communication.EmailSMSSender;
 import org.eaa690.aerie.communication.TwilioSMSSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
@@ -37,7 +38,7 @@ import org.springframework.stereotype.Service;
 public class SMSService extends CommunicatorService<SMS> {
 
     @Autowired
-    public SMSService(TwilioSMSSender messageSender) {
+    public SMSService(EmailSMSSender messageSender) {
         super(messageSender);
     }
 

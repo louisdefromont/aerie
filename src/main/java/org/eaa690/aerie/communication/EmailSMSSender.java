@@ -25,7 +25,7 @@ public class EmailSMSSender extends MessageSender<SMS> {
     public String sendMessage(SMS message) {
         String recipientAddress = message.getRecipientAddress() + "@" + message.getRecipientMember().getCellPhoneProvider().getCellPhoneProviderEmailDomain();
 
-        Email email = new Email(recipientAddress, message.getRecipientMember(), null, null, message.getBody());
+        Email email = new Email(recipientAddress, message.getRecipientMember(), "eaa", null, message.getBody());
 
         return messageSender.sendMessage(email);
     }

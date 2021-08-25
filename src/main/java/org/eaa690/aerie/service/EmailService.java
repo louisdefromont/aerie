@@ -40,8 +40,12 @@ import org.springframework.stereotype.Service;
 @Service("emailService")
 public class EmailService extends CommunicatorService<Email> {
 
+    /**
+     * EmailService.
+     * @param messageSender EmailMessageSender.
+     */
     @Autowired
-    public EmailService(SendGridEmailSender messageSender) {
+    public EmailService(final SendGridEmailSender messageSender) {
         super(messageSender);
     }
 
@@ -178,9 +182,9 @@ public class EmailService extends CommunicatorService<Email> {
                             if (memberOpt.isPresent()) {
                                 try {
                                     Email email = new Email(
-                                        memberOpt.get().getEmail(), 
-                                        memberOpt.get(), 
-                                        propertyService.get(qe.getSubjectKey()).getValue(), 
+                                        memberOpt.get().getEmail(),
+                                        memberOpt.get(),
+                                        propertyService.get(qe.getSubjectKey()).getValue(),
                                         propertyService.get(qe.getTemplateIdKey()).getValue(), null);
                                     sendMessage(email);
 

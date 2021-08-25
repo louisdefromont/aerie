@@ -1,3 +1,19 @@
+/*
+ *  Copyright (C) 2021 Gwinnett County Experimental Aircraft Association
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package org.eaa690.aerie.communication;
 
 import java.io.IOException;
@@ -23,28 +39,53 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * Sends Emails through SendGrid.
+ */
 @Component
 public class SendGridEmailSender extends MessageSender<org.eaa690.aerie.model.communication.Email> {
 
+    /**
+     * SendGridEmailSender.
+     * @param acceptsMessagePredicate {@inheritDoc}
+     */
     @Autowired
-    public SendGridEmailSender(AcceptsEmailPredicate acceptsMessagePredicate) {
+    public SendGridEmailSender(final AcceptsEmailPredicate acceptsMessagePredicate) {
         super("Send_Grid_Email", acceptsMessagePredicate);
     }
 
+    /**
+     * SendGrid API.
+     */
     @Autowired
     private SendGrid sendGrid;
 
+    /**
+     * PropertyService.
+     */
     @Autowired
     private PropertyService propertyService;
 
-    private Logger LOGGER = LoggerFactory.getLogger(SendGridEmailSender.class);
+    /**
+     * Logger.
+     */
+    private Logger logger = LoggerFactory.getLogger(SendGridEmailSender.class);
 
+    /**
+     * JotFormService.
+     */
     @Autowired
     private JotFormService jotFormService;
 
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
+    /**
+     * SimpleDateFormat.
+     */
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("MMM d, yyyy");
 
-    public String sendMessage(org.eaa690.aerie.model.communication.Email message) {
+    /**
+     * {@inheritDoc}
+     */
+    public String sendMessage(final org.eaa690.aerie.model.communication.Email message) {
         try {
             Email from = new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue());
             String subject = message.getSubject();
@@ -75,7 +116,7 @@ public class SendGridEmailSender extends MessageSender<org.eaa690.aerie.model.co
             response.getStatusCode(), response.getBody(), response.getHeaders());
 
         } catch (IOException | ResourceNotFoundException ex) {
-            LOGGER.error(ex.getMessage());
+            logger.error(ex.getMessage());
             return null;
         }
     }
@@ -96,11 +137,10 @@ public class SendGridEmailSender extends MessageSender<org.eaa690.aerie.model.co
         personalization.addDynamicTemplateData("lastName", member.getLastName());
         personalization.addDynamicTemplateData("url", jotFormService.buildRenewMembershipUrl(member));
         if (member.getExpiration() == null) {
-            personalization.addDynamicTemplateData("expirationDate", sdf.format(new Date()));
+            personalization.addDynamicTemplateData("expirationDate", SDF.format(new Date()));
         } else {
-            personalization.addDynamicTemplateData("expirationDate", sdf.format(member.getExpiration()));
+            personalization.addDynamicTemplateData("expirationDate", SDF.format(member.getExpiration()));
         }
         return personalization;
     }
-    
 }

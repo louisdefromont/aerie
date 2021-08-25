@@ -259,6 +259,9 @@ public class Member extends BaseEntity implements Comparable<Member> {
      */
     private String cellPhone;
 
+    /**
+     * Cell Phone Provider.
+     */
     @Enumerated(EnumType.STRING)
     private CellPhoneProvider cellPhoneProvider;
 

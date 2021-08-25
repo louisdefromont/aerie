@@ -14,30 +14,7 @@
  *  limitations under the License.
  */
 
-package org.eaa690.aerie.model.communication;
-
-import org.eaa690.aerie.model.Member;
-
-import lombok.Getter;
-
 /**
- * SMS message.
+ * Model classes for commuincation.
  */
-@Getter
-public class SMS extends Message {
-    /**
-     * Body of SMS message.
-     */
-    private String body;
-
-    /**
-     * SMS.
-     * @param recipientAddress {@inheritDoc}
-     * @param recipientMember {@inheritDoc}
-     * @param bodyInput Body
-     */
-    public SMS(final String recipientAddress, final Member recipientMember, final String bodyInput) {
-        super(recipientAddress, recipientMember);
-        this.body = bodyInput;
-    }
-}
+package org.eaa690.aerie.model.communication;

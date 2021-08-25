@@ -138,9 +138,16 @@ public class AdminController {
     public void setMailChimpService(final MailChimpService value) {
         mailChimpService = value;
     }
-    
+
+    /**
+     * Sends SMS Message to a member.
+     * @param rosterId RosterId of member.
+     * @param textBody SMS Body to be sent.
+     */
     @PostMapping(path = {"/sms/{rosterId}/{textBody}"})
-    public void sendSMS(@PathVariable("rosterId") final Long rosterId, @PathVariable("textBody") final String textBody) {
+    public void sendSMS(
+            @PathVariable("rosterId") final Long rosterId,
+            @PathVariable("textBody") final String textBody) {
         try {
             Member member = rosterService.getMemberByRosterID(rosterId);
             SMS sms = new SMS(member.getCellPhone(), member, textBody);
@@ -149,7 +156,6 @@ public class AdminController {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
     }
 
     /**
@@ -204,7 +210,8 @@ public class AdminController {
      * @throws ResourceNotFoundException when member is not found
      */
     // @PostMapping(path = {"/email/{rosterId}/new-membership"})
-    // public void testNewMembershipEmail(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
+    // public void testNewMembershipEmail(
+    //    @PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
     //     final Member member = rosterService.getMemberByRosterID(rosterId);
     //     LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "email",
     //             member.getFirstName(), member.getLastName(), member.getEmail()));

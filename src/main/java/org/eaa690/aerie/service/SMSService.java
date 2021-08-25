@@ -16,7 +16,9 @@
 
 package org.eaa690.aerie.service;
 
-import com.twilio.type.PhoneNumber;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.eaa690.aerie.communication.CommunicatorService;
 import org.eaa690.aerie.communication.EmailSMSSender;
@@ -29,10 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-
 /**
  * SMSService.
  */
@@ -40,7 +38,7 @@ import java.time.format.DateTimeFormatter;
 public class SMSService extends CommunicatorService<SMS> {
 
     @Autowired
-    public SMSService(EmailSMSSender messageSender) {
+    public SMSService(final EmailSMSSender messageSender) {
         super(messageSender);
     }
 
@@ -131,21 +129,25 @@ public class SMSService extends CommunicatorService<SMS> {
     }
 
     /**
-     * Sends a SMS message.
-     *
-     * @param to To
-     * @param text Message text
-     * @throws ResourceNotFoundException when SMS properties are not found
+     * Sends an SMS message.
+     * @param member member to send the message to
+     * @param messageBody body of SMS message sent
      */
     private void sendSMSMessage(final Member member, final String messageBody) {
         try {
-            String to = member.getCellPhone() != null ? member.getCellPhone() : member.getHomePhone();
+            String to;
+            if (member.getCellPhone() != null) {
+                to = member.getCellPhone();
+            } else if (member.getHomePhone() != null) {
+                to = member.getHomePhone();
+            } else {
+                to = null;
+            }
             if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
                 to = propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_RECIPIENT_KEY).getValue();
             }
             SMS sms = new SMS(to, member, messageBody);
             sendMessage(sms);
-            
         } catch (ResourceNotFoundException e) {
             LOGGER.error(e.getMessage(), e);
         }

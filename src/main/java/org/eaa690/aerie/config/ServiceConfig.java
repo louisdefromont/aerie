@@ -200,6 +200,8 @@ public class ServiceConfig {
     /**
      * SlackSession.
      *
+     * @param propertyService PropertyService
+     * @param slackService SlackService
      * @return SlackSession
      */
     @Bean
@@ -220,6 +222,7 @@ public class ServiceConfig {
      * Initialize twillio.
      *
      * @param propertyService PropertyService
+     * @return null
      */
     @Bean
     public Object twillio(final PropertyService propertyService) {

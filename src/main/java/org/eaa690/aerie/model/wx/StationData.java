@@ -17,6 +17,10 @@
 package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -24,6 +28,9 @@ import java.util.List;
  * Coordinates object received from api.checkwx.com.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@NoArgsConstructor
+@Setter
+@Getter
 public class StationData implements Serializable {
 
     /**
@@ -48,71 +55,10 @@ public class StationData implements Serializable {
 
     /**
      * Initializes an instance of <code>StationData</code> with the default data.
-     */
-    public StationData() {
-        // Default constructor
-    }
-
-    /**
-     * Initializes an instance of <code>StationData</code> with the default data.
      *
      * @param value Error
      */
     public StationData(final String value) {
-        error = value;
-    }
-
-    /**
-     * Get Results.
-     *
-     * @return Results
-     */
-    public Integer getResults() {
-        return results;
-    }
-
-    /**
-     * Set Results.
-     *
-     * @param value Results
-     */
-    public void setResults(final Integer value) {
-        results = value;
-    }
-
-    /**
-     * Get Data.
-     *
-     * @return Data
-     */
-    public List<Station> getData() {
-        return data;
-    }
-
-    /**
-     * Set Data.
-     *
-     * @param value Data
-     */
-    public void setData(final List<Station> value) {
-        data = value;
-    }
-
-    /**
-     * Get Error.
-     *
-     * @return Error
-     */
-    public String getError() {
-        return error;
-    }
-
-    /**
-     * Set Error.
-     *
-     * @param value Error
-     */
-    public void setError(final String value) {
         error = value;
     }
 

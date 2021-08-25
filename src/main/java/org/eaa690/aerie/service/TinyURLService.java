@@ -18,10 +18,13 @@ package org.eaa690.aerie.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
+import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.TinyURLResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -89,16 +92,17 @@ public class TinyURLService {
                     .uri(URI.create(propertyService.get(PropertyKeyConstants.TINY_URL_CREATE_API_KEY).getValue()))
                     .setHeader("accept", "application/json")
                     .setHeader("Content-Type", "application/json")
-                    .setHeader("Authorization", "Bearer " +
-                            propertyService.get(PropertyKeyConstants.TINY_URL_API_KEY).getValue())
-                    .POST(HttpRequest.BodyPublishers.ofString("{\"url\":\"" +
-                            originalValue +
-                            "\",\"domain\":\"tiny.one\"}"));
-            final HttpResponse<String> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+                    .setHeader("Authorization", "Bearer "
+                            + propertyService.get(PropertyKeyConstants.TINY_URL_API_KEY).getValue())
+                    .POST(HttpRequest.BodyPublishers.ofString("{\"url\":\""
+                            + originalValue
+                            + "\",\"domain\":\"tiny.one\"}"));
+            final HttpResponse<String> response =
+                    httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
             final TinyURLResponse tuResponse = mapper.readValue(response.body(), TinyURLResponse.class);
-            return tuResponse.getData().getTiny_url();
-        } catch (Exception e) {
-            System.out.println("[Get Tiny URL] Error: " + e.getMessage());
+            return tuResponse.getData().getTinyUrl();
+        } catch (IOException | InterruptedException | ResourceNotFoundException e) {
+            LOGGER.error("[Get Tiny URL] Error: " + e.getMessage(), e);
         }
         return null;
     }

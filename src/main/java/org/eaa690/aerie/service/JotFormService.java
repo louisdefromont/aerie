@@ -21,6 +21,7 @@ import com.google.common.cache.CacheBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eaa690.aerie.constant.CommonConstants;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceExistsException;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
@@ -66,10 +67,13 @@ public class JotFormService {
     /**
      * Used to filter form submissions retrieval.
      */
-    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
 
-    static Cache<String, String> submissionsCache =
-            CacheBuilder.newBuilder().expireAfterWrite(36, TimeUnit.HOURS).build();
+    /**
+     * Submissions cache.
+     */
+    private static Cache<String, String> submissionsCache =
+            CacheBuilder.newBuilder().expireAfterWrite(CommonConstants.THIRTY_SIX, TimeUnit.HOURS).build();
 
     /**
      * PropertyService.
@@ -146,8 +150,9 @@ public class JotFormService {
     @Scheduled(cron = "0 0 * * * *")
     public void getSubmissions() {
         try {
-            final String dateStr = sdf.format(new Date());
-            final JotForm client = new JotForm(propertyService.get(PropertyKeyConstants.JOTFORM_API_KEY_KEY).getValue());
+            final String dateStr = simpleDateFormat.format(new Date());
+            final JotForm client =
+                    new JotForm(propertyService.get(PropertyKeyConstants.JOTFORM_API_KEY_KEY).getValue());
             processNewMemberSubmissions(dateStr, client);
             processRenewingMemberSubmissions(dateStr, client);
         } catch (ResourceNotFoundException rnfe) {
@@ -197,7 +202,7 @@ public class JotFormService {
      * @param value to be evaulated
      * @return non-null value
      */
-    private String handleNull(String value) {
+    private String handleNull(final String value) {
         if (value == null) {
             return "";
         }
@@ -223,10 +228,11 @@ public class JotFormService {
 
         if (!renewMembersMap.isEmpty()) {
             LOGGER.info("RenewMembersMap size is " + renewMembersMap.size());
-            for (String key : renewMembersMap.keySet()) {
+            for (final Map.Entry<String, Member> entry : renewMembersMap.entrySet()) {
+                final String key = entry.getKey();
                 if (submissionsCache.getIfPresent(key) == null) {
                     submissionsCache.put(key, key);
-                    rosterService.saveRenewingMember(renewMembersMap.get(key));
+                    rosterService.saveRenewingMember(entry.getValue());
                 }
             }
         }
@@ -251,10 +257,11 @@ public class JotFormService {
 
         if (!newMembersMap.isEmpty()) {
             LOGGER.info("NewMembersMap size is " + newMembersMap.size());
-            for (String key : newMembersMap.keySet()) {
+            for (final Map.Entry<String, Member> entry : newMembersMap.entrySet()) {
+                final String key = entry.getKey();
                 if (submissionsCache.getIfPresent(key) == null) {
                     try {
-                        final Member member = rosterService.saveNewMember(newMembersMap.get(key));
+                        final Member member = rosterService.saveNewMember(entry.getValue());
                         submissionsCache.put(key, key);
                         emailService.queueMsg(
                                 PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID,
@@ -291,12 +298,11 @@ public class JotFormService {
                 parseAdditionalFamily(otherInfoBuilder, answers);
                 parseAdditionalInfo(otherInfoBuilder, answers);
                 parseEAANumber(member, answers);
-                parseMembershipType(member, answers);
                 parseNumOfFamily(otherInfoBuilder, answers);
                 member.setExpiration(oneYearFromNow);
                 member.setOtherInfo(otherInfoBuilder.getRaw());
             }
-            map.put((String)object.get("id"), member);
+            map.put((String) object.get("id"), member);
         }
         return map;
     }
@@ -324,12 +330,11 @@ public class JotFormService {
                 parseAdditionalFamily(otherInfoBuilder, answers);
                 parseAdditionalInfo(otherInfoBuilder, answers);
                 parseEAANumber(member, answers);
-                parseMembershipType(member, answers);
                 parseNumOfFamily(otherInfoBuilder, answers);
                 member.setExpiration(oneYearFromNow);
                 member.setOtherInfo(otherInfoBuilder.getRaw());
             }
-            map.put((String)object.get("id"), member);
+            map.put((String) object.get("id"), member);
         }
         return map;
     }
@@ -345,25 +350,11 @@ public class JotFormService {
             JSONObject numOfFamily = answers.getJSONObject("17");
             if (numOfFamily.has(ANSWER)) {
                 try {
-                    otherInfoBuilder.setNumberOfFamily(Long.parseLong(numOfFamily.getString(ANSWER)));
+                    otherInfoBuilder.setNumOfFamily(Long.parseLong(numOfFamily.getString(ANSWER)));
                 } catch (NumberFormatException nfe) {
-                    LOGGER.error("Unable to parse number of family value=["+numOfFamily.getString(ANSWER)+"]");
+                    LOGGER.error("Unable to parse number of family value=[" + numOfFamily.getString(ANSWER) + "]");
                 }
             }
-        }
-    }
-
-    /**
-     * Parses membership type.
-     *
-     * @param member Member
-     * @param answers JotForm
-     */
-    private void parseMembershipType(final Member member, final JSONObject answers) {
-        if (answers.has("16")) {
-            // TODO
-            //JSONObject membershipType = answers.getJSONObject("16");
-            //member.setMemberType();
         }
     }
 
@@ -492,7 +483,4 @@ public class JotFormService {
             }
         }
     }
-
-
-
 }

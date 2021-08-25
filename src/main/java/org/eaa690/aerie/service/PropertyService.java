@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.eaa690.aerie.constant.CommonConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,8 +60,8 @@ public class PropertyService {
     /**
      * PropertyCache.
      */
-    static Cache<String, Property> propertyCache =
-            CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
+    private static Cache<String, Property> propertyCache =
+            CacheBuilder.newBuilder().expireAfterWrite(CommonConstants.FIVE, TimeUnit.MINUTES).build();
 
     /**
      * Gets a property.

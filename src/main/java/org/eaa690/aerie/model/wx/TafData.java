@@ -17,6 +17,10 @@
 package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -24,6 +28,9 @@ import java.util.List;
  * TAF data object received from api.checkwx.com.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@NoArgsConstructor
+@Getter
+@Setter
 public class TafData implements Serializable {
 
     /**
@@ -48,71 +55,10 @@ public class TafData implements Serializable {
 
     /**
      * Initializes an instance of <code>TafData</code> with the default data.
-     */
-    public TafData() {
-        // Default constructor
-    }
-
-    /**
-     * Initializes an instance of <code>TafData</code> with the default data.
      *
      * @param value Error
      */
     public TafData(final String value) {
-        error = value;
-    }
-
-    /**
-     * Get Results.
-     *
-     * @return Results
-     */
-    public Integer getResults() {
-        return results;
-    }
-
-    /**
-     * Set Results.
-     *
-     * @param value Results
-     */
-    public void setResults(final Integer value) {
-        results = value;
-    }
-
-    /**
-     * Get Data.
-     *
-     * @return Data
-     */
-    public List<TAF> getData() {
-        return data;
-    }
-
-    /**
-     * Set Data.
-     *
-     * @param value Data
-     */
-    public void setData(final List<TAF> value) {
-        data = value;
-    }
-
-    /**
-     * Get Error.
-     *
-     * @return Error
-     */
-    public String getError() {
-        return error;
-    }
-
-    /**
-     * Set Error.
-     *
-     * @param value Error
-     */
-    public void setError(final String value) {
         error = value;
     }
 

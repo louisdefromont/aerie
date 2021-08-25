@@ -17,12 +17,17 @@
 package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 /**
  * Radius object received from api.checkwx.com.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class Radius implements Serializable {
 
     /**
@@ -54,95 +59,5 @@ public class Radius implements Serializable {
      * Compass.
      */
     private String compass;
-
-    /**
-     * Get From.
-     *
-     * @return From
-     */
-    public String getFrom() {
-        return from;
-    }
-
-    /**
-     * Set From.
-     *
-     * @param value From
-     */
-    public void setFrom(final String value) {
-        from = value;
-    }
-
-    /**
-     * Get Miles.
-     *
-     * @return Miles
-     */
-    public Double getMiles() {
-        return miles;
-    }
-
-    /**
-     * Set Miles.
-     *
-     * @param value Miles
-     */
-    public void setMiles(final Double value) {
-        miles = value;
-    }
-
-    /**
-     * Get Meters.
-     *
-     * @return Meters
-     */
-    public Double getMeters() {
-        return meters;
-    }
-
-    /**
-     * Set Meters.
-     *
-     * @param value Meters
-     */
-    public void setMeters(final Double value) {
-        meters = value;
-    }
-
-    /**
-     * Get Direction.
-     *
-     * @return Direction
-     */
-    public Integer getDirection() {
-        return direction;
-    }
-
-    /**
-     * Set Direction.
-     *
-     * @param value Direction
-     */
-    public void setDirection(final Integer value) {
-        direction = value;
-    }
-
-    /**
-     * Get Compass.
-     *
-     * @return Compass
-     */
-    public String getCompass() {
-        return compass;
-    }
-
-    /**
-     * Set Compass.
-     *
-     * @param value Compass
-     */
-    public void setCompass(final String value) {
-        compass = value;
-    }
 
 }

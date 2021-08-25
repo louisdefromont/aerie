@@ -17,8 +17,9 @@
 package org.eaa690.aerie.service;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,11 +53,6 @@ public class EmailService {
      * Logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
-
-    /**
-     * SimpleDateFormat.
-     */
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
 
     /**
      * PropertyService.
@@ -168,6 +164,9 @@ public class EmailService {
         return queuedEmailRepository.findAll().map(List::size).orElse(0);
     }
 
+    /**
+     * Manually increments the message count.
+     */
     public void incrementManualMessageCount() {
         manualMsgSentCount++;
     }
@@ -176,7 +175,7 @@ public class EmailService {
      * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
      */
     @Scheduled(cron = "0 0 2 * * *")
-    private void clearManualMessageCount() {
+    public void clearManualMessageCount() {
         manualMsgSentCount = 0;
     }
 
@@ -184,7 +183,7 @@ public class EmailService {
      * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
      */
     @Scheduled(cron = "0 0 10 * * *")
-    private void processQueue() {
+    public void processQueue() {
         final Optional<List<QueuedEmail>> allQueuedMessages = queuedEmailRepository.findAll();
         if (allQueuedMessages.isPresent()) {
             try {
@@ -210,19 +209,22 @@ public class EmailService {
     /**
      * Sends email to a member.
      *
+     * @param templateIdKey Template ID
+     * @param subjectKey Subject
      * @param member Member to be messaged
      */
     public void sendMsg(final String templateIdKey, final String subjectKey, final Member member) {
-        if (member != null && member.getEmail() != null && member.emailEnabled()) {
+        if (member != null && member.getEmail() != null && member.isEmailEnabled()) {
             try {
                 String to = member.getEmail();
                 if (Boolean.parseBoolean(
                         propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_ENABLED_KEY).getValue())) {
                     to = propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue();
                 }
-                final String qualifier =
-                        Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue()) ?
-                                "S" : "Not s";
+                String qualifier = "Not s";
+                if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
+                    qualifier = "S";
+                }
                 LOGGER.info(String.format("%sending email... toAddress [%s];", qualifier, to));
                 final Mail mail = new Mail();
                 mail.setSubject(propertyService.get(subjectKey).getValue());
@@ -253,9 +255,12 @@ public class EmailService {
         personalization.addDynamicTemplateData("lastName", member.getLastName());
         personalization.addDynamicTemplateData("url", jotFormService.buildRenewMembershipUrl(member));
         if (member.getExpiration() == null) {
-            personalization.addDynamicTemplateData("expirationDate", sdf.format(new Date()));
+            personalization.addDynamicTemplateData("expirationDate",
+                    ZonedDateTime.now().format(DateTimeFormatter.ofPattern("MMM d, yyyy")));
         } else {
-            personalization.addDynamicTemplateData("expirationDate", sdf.format(member.getExpiration()));
+            personalization.addDynamicTemplateData("expirationDate",
+                    ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
+                    ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MMM d, yyyy")));
         }
         return personalization;
     }

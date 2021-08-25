@@ -18,12 +18,17 @@ package org.eaa690.aerie.model.wx;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 /**
  * Timestamp object received from api.checkwx.com.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class Timestamp implements Serializable {
 
     /**
@@ -52,77 +57,5 @@ public class Timestamp implements Serializable {
      */
     @JsonProperty("valid_to")
     private String validTo;
-
-    /**
-     * Get Issued.
-     *
-     * @return Issued
-     */
-    public String getIssued() {
-        return issued;
-    }
-
-    /**
-     * Set Issued.
-     *
-     * @param value Issued
-     */
-    public void setIssued(final String value) {
-        issued = value;
-    }
-
-    /**
-     * Get Bulletin.
-     *
-     * @return Bulletin
-     */
-    public String getBulletin() {
-        return bulletin;
-    }
-
-    /**
-     * Set bulletin.
-     *
-     * @param value Bulletin
-     */
-    public void setBulletin(final String value) {
-        bulletin = value;
-    }
-
-    /**
-     * Get Valid From.
-     *
-     * @return Valid From
-     */
-    public String getValidFrom() {
-        return validFrom;
-    }
-
-    /**
-     * Set Valid From.
-     *
-     * @param value Valid From
-     */
-    public void setValidFrom(final String value) {
-        validFrom = value;
-    }
-
-    /**
-     * Get Valid To.
-     *
-     * @return Valid To
-     */
-    public String getValidTo() {
-        return validTo;
-    }
-
-    /**
-     * Set Valid To.
-     *
-     * @param value Valid To
-     */
-    public void setValidTo(final String value) {
-        validTo = value;
-    }
 
 }

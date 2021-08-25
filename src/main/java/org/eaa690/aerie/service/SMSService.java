@@ -16,7 +16,6 @@
 
 package org.eaa690.aerie.service;
 
-import com.twilio.Twilio;
 import com.twilio.type.PhoneNumber;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
@@ -26,8 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * SMSService.
@@ -39,11 +39,6 @@ public class SMSService {
      * Logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(SMSService.class);
-
-    /**
-     * SimpleDateFormat.
-     */
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
 
     /**
      * PropertyService.
@@ -85,10 +80,16 @@ public class SMSService {
      * @param member Member
      */
     public void sendNewMembershipMsg(final Member member) {
-        if (member != null && member.smsEnabled() && (member.getCellPhone() != null || member.getHomePhone() != null)) {
+        if (member != null
+                && member.isSmsEnabled()
+                && (member.getCellPhone() != null || member.getHomePhone() != null)) {
             try {
-                String to = member.getCellPhone() != null ? member.getCellPhone() : member.getHomePhone();
-                if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
+                String to = member.getHomePhone();
+                if (member.getCellPhone() != null) {
+                    to = member.getCellPhone();
+                }
+                if (Boolean.parseBoolean(
+                        propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
                     to = propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_RECIPIENT_KEY).getValue();
                 }
                 //"Welcome %s to EAA 690!"
@@ -105,10 +106,16 @@ public class SMSService {
      * @param member Member
      */
     public void sendRenewMembershipMsg(final Member member) {
-        if (member != null && member.smsEnabled() && (member.getCellPhone() != null || member.getHomePhone() != null)) {
+        if (member != null
+                && member.isSmsEnabled()
+                && (member.getCellPhone() != null || member.getHomePhone() != null)) {
             try {
-                String to = member.getCellPhone() != null ? member.getCellPhone() : member.getHomePhone();
-                if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
+                String to = member.getHomePhone();
+                if (member.getCellPhone() != null) {
+                    to = member.getCellPhone();
+                }
+                if (Boolean.parseBoolean(
+                        propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
                     to = propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_RECIPIENT_KEY).getValue();
                 }
                 //"Hi %s, please be sure to renew your EAA 690 chapter membership before %s!"
@@ -128,8 +135,11 @@ public class SMSService {
      */
     private String getMessage(final Member member, final String msgKey) {
         try {
-            final String expiration = member.getExpiration() != null ?
-                    sdf.format(member.getExpiration()) : sdf.format(new Date());
+            String expiration = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
+            if (member.getExpiration() != null) {
+                expiration = ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
+                        ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
+            }
             return propertyService
                     .get(msgKey)
                     .getValue()
@@ -151,8 +161,8 @@ public class SMSService {
      * @throws ResourceNotFoundException when SMS properties are not found
      */
     private void sendSMSMessage(final String to, final String text) throws ResourceNotFoundException {
-        if (to != null && text != null &&
-                Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_ENABLED_KEY).getValue())) {
+        if (to != null && text != null
+                && Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_ENABLED_KEY).getValue())) {
             LOGGER.info(String.format("Sending %s to %s", text, to));
             com.twilio.rest.api.v2010.account.Message
                     .creator(new PhoneNumber(to),

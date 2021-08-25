@@ -16,9 +16,10 @@
 
 package org.eaa690.aerie.service;
 
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.ullink.slack.simpleslackapi.SlackSession;
@@ -44,11 +45,6 @@ public class SlackService implements SlackMessagePostedListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(SlackService.class);
 
     /**
-     * SimpleDateFormat.
-     */
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
-
-    /**
      * PropertyService.
      */
     @Autowired
@@ -61,7 +57,7 @@ public class SlackService implements SlackMessagePostedListener {
     private JotFormService jotFormService;
 
     /**
-     * SlackSession
+     * SlackSession.
      */
     @Autowired
     private SlackSession slackSession;
@@ -105,7 +101,7 @@ public class SlackService implements SlackMessagePostedListener {
      * @param member Member
      */
     public void sendNewMembershipMsg(final Member member) {
-        if (member != null && member.getSlack() != null && member.slackEnabled()) {
+        if (member != null && member.getSlack() != null && member.isSlackEnabled()) {
             try {
                 String to = member.getSlack();
                 if (Boolean.parseBoolean(
@@ -127,7 +123,7 @@ public class SlackService implements SlackMessagePostedListener {
      * @param member Member
      */
     public void sendRenewMembershipMsg(final Member member) {
-        if (member != null && member.getSlack() != null && member.slackEnabled()) {
+        if (member != null && member.getSlack() != null && member.isSlackEnabled()) {
             try {
                 String to = member.getSlack();
                 if (Boolean.parseBoolean(
@@ -166,6 +162,7 @@ public class SlackService implements SlackMessagePostedListener {
      * Gets all Slack users.
      *
      * @return list of users
+     * @throws ResourceNotFoundException when no users are found
      */
     public List<String> allSlackUsers() throws ResourceNotFoundException {
         final List<String> users = new ArrayList<>();
@@ -185,8 +182,13 @@ public class SlackService implements SlackMessagePostedListener {
      */
     private String getMessage(final Member member, final String msgKey) {
         try {
-            final String expiration = member.getExpiration() != null ?
-                    sdf.format(member.getExpiration()) : sdf.format(new Date());
+            final String expiration;
+            if (member.getExpiration() != null) {
+                expiration = ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
+                        ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
+            } else {
+                expiration = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
+            }
             return propertyService
                     .get(msgKey)
                     .getValue()

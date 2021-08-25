@@ -1,4 +1,23 @@
+/*
+ *  Copyright (C) 2021 Gwinnett County Experimental Aircraft Association
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package org.eaa690.aerie.model;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -10,6 +29,8 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "QUEUED_EMAIL")
+@Getter
+@Setter
 public class QueuedEmail extends BaseEntity implements Comparable<QueuedEmail> {
     /**
      * Email template ID.
@@ -48,30 +69,6 @@ public class QueuedEmail extends BaseEntity implements Comparable<QueuedEmail> {
         setUpdatedAt(new Date());
     }
 
-    public String getTemplateIdKey() {
-        return templateIdKey;
-    }
-
-    public void setTemplateIdKey(String templateIdKey) {
-        this.templateIdKey = templateIdKey;
-    }
-
-    public String getSubjectKey() {
-        return subjectKey;
-    }
-
-    public void setSubjectKey(String subjectKey) {
-        this.subjectKey = subjectKey;
-    }
-
-    public Long getMemberId() {
-        return memberId;
-    }
-
-    public void setMemberId(Long memberId) {
-        this.memberId = memberId;
-    }
-
     /**
      * {@inheritDoc} Required implementation.
      */
@@ -87,13 +84,17 @@ public class QueuedEmail extends BaseEntity implements Comparable<QueuedEmail> {
      * {@inheritDoc} Required implementation.
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         QueuedEmail qe = (QueuedEmail) o;
-        return Objects.equals(templateIdKey, qe.templateIdKey) &&
-                Objects.equals(subjectKey, qe.subjectKey) &&
-                Objects.equals(memberId, qe.memberId);
+        return Objects.equals(templateIdKey, qe.templateIdKey)
+                && Objects.equals(subjectKey, qe.subjectKey)
+                && Objects.equals(memberId, qe.memberId);
     }
 
     /**

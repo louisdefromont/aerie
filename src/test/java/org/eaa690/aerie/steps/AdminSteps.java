@@ -14,63 +14,46 @@
  *  limitations under the License.
  */
 
-package org.eaa690.aerie;
+package org.eaa690.aerie.steps;
 
 import io.cucumber.java.en.When;
 import io.restassured.http.ContentType;
+import org.eaa690.aerie.TestContext;
 
 /**
- * Roster test steps.
+ * Admin test steps.
  */
-public class RosterSteps extends BaseSteps {
+public class AdminSteps extends BaseSteps {
 
     /**
-     * Roster service.
+     * Admin service.
      */
-    private final String ROSTER = "roster/";
+    private final String ADMIN = "admin/";
 
     /**
      * Constructor.
      *
      * @param testContext TestContext
      */
-    public RosterSteps(final TestContext testContext) {
+    public AdminSteps(final TestContext testContext) {
         super(testContext);
     }
 
-    @When("^I request the roster membership report$")
-    public void iRequestTheReport() {
+    @When("^I request all Slack users$")
+    public void iRequestAllSlackUsers() {
         testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()
-                .get(ROSTER + "report")
+                .get(ADMIN + "slack/users")
                 .then());
     }
 
-    @When("^I request an update of the roster data$")
-    public void iRequestUpdateRosterData() {
+    @When("^I request the email queue count$")
+    public void iRequestEmailQueueCount() {
         testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()
-                .post(ROSTER + "update")
-                .then());
-    }
-
-    @When("^I request the expiration data for member with ID (.*)$")
-    public void iRequestExpirationData(final String memberId) {
-        testContext.setValidatableResponse(requestSpecification()
-                .contentType(ContentType.JSON)
-                .when()
-                .get(ROSTER + memberId + "/expiration")
-                .then());
-    }
-
-    @When("^I request RFID data for all members$")
-    public void iRequestAllRFIDData() {
-        testContext.setValidatableResponse(requestSpecification()
-                .contentType(ContentType.JSON)
-                .when()
-                .get(ROSTER + "all-rfid")
+                .get(ADMIN + "email/queue-count")
                 .then());
     }
 

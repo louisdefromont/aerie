@@ -14,11 +14,12 @@
  *  limitations under the License.
  */
 
-package org.eaa690.aerie;
+package org.eaa690.aerie.steps;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import org.apache.http.HttpStatus;
+import org.eaa690.aerie.TestContext;
 import org.hamcrest.Matchers;
 
 public class CommonSteps extends BaseSteps {

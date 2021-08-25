@@ -14,11 +14,12 @@
  *  limitations under the License.
  */
 
-package org.eaa690.aerie;
+package org.eaa690.aerie.steps;
 
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.When;
 import io.restassured.http.ContentType;
+import org.eaa690.aerie.TestContext;
 import org.hamcrest.Matchers;
 
 /**

@@ -21,16 +21,21 @@ import io.restassured.http.ContentType;
 import org.eaa690.aerie.TestContext;
 
 /**
- * Roster Web test steps.
+ * Reports test steps.
  */
-public class RosterWebSteps extends BaseSteps {
+public class ReportsSteps extends BaseSteps {
+
+    /**
+     * Reports service.
+     */
+    private final String REPORTS = "reports/";
 
     /**
      * Constructor.
      *
      * @param testContext TestContext
      */
-    public RosterWebSteps(final TestContext testContext) {
+    public ReportsSteps(final TestContext testContext) {
         super(testContext);
     }
 
@@ -39,10 +44,10 @@ public class RosterWebSteps extends BaseSteps {
         String report;
         switch (reportType) {
             case "membership":
-                report = "/membershipreport";
+                report = REPORTS + "membershipreport";
                 break;
             default:
-                report = "/fullmembershipreport";
+                report = REPORTS + "fullmembershipreport";
         }
         testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)

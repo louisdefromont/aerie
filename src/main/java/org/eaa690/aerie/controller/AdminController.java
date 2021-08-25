@@ -16,6 +16,13 @@
 
 package org.eaa690.aerie.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
@@ -44,6 +51,7 @@ import java.util.List;
 @RequestMapping({
         "/admin"
 })
+@Tag(name = "admin", description = "the Admin API")
 public class AdminController {
 
     /**
@@ -199,6 +207,13 @@ public class AdminController {
      *
      * @return queue count
      */
+    @Operation(summary = "Email queue count",
+            description = "The current number of emails in the email queue waiting to be sent",
+            tags = {"admin"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "successful operation")
+    })
     @GetMapping(path = {"/email/queue-count"})
     public int getQueuedEmailCount() {
         return emailService.getQueuedMsgCount();
@@ -267,6 +282,14 @@ public class AdminController {
      * @return All slack users
      * @throws ResourceNotFoundException when member is not found
      */
+    @Operation(summary = "All Slack users",
+            description = "List of all Slack users",
+            tags = {"admin"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "successful operation",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class))))
+    })
     @GetMapping(path = {"/slack/users"})
     public List<String> getAllSlackUsers() throws ResourceNotFoundException {
         return slackService.allSlackUsers();

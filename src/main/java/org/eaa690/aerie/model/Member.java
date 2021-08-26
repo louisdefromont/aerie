@@ -27,6 +27,10 @@ import lombok.Setter;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.util.Date;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
+import org.eaa690.aerie.model.roster.CellPhoneProvider;
 
 /**
  * Member.
@@ -249,6 +253,12 @@ public class Member extends BaseEntity {
      * Cell Phone.
      */
     private String cellPhone;
+
+    /**
+     * Cell Phone Provider.
+     */
+    @Enumerated(EnumType.STRING)
+    private CellPhoneProvider cellPhoneProvider;
 
     /**
      * Membership Expiration.

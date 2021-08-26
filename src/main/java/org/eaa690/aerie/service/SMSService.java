@@ -16,24 +16,31 @@
 
 package org.eaa690.aerie.service;
 
-import com.twilio.type.PhoneNumber;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
+import org.eaa690.aerie.communication.CommunicatorService;
+import org.eaa690.aerie.communication.EmailSMSSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
+import org.eaa690.aerie.model.communication.SMS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-
 /**
  * SMSService.
  */
 @Service
-public class SMSService {
+public class SMSService extends CommunicatorService<SMS> {
+
+    @Autowired
+    public SMSService(final EmailSMSSender messageSender) {
+        super(messageSender);
+    }
 
     /**
      * Logger.
@@ -80,24 +87,8 @@ public class SMSService {
      * @param member Member
      */
     public void sendNewMembershipMsg(final Member member) {
-        if (member != null
-                && member.isSmsEnabled()
-                && (member.getCellPhone() != null || member.getHomePhone() != null)) {
-            try {
-                String to = member.getHomePhone();
-                if (member.getCellPhone() != null) {
-                    to = member.getCellPhone();
-                }
-                if (Boolean.parseBoolean(
-                        propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
-                    to = propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_RECIPIENT_KEY).getValue();
-                }
-                //"Welcome %s to EAA 690!"
-                sendSMSMessage(to, getMessage(member, PropertyKeyConstants.SMS_NEW_MEMBER_MSG_KEY));
-            } catch (ResourceNotFoundException ex) {
-                LOGGER.error(ex.getMessage());
-            }
-        }
+        //"Welcome %s to EAA 690!"
+        sendSMSMessage(member, getMessage(member, PropertyKeyConstants.SMS_NEW_MEMBER_MSG_KEY));
     }
 
     /**
@@ -106,24 +97,8 @@ public class SMSService {
      * @param member Member
      */
     public void sendRenewMembershipMsg(final Member member) {
-        if (member != null
-                && member.isSmsEnabled()
-                && (member.getCellPhone() != null || member.getHomePhone() != null)) {
-            try {
-                String to = member.getHomePhone();
-                if (member.getCellPhone() != null) {
-                    to = member.getCellPhone();
-                }
-                if (Boolean.parseBoolean(
-                        propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
-                    to = propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_RECIPIENT_KEY).getValue();
-                }
-                //"Hi %s, please be sure to renew your EAA 690 chapter membership before %s!"
-                sendSMSMessage(to, getMessage(member, PropertyKeyConstants.SMS_RENEW_MEMBER_MSG_KEY));
-            } catch (ResourceNotFoundException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
+        //"Hi %s, please be sure to renew your EAA 690 chapter membership before %s!"
+        sendSMSMessage(member, getMessage(member, PropertyKeyConstants.SMS_RENEW_MEMBER_MSG_KEY));
     }
 
     /**
@@ -154,21 +129,27 @@ public class SMSService {
     }
 
     /**
-     * Sends a SMS message.
-     *
-     * @param to To
-     * @param text Message text
-     * @throws ResourceNotFoundException when SMS properties are not found
+     * Sends an SMS message.
+     * @param member member to send the message to
+     * @param messageBody body of SMS message sent
      */
-    private void sendSMSMessage(final String to, final String text) throws ResourceNotFoundException {
-        if (to != null && text != null
-                && Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_ENABLED_KEY).getValue())) {
-            LOGGER.info(String.format("Sending %s to %s", text, to));
-            com.twilio.rest.api.v2010.account.Message
-                    .creator(new PhoneNumber(to),
-                            new PhoneNumber(propertyService.get(PropertyKeyConstants.SMS_FROM_ADDRESS_KEY).getValue()),
-                            text)
-                    .create();
+    private void sendSMSMessage(final Member member, final String messageBody) {
+        try {
+            String to;
+            if (member.getCellPhone() != null) {
+                to = member.getCellPhone();
+            } else if (member.getHomePhone() != null) {
+                to = member.getHomePhone();
+            } else {
+                to = null;
+            }
+            if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_ENABLED_KEY).getValue())) {
+                to = propertyService.get(PropertyKeyConstants.SMS_TEST_MODE_RECIPIENT_KEY).getValue();
+            }
+            SMS sms = new SMS(to, member, messageBody);
+            sendMessage(sms);
+        } catch (ResourceNotFoundException e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

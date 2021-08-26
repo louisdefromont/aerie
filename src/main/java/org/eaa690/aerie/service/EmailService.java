@@ -16,38 +16,38 @@
 
 package org.eaa690.aerie.service;
 
-import java.io.IOException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-import com.sendgrid.SendGrid;
-import com.sendgrid.helpers.mail.objects.Personalization;
+import org.eaa690.aerie.communication.CommunicatorService;
+import org.eaa690.aerie.communication.SendGridEmailSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
 import org.eaa690.aerie.model.QueuedEmail;
 import org.eaa690.aerie.model.QueuedEmailRepository;
+import org.eaa690.aerie.model.communication.Email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.sendgrid.Method;
-import com.sendgrid.Request;
-import com.sendgrid.Response;
-import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Email;
-
 /**
  * EmailService.
  */
 @Service("emailService")
-public class EmailService {
+public class EmailService extends CommunicatorService<Email> {
+
+    /**
+     * EmailService.
+     * @param messageSender EmailMessageSender.
+     */
+    @Autowired
+    public EmailService(final SendGridEmailSender messageSender) {
+        super(messageSender);
+    }
 
     /**
      * Logger.
@@ -79,12 +79,6 @@ public class EmailService {
     private QueuedEmailRepository queuedEmailRepository;
 
     /**
-     * SendGrid.
-     */
-    @Autowired
-    private SendGrid sendGrid;
-
-    /**
      * Count of manually sent messages.
      */
     private long manualMsgSentCount = 0;
@@ -98,17 +92,6 @@ public class EmailService {
     @Autowired
     public void setPropertyService(final PropertyService value) {
         propertyService = value;
-    }
-
-    /**
-     * Sets SendGrid.
-     * Note: mostly used for unit test mocks
-     *
-     * @param value SendGrid
-     */
-    @Autowired
-    public void setSendGrid(final SendGrid value) {
-        sendGrid = value;
     }
 
     /**
@@ -143,6 +126,7 @@ public class EmailService {
     public void setQueuedEmailRepository(final QueuedEmailRepository qeRepository) {
         queuedEmailRepository = qeRepository;
     }
+
 
     /**
      * Queues email to be sent.
@@ -196,93 +180,25 @@ public class EmailService {
                         .forEach(qe -> {
                             final Optional<Member> memberOpt = memberRepository.findById(qe.getMemberId());
                             if (memberOpt.isPresent()) {
-                                sendMsg(qe.getTemplateIdKey(), qe.getSubjectKey(), memberOpt.get());
+                                try {
+                                    Email email = new Email(
+                                        memberOpt.get().getEmail(),
+                                        memberOpt.get(),
+                                        propertyService.get(qe.getSubjectKey()).getValue(),
+                                        propertyService.get(qe.getTemplateIdKey()).getValue(), null);
+                                    sendMessage(email);
+
+                                } catch (ResourceNotFoundException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+
                                 queuedEmailRepository.delete(qe);
                             }
                         });
             } catch (ResourceNotFoundException e) {
                 LOGGER.error("Error", e);
             }
-        }
-    }
-
-    /**
-     * Sends email to a member.
-     *
-     * @param templateIdKey Template ID
-     * @param subjectKey Subject
-     * @param member Member to be messaged
-     */
-    public void sendMsg(final String templateIdKey, final String subjectKey, final Member member) {
-        if (member != null && member.getEmail() != null && member.isEmailEnabled()) {
-            try {
-                String to = member.getEmail();
-                if (Boolean.parseBoolean(
-                        propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_ENABLED_KEY).getValue())) {
-                    to = propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue();
-                }
-                String qualifier = "Not s";
-                if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
-                    qualifier = "S";
-                }
-                LOGGER.info(String.format("%sending email... toAddress [%s];", qualifier, to));
-                final Mail mail = new Mail();
-                mail.setSubject(propertyService.get(subjectKey).getValue());
-                mail.setTemplateId(propertyService.get(templateIdKey).getValue());
-                mail.setFrom(new Email(propertyService
-                        .get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue()));
-                mail.addPersonalization(personalize(member, to));
-                sendEmail(mail);
-            } catch (IOException | ResourceNotFoundException ex) {
-                LOGGER.error(ex.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Personalizes an email to the member.
-     *
-     * @param member Member
-     * @param to address
-     * @return Personalization
-     * @throws ResourceNotFoundException when property is not found
-     */
-    private Personalization personalize(final Member member, final String to) throws ResourceNotFoundException {
-        final Personalization personalization = new Personalization();
-        personalization.addTo(new Email(to));
-        personalization.addBcc(new Email(propertyService.get(PropertyKeyConstants.EMAIL_BCC_KEY).getValue()));
-        personalization.addDynamicTemplateData("firstName", member.getFirstName());
-        personalization.addDynamicTemplateData("lastName", member.getLastName());
-        personalization.addDynamicTemplateData("url", jotFormService.buildRenewMembershipUrl(member));
-        if (member.getExpiration() == null) {
-            personalization.addDynamicTemplateData("expirationDate",
-                    ZonedDateTime.now().format(DateTimeFormatter.ofPattern("MMM d, yyyy")));
-        } else {
-            personalization.addDynamicTemplateData("expirationDate",
-                    ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
-                    ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MMM d, yyyy")));
-        }
-        return personalization;
-    }
-
-    /**
-     * Sends email to member.
-     *
-     * @param mail message
-     * @throws ResourceNotFoundException when property is not found
-     * @throws IOException upon message delivery failure
-     */
-    private void sendEmail(final Mail mail) throws ResourceNotFoundException, IOException {
-        final Request request = new Request();
-        request.setMethod(Method.POST);
-        request.setEndpoint("mail/send");
-        request.setBody(mail.build());
-        if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue())) {
-            final Response response = sendGrid.api(request);
-            LOGGER.info(String.format("Response... statusCode [%s]; body [%s]; headers [%s]",
-                    response.getStatusCode(), response.getBody(), response.getHeaders()));
-        } else {
-            LOGGER.info("Not sending email due to enabled flag set to false.");
         }
     }
 

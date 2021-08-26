@@ -16,8 +16,17 @@
 
 package org.eaa690.aerie.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Objects;
+
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Table;
+
+import org.eaa690.aerie.model.roster.CellPhoneProvider;
 import org.eaa690.aerie.model.roster.Country;
 import org.eaa690.aerie.model.roster.Gender;
 import org.eaa690.aerie.model.roster.MemberType;
@@ -25,12 +34,8 @@ import org.eaa690.aerie.model.roster.State;
 import org.eaa690.aerie.model.roster.Status;
 import org.eaa690.aerie.model.roster.WebAdminAccess;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Member.
@@ -253,6 +258,12 @@ public class Member extends BaseEntity implements Comparable<Member> {
      * Cell Phone.
      */
     private String cellPhone;
+
+    /**
+     * Cell Phone Provider.
+     */
+    @Enumerated(EnumType.STRING)
+    private CellPhoneProvider cellPhoneProvider;
 
     /**
      * Membership Expiration.

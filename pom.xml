@@ -90,7 +90,7 @@
 		<dependency>
 			<groupId>com.twilio.sdk</groupId>
 			<artifactId>twilio</artifactId>
-			<version>8.18.0</version>
+			<version>8.19.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.ullink.slack</groupId>
@@ -272,7 +272,7 @@
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
-				<version>3.1.12.2</version>
+				<version>4.3.0</version>
 				<configuration>
 					<excludeFilterFile>
 						${project.build.directory}/classes/spotbugs-exclude.xml
@@ -332,7 +332,7 @@
 			<plugin>
 				<groupId>com.mycila</groupId>
 				<artifactId>license-maven-plugin</artifactId>
-				<version>3.0</version>
+				<version>4.1</version>
 				<configuration>
 					<header>${project.basedir}/src/license/license-header.txt</header>
 					<properties>

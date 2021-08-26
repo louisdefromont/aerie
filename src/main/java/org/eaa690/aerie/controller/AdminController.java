@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.communication.SMS;
@@ -165,43 +166,43 @@ public class AdminController {
      * @param order first, second, or third reminder message
      * @throws ResourceNotFoundException when member is not found
      */
-    // @PostMapping(path = {"/email/{rosterId}/renew-membership/{order}"})
-    // public void testRenewMembershipEmail(
-    //         @PathVariable("rosterId") final Long rosterId,
-    //         @PathVariable("order") final String order) throws ResourceNotFoundException {
-    //     final Member member = rosterService.getMemberByRosterID(rosterId);
-    //     switch (order) {
-    //         case "first":
-    //             LOGGER.info(String.format(SEND_MSG_MESSAGE, "first renew-membership", "email",
-    //                     member.getFirstName(), member.getLastName(), member.getEmail()));
-    //             emailService.sendMsg(
-    //                     PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
-    //                     PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
-    //                     member);
-    //             emailService.incrementManualMessageCount();
-    //             break;
-    //         case "second":
-    //             LOGGER.info(String.format(SEND_MSG_MESSAGE, "second renew-membership", "email",
-    //                     member.getFirstName(), member.getLastName(), member.getEmail()));
-    //             emailService.sendMsg(
-    //                     PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
-    //                     PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
-    //                     member);
-    //             emailService.incrementManualMessageCount();
-    //             break;
-    //         case "third":
-    //             LOGGER.info(String.format(SEND_MSG_MESSAGE, "third renew-membership", "email",
-    //                     member.getFirstName(), member.getLastName(), member.getEmail()));
-    //             emailService.sendMsg(
-    //                     PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
-    //                     PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
-    //                     member);
-    //             emailService.incrementManualMessageCount();
-    //             break;
-    //         default:
-    //             // Do nothing
-    //     }
-    // }
+     @PostMapping(path = {"/email/{rosterId}/renew-membership/{order}"})
+     public void testRenewMembershipEmail(
+             @PathVariable("rosterId") final Long rosterId,
+             @PathVariable("order") final String order) throws ResourceNotFoundException {
+         final Member member = rosterService.getMemberByRosterID(rosterId);
+         switch (order) {
+             case "first":
+                 LOGGER.info(String.format(SEND_MSG_MESSAGE, "first renew-membership", "email",
+                         member.getFirstName(), member.getLastName(), member.getEmail()));
+                 emailService.queueMsg(
+                         PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
+                         PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
+                         member);
+                 emailService.incrementManualMessageCount();
+                 break;
+             case "second":
+                 LOGGER.info(String.format(SEND_MSG_MESSAGE, "second renew-membership", "email",
+                         member.getFirstName(), member.getLastName(), member.getEmail()));
+                 emailService.queueMsg(
+                         PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
+                         PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
+                         member);
+                 emailService.incrementManualMessageCount();
+                 break;
+             case "third":
+                 LOGGER.info(String.format(SEND_MSG_MESSAGE, "third renew-membership", "email",
+                         member.getFirstName(), member.getLastName(), member.getEmail()));
+                 emailService.queueMsg(
+                         PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
+                         PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
+                         member);
+                 emailService.incrementManualMessageCount();
+                 break;
+             default:
+                 // Do nothing
+         }
+     }
 
     /**
      * Sends a new membership email to the provided address.
@@ -209,18 +210,18 @@ public class AdminController {
      * @param rosterId Member Roster ID
      * @throws ResourceNotFoundException when member is not found
      */
-    // @PostMapping(path = {"/email/{rosterId}/new-membership"})
-    // public void testNewMembershipEmail(
-    //    @PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
-    //     final Member member = rosterService.getMemberByRosterID(rosterId);
-    //     LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "email",
-    //             member.getFirstName(), member.getLastName(), member.getEmail()));
-    //     emailService.sendMsg(
-    //             PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID,
-    //             PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY,
-    //             member);
-    //     emailService.incrementManualMessageCount();
-    // }
+     @PostMapping(path = {"/email/{rosterId}/new-membership"})
+     public void testNewMembershipEmail(
+        @PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
+         final Member member = rosterService.getMemberByRosterID(rosterId);
+         LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "email",
+                 member.getFirstName(), member.getLastName(), member.getEmail()));
+         emailService.queueMsg(
+                 PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID,
+                 PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY,
+                 member);
+         emailService.incrementManualMessageCount();
+     }
 
     /**
      * Gets queued email count.

@@ -34,15 +34,20 @@ public class EmailSMSSender extends MessageSender<SMS> {
 
     /**
      * Creates a EmailSMSSender object.
+     *
      * @param acceptsMessagePredicate Predicate used to test if a give member accepts SMS messages
+     * @param emailSender The MessageSender that sends emails.
      */
     @Autowired
-    public EmailSMSSender(final AcceptsSMSPredicate acceptsMessagePredicate) {
+    public EmailSMSSender(final AcceptsSMSPredicate acceptsMessagePredicate,
+                          final SendGridEmailSender emailSender) {
         super("SMS_by_Email", acceptsMessagePredicate);
+        this.messageSender = emailSender;
     }
 
     /**
      * Sets the MessageSender.
+     *
      * @param emailSender The MessageSender that sends emails.
      */
     @Autowired

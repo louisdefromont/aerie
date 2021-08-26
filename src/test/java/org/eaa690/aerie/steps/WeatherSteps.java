@@ -56,37 +56,9 @@ public class WeatherSteps extends BaseSteps {
                 .then());
     }
 
-    @When("^I request the (.*) TAF$")
-    public void iRequestTheTAF(String icao) {
-        testContext.setValidatableResponse(requestSpecification()
-                .contentType(ContentType.JSON)
-                .when()
-                .get( WEATHER + "tafs/" + icao)
-                .then());
-    }
-
-    @When("^I request the (.*) station$")
-    public void iRequestTheStation(String icao) {
-        testContext.setValidatableResponse(requestSpecification()
-                .contentType(ContentType.JSON)
-                .when()
-                .get(WEATHER + "stations/" + icao)
-                .then());
-    }
-
-    @When("^I request a (.*) for an unprovided station$")
-    public void iRequestDataForAnInvalidStation(String weatherProduct) {
-        String product;
-        switch (weatherProduct) {
-            case "TAF":
-                product = "tafs/";
-                break;
-            case "station":
-                product = "stations/";
-                break;
-            default:
-                product = "metars/";
-        }
+    @When("^I request a METAR for an unprovided station$")
+    public void iRequestDataForAnInvalidStation() {
+        final String product = "metars/";
         testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()

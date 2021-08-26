@@ -18,8 +18,6 @@ package org.eaa690.aerie.controller;
 
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.model.wx.METAR;
-import org.eaa690.aerie.model.wx.Station;
-import org.eaa690.aerie.model.wx.TAF;
 import org.eaa690.aerie.exception.InvalidPayloadException;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.service.PropertyService;
@@ -68,11 +66,13 @@ public class WeatherController {
     /**
      * WeatherService.
      */
+    @Autowired
     private WeatherService weatherService;
 
     /**
      * PropertyService.
      */
+    @Autowired
     private PropertyService propertyService;
 
     /**
@@ -130,70 +130,6 @@ public class WeatherController {
             }
             if (CollectionUtils.isNotEmpty(metars)) {
                 return filterAttributes(metars, dataList);
-            }
-            throw new InvalidPayloadException(String.format(INVALID_STATION_MSG, icao));
-        }
-        throw new InvalidPayloadException(NO_STATION_MSG);
-    }
-
-    /**
-     * Get TAF.
-     *
-     * Note: The only accepted station codes are: ATLANTA,
-     * KCNI,KGVL,KVPC,KJCA,KRYY,KLZU,KWDR,KPUJ,KMGE,KPDK,KFTY,KCTJ,KCVC,KATL,KCCO,KFFC,KHMP,KLGC,KOPN
-     *
-     * @param icao station code
-     * @return TAF
-     * @throws ResourceNotFoundException when TAF is not found
-     * @throws InvalidPayloadException when an invalid station code is provided
-     */
-    @GetMapping(path = {
-            "/tafs/{icao}"
-    })
-    public List<TAF> taf(@PathVariable("icao") final String icao) throws ResourceNotFoundException,
-            InvalidPayloadException {
-        if (StringUtils.isNotEmpty(icao)) {
-            if (ATLANTA.equalsIgnoreCase(icao)) {
-                return weatherService
-                        .getTAFs(Arrays
-                                .asList(propertyService
-                                        .get(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY)
-                                        .getValue()
-                                        .split(",")));
-            } else if (weatherService.isValidStation(icao.toUpperCase())) {
-                return Arrays.asList(weatherService.getTAF(icao.toUpperCase()));
-            }
-            throw new InvalidPayloadException(String.format(INVALID_STATION_MSG, icao));
-        }
-        throw new InvalidPayloadException(NO_STATION_MSG);
-    }
-
-    /**
-     * Get Station.
-     *
-     * Note: The only accepted station codes are: ATLANTA
-     * KCNI,KGVL,KVPC,KJCA,KRYY,KLZU,KWDR,KPUJ,KMGE,KPDK,KFTY,KCTJ,KCVC,KATL,KCCO,KFFC,KHMP,KLGC,KOPN
-     *
-     * @param icao station code
-     * @return Station
-     * @throws ResourceNotFoundException when TAF is not found
-     * @throws InvalidPayloadException when an invalid station code is provided
-     */
-    @GetMapping(path = {
-            "/stations/{icao}"
-    })
-    public List<Station> station(@PathVariable("icao") final String icao) throws ResourceNotFoundException,
-            InvalidPayloadException {
-        if (StringUtils.isNotEmpty(icao)) {
-            if (ATLANTA.equalsIgnoreCase(icao)) {
-                return weatherService
-                        .getStations(Arrays
-                                .asList(propertyService
-                                        .get(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY)
-                                        .getValue()
-                                        .split(",")));
-            } else if (weatherService.isValidStation(icao.toUpperCase())) {
-                return Arrays.asList(weatherService.getStation(icao.toUpperCase()));
             }
             throw new InvalidPayloadException(String.format(INVALID_STATION_MSG, icao));
         }

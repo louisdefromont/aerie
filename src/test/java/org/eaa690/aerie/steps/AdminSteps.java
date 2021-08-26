@@ -57,4 +57,76 @@ public class AdminSteps extends BaseSteps {
                 .then());
     }
 
+    @When("^I request an email be sent to new member (.*)$")
+    public void iRequestEmailToNewMember(final String rosterId) {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "email/" + rosterId + "/new-membership")
+                .then());
+    }
+
+    @When("^I request a (.*) email be sent to member (.*) to renew their membership$")
+    public void iRequestEmailToRenewMember(final String order, final String rosterId) {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "email/" + rosterId + "/renew-membership/" + order)
+                .then());
+    }
+
+    @When("^I request a text be sent to new member (.*)$")
+    public void iRequestTextToNewMember(final String rosterId) {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "sms/" + rosterId + "/new-membership")
+                .then());
+    }
+
+    @When("^I request a text be sent to member (.*) to renew their membership$")
+    public void iRequestTextToRenewMember(final String rosterId) {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "sms/" + rosterId + "/renew-membership")
+                .then());
+    }
+
+    @When("^I request a Slack message be sent to new member (.*)$")
+    public void iRequestSlackToNewMember(final String rosterId) {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "slack/" + rosterId + "/new-membership")
+                .then());
+    }
+
+    @When("^I request a Slack message be sent to member (.*) to renew their membership$")
+    public void iRequestSlackToRenewMember(final String rosterId) {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "slack/" + rosterId + "/renew-membership")
+                .then());
+    }
+
+    @When("^I request member (.*) be added to the MailChimp member list$")
+    public void iRequestMemberAddedToMailChimpMemberList(final String rosterId) {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "mailchimp/" + rosterId + "/add-member")
+                .then());
+    }
+
+    @When("^I request non-member (.*) be added to the MailChimp non-member list$")
+    public void iRequestNonMemberAddedToMailChimpNonMemberList(final String rosterId) {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "mailchimp/" + rosterId + "/add-non-member")
+                .then());
+    }
+
 }

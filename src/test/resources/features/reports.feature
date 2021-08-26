@@ -1,6 +1,6 @@
-@rosterweb
-Feature: roster web
-  Roster reports
+@reports
+Feature: reports
+  Membership reports
 
   @membershipreport
   Scenario: Retrieve membership report

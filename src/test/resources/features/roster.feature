@@ -24,3 +24,15 @@ Feature: Roster functions
     Given I am an unauthenticated user
     When I request RFID data for all members
     Then The request should be successful
+
+  @rfid @update
+  Scenario: Update a member's RFID data
+    Given I am an unauthenticated user
+    When I update member 42648's RFID with ABC123
+    Then The request should be successful
+
+  @rfid @findByID @disabled
+  Scenario: Find a member by their RFID data
+    Given I am an unauthenticated user
+    When I find a member by their RFID ABC123
+    Then The request should be successful

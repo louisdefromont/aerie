@@ -21,7 +21,7 @@ import org.eaa690.aerie.model.MemberData;
 import org.eaa690.aerie.model.FindByRFIDResponse;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.RFIDRequest;
-import org.eaa690.aerie.model.roster.MembershipReport;
+import org.eaa690.aerie.model.MembershipReport;
 import org.eaa690.aerie.service.RosterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;

@@ -14,26 +14,25 @@
  *  limitations under the License.
  */
 
-package org.eaa690.aerie.model.roster;
+package org.eaa690.aerie.model;
 
 /**
- * Status.
+ * MessageType.
  */
-public enum Status {
-    /**
-     * Active.
-     */
-    ACTIVE,
-    /**
-     * Inactive.
-     */
-    INACTIVE;
+public enum MessageType {
 
-    public static String getDisplayString(final Status status) {
-        if (ACTIVE.equals(status)) {
-            return "Active";
-        } else {
-            return "Inactive";
-        }
-    }
+    /**
+     * SMS.
+     */
+    SMS,
+    /**
+     * Slack.
+     */
+    Slack,
+    /**
+     * Email.
+     */
+    Email;
+
 }
+

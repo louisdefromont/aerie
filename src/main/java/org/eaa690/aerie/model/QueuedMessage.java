@@ -16,37 +16,51 @@
 
 package org.eaa690.aerie.model;
 
-import org.springframework.data.repository.Repository;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.List;
-import java.util.Optional;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
- * QueuedEmailRepository.
+ * QueuedMessage.
  */
-public interface QueuedEmailRepository extends Repository<QueuedEmail, Long> {
+@Entity
+@Table(name = "QUEUED_MESSAGE")
+@Getter
+@Setter
+@NoArgsConstructor
+public class QueuedMessage extends BaseEntity {
 
     /**
-     * Gets all QueuedEmail.
-     *
-     * @return all QueuedEmail
+     * MessageType.
      */
-    Optional<List<QueuedEmail>> findAll();
+    private MessageType messageType;
 
     /**
-     * Saves a QueuedEmail.
-     *
-     * @param queuedEmail QueuedEmail
-     * @return QueuedEmail
+     * Recipient Address.
      */
-    QueuedEmail save(QueuedEmail queuedEmail);
+    private String recipientAddress;
 
     /**
-     * Saves a QueuedEmail.
-     *
-     * @param queuedEmail QueuedEmail
-     * @return QueuedEmail
+     * Email template ID.
      */
-    QueuedEmail delete(QueuedEmail queuedEmail);
+    private String templateIdKey;
+
+    /**
+     * Email Subject.
+     */
+    private String subjectKey;
+
+    /**
+     * Member ID.
+     */
+    private Long memberId;
+
+    /**
+     * Body.
+     */
+    private String body;
 
 }

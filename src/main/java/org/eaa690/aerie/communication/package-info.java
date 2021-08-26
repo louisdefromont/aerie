@@ -15,6 +15,6 @@
  */
 
 /**
- * Commuincation classes.
+ * Communication classes.
  */
 package org.eaa690.aerie.communication;

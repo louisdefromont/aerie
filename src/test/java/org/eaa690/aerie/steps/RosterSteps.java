@@ -19,6 +19,7 @@ package org.eaa690.aerie.steps;
 import io.cucumber.java.en.When;
 import io.restassured.http.ContentType;
 import org.eaa690.aerie.TestContext;
+import org.eaa690.aerie.model.RFIDRequest;
 
 /**
  * Roster test steps.
@@ -54,6 +55,30 @@ public class RosterSteps extends BaseSteps {
                 .contentType(ContentType.JSON)
                 .when()
                 .post(ROSTER + "update")
+                .then());
+    }
+
+    @When("^I update member (.*)'s RFID with (.*)$")
+    public void iUpdateMemberRFID(final String memberId, final String rfid) {
+        final RFIDRequest rfidRequest = new RFIDRequest();
+        rfidRequest.setRfid(rfid);
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .body(rfidRequest)
+                .put(ROSTER + memberId + "/rfid")
+                .then());
+    }
+
+    @When("^I find a member by their RFID (.*)$")
+    public void iFindMemberByRFID(final String rfid) {
+        final RFIDRequest rfidRequest = new RFIDRequest();
+        rfidRequest.setRfid(rfid);
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .body(rfidRequest)
+                .post(ROSTER + "find-by-rfid")
                 .then());
     }
 

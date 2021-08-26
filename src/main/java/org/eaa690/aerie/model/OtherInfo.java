@@ -18,7 +18,6 @@ package org.eaa690.aerie.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.eaa690.aerie.model.roster.OtherInfoBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;

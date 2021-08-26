@@ -17,16 +17,16 @@
 package org.eaa690.aerie;
 
 import com.github.javafaker.Faker;
+import io.github.bsmichael.rostermanagement.model.Country;
+import io.github.bsmichael.rostermanagement.model.Gender;
+import io.github.bsmichael.rostermanagement.model.MemberType;
+import io.github.bsmichael.rostermanagement.model.State;
+import io.github.bsmichael.rostermanagement.model.Status;
+import io.github.bsmichael.rostermanagement.model.WebAdminAccess;
 import org.eaa690.aerie.constant.CommonConstants;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.Property;
 import org.eaa690.aerie.model.WeatherProduct;
-import org.eaa690.aerie.model.roster.Country;
-import org.eaa690.aerie.model.roster.Gender;
-import org.eaa690.aerie.model.roster.MemberType;
-import org.eaa690.aerie.model.roster.State;
-import org.eaa690.aerie.model.roster.Status;
-import org.eaa690.aerie.model.roster.WebAdminAccess;
 
 /**
  * TestDataFactory.

@@ -22,6 +22,7 @@ import com.sendgrid.SendGrid;
 import com.twilio.Twilio;
 import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
+import io.github.bsmichael.rostermanagement.RosterManager;
 import org.eaa690.aerie.constant.CommonConstants;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
@@ -103,6 +104,23 @@ public class ServiceConfig {
     @Bean
     public HttpClient httpClient() {
         return HttpClient.newHttpClient();
+    }
+
+    /**
+     * RosterManager.
+     *
+     * @param propertyService PropertyService
+     * @return RosterManager
+     */
+    @Bean
+    public RosterManager rosterManager(final PropertyService propertyService) {
+        try {
+            return new RosterManager(
+                    propertyService.get(PropertyKeyConstants.ROSTER_USER_KEY).getValue(),
+                    propertyService.get(PropertyKeyConstants.ROSTER_PASS_KEY).getValue());
+        } catch (ResourceNotFoundException e) {
+            return null;
+        }
     }
 
     /**

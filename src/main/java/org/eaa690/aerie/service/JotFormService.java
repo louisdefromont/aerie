@@ -18,6 +18,7 @@ package org.eaa690.aerie.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import io.github.bsmichael.rostermanagement.model.State;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,8 +28,7 @@ import org.eaa690.aerie.exception.ResourceExistsException;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.JotForm;
 import org.eaa690.aerie.model.Member;
-import org.eaa690.aerie.model.roster.OtherInfoBuilder;
-import org.eaa690.aerie.model.roster.State;
+import org.eaa690.aerie.model.OtherInfoBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;

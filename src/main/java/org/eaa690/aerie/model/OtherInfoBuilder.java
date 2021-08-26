@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.eaa690.aerie.model.roster;
+package org.eaa690.aerie.model;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -67,12 +67,12 @@ public class JotFormService {
     /**
      * Used to filter form submissions retrieval.
      */
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
 
     /**
      * Submissions cache.
      */
-    private static Cache<String, String> submissionsCache =
+    private static final Cache<String, String> SUBMISSIONS_CACHE =
             CacheBuilder.newBuilder().expireAfterWrite(CommonConstants.THIRTY_SIX, TimeUnit.HOURS).build();
 
     /**
@@ -96,7 +96,7 @@ public class JotFormService {
      * EmailService.
      */
     @Autowired
-    private EmailService emailService;
+    private CommunicationService communicationService;
 
     /**
      * Sets TinyURLService.
@@ -138,8 +138,8 @@ public class JotFormService {
      * @param value EmailService
      */
     @Autowired
-    public void setEmailService(final EmailService value) {
-        emailService = value;
+    public void setCommunicationService(final CommunicationService value) {
+        communicationService = value;
     }
 
     /**
@@ -230,8 +230,8 @@ public class JotFormService {
             LOGGER.info("RenewMembersMap size is " + renewMembersMap.size());
             for (final Map.Entry<String, Member> entry : renewMembersMap.entrySet()) {
                 final String key = entry.getKey();
-                if (submissionsCache.getIfPresent(key) == null) {
-                    submissionsCache.put(key, key);
+                if (SUBMISSIONS_CACHE.getIfPresent(key) == null) {
+                    SUBMISSIONS_CACHE.put(key, key);
                     rosterService.saveRenewingMember(entry.getValue());
                 }
             }
@@ -259,14 +259,11 @@ public class JotFormService {
             LOGGER.info("NewMembersMap size is " + newMembersMap.size());
             for (final Map.Entry<String, Member> entry : newMembersMap.entrySet()) {
                 final String key = entry.getKey();
-                if (submissionsCache.getIfPresent(key) == null) {
+                if (SUBMISSIONS_CACHE.getIfPresent(key) == null) {
                     try {
                         final Member member = rosterService.saveNewMember(entry.getValue());
-                        submissionsCache.put(key, key);
-                        emailService.queueMsg(
-                                PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID,
-                                PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY,
-                                member);
+                        SUBMISSIONS_CACHE.put(key, key);
+                        communicationService.sendNewMembershipMsg(member);
                     } catch (ResourceExistsException e) {
                         LOGGER.error("Error", e);
                     }

@@ -18,7 +18,11 @@ package org.eaa690.aerie.communication;
 
 import java.util.function.Predicate;
 
+import org.eaa690.aerie.constant.PropertyKeyConstants;
+import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
+import org.eaa690.aerie.service.PropertyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,12 +32,26 @@ import org.springframework.stereotype.Component;
 public class AcceptsEmailPredicate implements Predicate<Member> {
 
     /**
+     * PropertyService.
+     */
+    @Autowired
+    private PropertyService propertyService;
+
+    /**
      * Tests whether the member accepts emails.
+     *
      * @param member The member that is being tested
      * @return Whether or not the member accepts emails.
      */
     @Override
     public boolean test(final Member member) {
-        return (member != null && member.getEmail() != null && member.isEmailEnabled());
+        try {
+            final Boolean hasEmail = member.getEmail() != null;
+            final Boolean emailEnabled = Boolean.parseBoolean(
+                    propertyService.get(PropertyKeyConstants.EMAIL_ENABLED_KEY).getValue());
+            return (emailEnabled && hasEmail && member.isEmailEnabled());
+        } catch (ResourceNotFoundException e) {
+            return false;
+        }
     }
 }

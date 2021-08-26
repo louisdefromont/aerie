@@ -41,7 +41,7 @@ Feature: admin
   @sms @renewmember @disabled
   Scenario Outline: Send renew membership SMS/Text
     Given I am an unauthenticated user
-    When I request a <order> text be sent to member <rosterId> to renew their membership
+    When I request a text be sent to member <rosterId> to renew their membership
     Then The request should be successful
 
     Examples:
@@ -59,7 +59,7 @@ Feature: admin
   @slack @renewmember @disabled
   Scenario Outline: Send renew membership Slack message
     Given I am an unauthenticated user
-    When I request a <order> Slack message be sent to member <rosterId> to renew their membership
+    When I request a Slack message be sent to member <rosterId> to renew their membership
     Then The request should be successful
 
     Examples:
@@ -98,13 +98,13 @@ Feature: admin
       | second | 0        |
       | third  | 0        |
 
-  @sms @newmember @invaliddata
+  @sms @newmember @invaliddata @disabled
   Scenario: Send new membership SMS/Text to an invalid member
     Given I am an unauthenticated user
     When I request a text be sent to new member 0
     Then A not found exception should be thrown
 
-  @sms @renewmember @invaliddata
+  @sms @renewmember @invaliddata @disabled
   Scenario: Send renew membership SMS/Text to an invalid member
     Given I am an unauthenticated user
     When I request a text be sent to member 0 to renew their membership

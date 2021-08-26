@@ -39,17 +39,17 @@ public class AcceptsSMSPredicate implements Predicate<Member> {
 
     /**
      * Tests if a member accepts SMS messages.
+     *
      * @param member The member that is being tested
      * @return Whether or not the member accepts SMS messages.
      */
     @Override
     public boolean test(final Member member) {
-
         try {
-            Boolean hasPhonePhone = member.getCellPhone() != null || member.getHomePhone() != null;
+            Boolean hasPhone = member.getCellPhone() != null || member.getHomePhone() != null;
             Boolean smsEnabled = Boolean.parseBoolean(
                 propertyService.get(PropertyKeyConstants.SMS_ENABLED_KEY).getValue());
-            return (hasPhonePhone && smsEnabled);
+            return (hasPhone && smsEnabled && member.isSmsEnabled());
         } catch (ResourceNotFoundException e) {
             return false;
         }

@@ -19,20 +19,18 @@ package org.eaa690.aerie.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.sendgrid.SendGrid;
-import com.twilio.Twilio;
 import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
 import io.github.bsmichael.rostermanagement.RosterManager;
 import org.eaa690.aerie.constant.CommonConstants;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
-import org.eaa690.aerie.model.RateLimitRepository;
 import org.eaa690.aerie.model.WeatherProductRepository;
+import org.eaa690.aerie.service.CommunicationService;
 import org.eaa690.aerie.service.JotFormService;
 import org.eaa690.aerie.service.MailChimpService;
 import org.eaa690.aerie.service.PropertyService;
 import org.eaa690.aerie.service.RosterService;
-import org.eaa690.aerie.service.SlackService;
 import org.eaa690.aerie.service.TinyURLService;
 import org.eaa690.aerie.service.WeatherService;
 import org.eaa690.aerie.ssl.SSLUtilities;
@@ -77,7 +75,6 @@ public class ServiceConfig {
      * @param propertyService PropertyService
      * @param sslUtilities SSLUtilities
      * @param wpRepository WeatherProductRepository
-     * @param rlRepository RateLimitRepository
      * @return WeatherService
      */
     @Bean
@@ -85,14 +82,12 @@ public class ServiceConfig {
             final RestTemplate restTemplate,
             final PropertyService propertyService,
             final SSLUtilities sslUtilities,
-            final WeatherProductRepository wpRepository,
-            final RateLimitRepository rlRepository) {
+            final WeatherProductRepository wpRepository) {
         final WeatherService weatherService = new WeatherService();
         weatherService.setRestTemplate(restTemplate);
         weatherService.setPropertyService(propertyService);
         weatherService.setSSLUtilities(sslUtilities);
         weatherService.setWeatherProductRepository(wpRepository);
-        weatherService.setRateLimitRepository(rlRepository);
         return weatherService;
     }
 
@@ -219,37 +214,22 @@ public class ServiceConfig {
      * SlackSession.
      *
      * @param propertyService PropertyService
-     * @param slackService SlackService
+     * @param communicationService SlackService
      * @return SlackSession
      */
     @Bean
-    public SlackSession slackSession(final PropertyService propertyService, final SlackService slackService) {
+    public SlackSession slackSession(final PropertyService propertyService,
+                                     final CommunicationService communicationService) {
         try {
             final SlackSession slackSession = SlackSessionFactory
                     .createWebSocketSlackSession(
                             propertyService.get(PropertyKeyConstants.SLACK_TOKEN_KEY).getValue());
             slackSession.connect();
-            slackSession.addMessagePostedListener(slackService);
+            slackSession.addMessagePostedListener(communicationService);
             return slackSession;
         } catch (IOException | ResourceNotFoundException e) {
             return null;
         }
     }
 
-    /**
-     * Initialize twillio.
-     *
-     * @param propertyService PropertyService
-     * @return null
-     */
-    @Bean
-    public Object twillio(final PropertyService propertyService) {
-        try {
-            Twilio.init(propertyService.get(PropertyKeyConstants.SMS_ACCOUNT_SID_KEY).getValue(),
-                    propertyService.get(PropertyKeyConstants.SMS_AUTH_ID_KEY).getValue());
-        } catch (ResourceNotFoundException e) {
-            return null;
-        }
-        return null;
-    }
 }

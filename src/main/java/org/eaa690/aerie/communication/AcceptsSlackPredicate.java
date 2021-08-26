@@ -16,21 +16,20 @@
 
 package org.eaa690.aerie.communication;
 
-import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.type.PhoneNumber;
-
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
-import org.eaa690.aerie.model.communication.SMS;
+import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.service.PropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.function.Predicate;
+
 /**
- * TwilioSMSSender.
+ * Predicate that tests if a given member accepts Slack messages.
  */
 @Component
-public class TwilioSMSSender extends MessageSender<SMS> {
+public class AcceptsSlackPredicate implements Predicate<Member> {
 
     /**
      * PropertyService.
@@ -39,33 +38,20 @@ public class TwilioSMSSender extends MessageSender<SMS> {
     private PropertyService propertyService;
 
     /**
-     * TwilioSMSSender.
-     * @param acceptsMessagePredicate {@inheritDoc}
-     */
-    @Autowired
-    public TwilioSMSSender(final AcceptsSMSPredicate acceptsMessagePredicate) {
-        super("Twilio_SMS", acceptsMessagePredicate);
-    }
-
-    /**
-     * {@inheritDoc}
+     * Tests if a member accepts Slack messages.
+     *
+     * @param member The member that is being tested
+     * @return Whether or not the member accepts Slack messages.
      */
     @Override
-    public String sendMessage(final SMS message) {
+    public boolean test(final Member member) {
         try {
-            Message createdMessage = Message
-                        .creator(new PhoneNumber(message.getRecipientAddress()),
-                                new PhoneNumber(
-                                    propertyService.get(PropertyKeyConstants.SMS_FROM_ADDRESS_KEY).getValue()),
-                                message.getBody())
-                        .create();
-
-                        return createdMessage.getBody();
+            final Boolean hasSlack = member.getSlack() != null;
+            final Boolean slackEnabled = Boolean.parseBoolean(
+                propertyService.get(PropertyKeyConstants.SLACK_ENABLED_KEY).getValue());
+            return (hasSlack && slackEnabled && member.isSlackEnabled());
         } catch (ResourceNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            return false;
         }
-
-        return null;
     }
 }

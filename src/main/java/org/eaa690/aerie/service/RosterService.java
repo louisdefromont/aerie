@@ -65,19 +65,7 @@ public class RosterService {
      * EmailService.
      */
     @Autowired
-    private EmailService emailService;
-
-    /**
-     * SMSService.
-     */
-    @Autowired
-    private SMSService smsService;
-
-    /**
-     * SlackService.
-     */
-    @Autowired
-    private SlackService slackService;
+    private CommunicationService communicationService;
 
     /**
      * MemberRepository.
@@ -109,30 +97,8 @@ public class RosterService {
      * @param value EmailService
      */
     @Autowired
-    public void setEmailService(final EmailService value) {
-        emailService = value;
-    }
-
-    /**
-     * Sets SMSService.
-     * Note: mostly used for unit test mocks
-     *
-     * @param value SMSService
-     */
-    @Autowired
-    public void setSMSService(final SMSService value) {
-        smsService = value;
-    }
-
-    /**
-     * Sets SlackService.
-     * Note: mostly used for unit test mocks
-     *
-     * @param value SlackService
-     */
-    @Autowired
-    public void setSlackService(final SlackService value) {
-        slackService = value;
+    public void setCommunicationService(final CommunicationService value) {
+        communicationService = value;
     }
 
     /**
@@ -207,30 +173,15 @@ public class RosterService {
                                                         DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                                 if (expirationDate.equals(
                                         getFutureDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_FIRST_MSG_DAYS_KEY))) {
-                                    emailService.queueMsg(
-                                            PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
-                                            PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
-                                            member);
-                                    smsService.sendRenewMembershipMsg(member);
-                                    slackService.sendRenewMembershipMsg(member);
+                                    communicationService.sendRenewMembershipMsg(member);
                                 }
                                 if (expirationDate.equals(getFutureDateStr(
                                                 PropertyKeyConstants.MEMBERSHIP_RENEWAL_SECOND_MSG_DAYS_KEY))) {
-                                    emailService.queueMsg(
-                                            PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
-                                            PropertyKeyConstants.SEND_GRID_SECOND_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
-                                            member);
-                                    smsService.sendRenewMembershipMsg(member);
-                                    slackService.sendRenewMembershipMsg(member);
+                                    communicationService.sendRenewMembershipMsg(member);
                                 }
                                 if (expirationDate.equals(
                                         getFutureDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_THIRD_MSG_DAYS_KEY))) {
-                                    emailService.queueMsg(
-                                            PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID,
-                                            PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY,
-                                            member);
-                                    smsService.sendRenewMembershipMsg(member);
-                                    slackService.sendRenewMembershipMsg(member);
+                                    communicationService.sendRenewMembershipMsg(member);
                                 }
                                 if (expirationDate.equals(ZonedDateTime.ofInstant(Instant.now(),
                                         ZoneId.systemDefault()).format(
@@ -318,14 +269,12 @@ public class RosterService {
      * Saves member information to roster.
      *
      * @param member Member to be saved
-     * @return saved member
      */
-    public Member saveRenewingMember(final Member member) {
+    public void saveRenewingMember(final Member member) {
         LOGGER.info("Saving renewing member: " + member);
         mapperFactory.classMap(Member.class, Person.class);
         MapperFacade mapper = mapperFactory.getMapperFacade();
         rosterManager.savePerson(mapper.map(member, Person.class));
-        return member;
     }
 
     /**

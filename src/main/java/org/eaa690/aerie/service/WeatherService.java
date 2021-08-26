@@ -20,12 +20,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eaa690.aerie.constant.CommonConstants;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
-import org.eaa690.aerie.model.wx.*;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.WeatherProduct;
 import org.eaa690.aerie.model.WeatherProductRepository;
+import org.eaa690.aerie.model.wx.Barometer;
+import org.eaa690.aerie.model.wx.Ceiling;
+import org.eaa690.aerie.model.wx.Cloud;
+import org.eaa690.aerie.model.wx.Dewpoint;
+import org.eaa690.aerie.model.wx.METAR;
+import org.eaa690.aerie.model.wx.Temperature;
+import org.eaa690.aerie.model.wx.Visibility;
+import org.eaa690.aerie.model.wx.Wind;
 import org.eaa690.aerie.ssl.SSLUtilities;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jetbrains.annotations.NotNull;
@@ -266,7 +272,7 @@ public class WeatherService {
      * @return METAR
      */
     @NotNull
-    private METAR parseMetar(JSONObject props) {
+    private METAR parseMetar(final JSONObject props) {
         final METAR metar = new METAR();
         metar.setIcao(props.getString("id"));
         metar.setObserved(props.getString("obsTime"));
@@ -285,11 +291,12 @@ public class WeatherService {
         ceiling.setCode(props.getString("cover"));
         metar.setCeiling(ceiling);
         final List<Cloud> clouds = new ArrayList<>();
-        for (int j = 0; j < 10; j++) {
+        for (int j = 0; j < CommonConstants.TEN; j++) {
             if (!props.isNull("cldCvg" + j)) {
                 final Cloud cloud = new Cloud();
                 cloud.setCode(props.getString("cldCvg" + j));
-                cloud.setBaseFeetAgl(Double.parseDouble(props.getString("cldBas" + j)) * 100);
+                cloud.setBaseFeetAgl(Double.parseDouble(props.getString("cldBas" + j))
+                        * CommonConstants.ONE_HUNDRED);
                 clouds.add(cloud);
             }
         }

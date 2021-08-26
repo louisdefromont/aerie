@@ -18,24 +18,35 @@ package org.eaa690.aerie.model;
 
 import org.springframework.data.repository.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface RateLimitRepository extends Repository<RateLimit, Long> {
+/**
+ * QueuedMessageRepository.
+ */
+public interface QueuedMessageRepository extends Repository<QueuedMessage, Long> {
 
     /**
-     * Gets a rate limit.
+     * Gets all QueuedMessage.
      *
-     * @param key Key
-     * @return RateLimit
+     * @return all QueuedMessage
      */
-    Optional<RateLimit> findByKey(String key);
+    Optional<List<QueuedMessage>> findAll();
 
     /**
-     * Saves a rate limit.
+     * Saves a QueuedMessage.
      *
-     * @param rateLimit RateLimit
-     * @return RateLimit
+     * @param queuedMessage QueuedMessage
+     * @return QueuedMessage
      */
-    RateLimit save(RateLimit rateLimit);
+    QueuedMessage save(QueuedMessage queuedMessage);
+
+    /**
+     * Saves a QueuedMessage.
+     *
+     * @param queuedMessage QueuedMessage
+     * @return QueuedMessage
+     */
+    QueuedMessage delete(QueuedMessage queuedMessage);
 
 }

@@ -24,7 +24,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * Property.
@@ -33,7 +32,7 @@ import java.util.Objects;
 @Table(name = "PROPERTY")
 @Getter
 @Setter
-public class Property extends BaseEntity implements Comparable<Property> {
+public class Property extends BaseEntity {
 
     /**
      * Default SerialVersionUID.
@@ -58,43 +57,6 @@ public class Property extends BaseEntity implements Comparable<Property> {
     public Property() {
         super.setCreatedAt(new Date());
         super.setUpdatedAt(new Date());
-    }
-
-    /**
-     * {@inheritDoc} Required implementation.
-     */
-    @Override
-    public int compareTo(final Property other) {
-        if (equals(other)) {
-            return 0;
-        }
-        return 1;
-    }
-
-    /**
-     * {@inheritDoc} Required implementation.
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(key, value);
-    }
-
-    /**
-     * {@inheritDoc} Required implementation.
-     */
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Property other = (Property) obj;
-        return Objects.equals(key, other.key) && Objects.equals(value, other.value);
     }
 
 }

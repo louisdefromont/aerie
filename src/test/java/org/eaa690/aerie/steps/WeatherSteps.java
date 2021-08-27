@@ -42,13 +42,18 @@ public class WeatherSteps extends BaseSteps {
         super(testContext);
     }
 
-    @Given("^I want (.*) information$")
-    public void iOnlyWantSpecificInformation(String field) {
-        requestSpecification().param("data", field);
+    @Given("^I request the (.*) METAR wanting only (.*) information$")
+    public void iOnlyWantSpecificInformation(final String icao, final String field) {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .param("data", field)
+                .when()
+                .get(WEATHER + "metars/" + icao)
+                .then());
     }
 
     @When("^I request the (.*) METAR$")
-    public void iRequestTheMETAR(String icao) {
+    public void iRequestTheMETAR(final String icao) {
         testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()

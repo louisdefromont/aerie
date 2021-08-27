@@ -38,11 +38,11 @@ public class Temperature implements Serializable {
     /**
      * Celsius.
      */
-    private Integer celsius;
+    private Long celsius;
 
     /**
      * Fahrenheit.
      */
-    private Integer fahrenheit;
+    private Long fahrenheit;
 
 }

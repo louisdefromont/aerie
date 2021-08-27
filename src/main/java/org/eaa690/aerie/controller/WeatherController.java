@@ -23,7 +23,6 @@ import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.service.PropertyService;
 import org.eaa690.aerie.service.WeatherService;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -114,26 +113,23 @@ public class WeatherController {
             @RequestParam(required = false, value = "data") final List<String> dataList)
             throws ResourceNotFoundException,
             InvalidPayloadException {
-        if (StringUtils.isNotEmpty(icao)) {
-            final List<METAR> metars = new ArrayList<>();
-            if (ATLANTA.equalsIgnoreCase(icao)) {
-                metars
-                        .addAll(
-                                weatherService
-                                        .getMETARs(Arrays
-                                                .asList(propertyService
-                                                        .get(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY)
-                                                        .getValue()
-                                                        .split(","))));
-            } else if (weatherService.isValidStation(icao.toUpperCase())) {
-                metars.addAll(Arrays.asList(weatherService.getMETAR(icao.toUpperCase())));
-            }
-            if (CollectionUtils.isNotEmpty(metars)) {
-                return filterAttributes(metars, dataList);
-            }
-            throw new InvalidPayloadException(String.format(INVALID_STATION_MSG, icao));
+        final List<METAR> metars = new ArrayList<>();
+        if (ATLANTA.equalsIgnoreCase(icao)) {
+            metars
+                    .addAll(
+                            weatherService
+                                    .getMETARs(Arrays
+                                            .asList(propertyService
+                                                    .get(PropertyKeyConstants.ATLANTA_ICAO_CODES_PROPERTY_KEY)
+                                                    .getValue()
+                                                    .split(","))));
+        } else if (weatherService.isValidStation(icao.toUpperCase())) {
+            metars.addAll(Arrays.asList(weatherService.getMETAR(icao.toUpperCase())));
         }
-        throw new InvalidPayloadException(NO_STATION_MSG);
+        if (CollectionUtils.isNotEmpty(metars)) {
+            return filterAttributes(metars, dataList);
+        }
+        throw new InvalidPayloadException(String.format(INVALID_STATION_MSG, icao));
     }
 
     /**
@@ -153,9 +149,6 @@ public class WeatherController {
             for (final String data : dataList) {
                 filteredMetar.setIcao(metar.getIcao());
                 switch (data) {
-                    case METAR.NAME:
-                        filteredMetar.setName(metar.getName());
-                        break;
                     case METAR.OBSERVED:
                         filteredMetar.setObserved(metar.getObserved());
                         break;
@@ -193,7 +186,7 @@ public class WeatherController {
                         filteredMetar.setWind(metar.getWind());
                         break;
                     default:
-                        // Do something
+                        filteredMetar.setName(metar.getName());
                 }
             }
             filteredMetars.add(filteredMetar);

@@ -133,3 +133,10 @@ Feature: admin
     Given I am an unauthenticated user
     When I request non-member 0 be added to the MailChimp non-member list
     Then A not found exception should be thrown
+
+  @weather @update
+  Scenario: Update weather data from AviationWeather.gov
+    Given I am an unauthenticated user
+    When I request the weather data to be updated
+    Then The request should be successful
+

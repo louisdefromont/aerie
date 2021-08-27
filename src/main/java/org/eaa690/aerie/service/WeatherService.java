@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eaa690.aerie.constant.CommonConstants;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
+import org.eaa690.aerie.constant.WeatherConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.WeatherProduct;
 import org.eaa690.aerie.model.WeatherProductRepository;
@@ -252,7 +253,7 @@ public class WeatherService {
                 JSONArray features = root.getJSONArray("features");
                 for (int i = 0; i < features.length(); i++) {
                     JSONObject station = features.getJSONObject(i);
-                    if (!station.isNull("id")) {
+                    if (station.has("id")) {
                         JSONObject props = station.getJSONObject("properties");
                         final METAR metar = parseMetar(props);
                         cacheMetar(metar.getIcao(), metar);
@@ -274,41 +275,59 @@ public class WeatherService {
     @NotNull
     private METAR parseMetar(final JSONObject props) {
         final METAR metar = new METAR();
-        metar.setIcao(props.getString("id"));
-        metar.setObserved(props.getString("obsTime"));
-        final Temperature temperature = new Temperature();
-        temperature.setCelsius(Math.round(props.getFloat("temp")));
-        metar.setTemperature(temperature);
-        final Dewpoint dewpoint = new Dewpoint();
-        dewpoint.setCelsius(Math.round(props.getFloat("dewp")));
-        metar.setDewpoint(dewpoint);
-        final Wind wind = new Wind();
-        wind.setSpeedKt(props.getInt("wspd"));
-        wind.setDegrees(props.getInt("wdir"));
-        metar.setWind(wind);
-        final Ceiling ceiling = new Ceiling();
-        ceiling.setFeet(props.getDouble("ceil"));
-        ceiling.setCode(props.getString("cover"));
-        metar.setCeiling(ceiling);
-        final List<Cloud> clouds = new ArrayList<>();
-        for (int j = 0; j < CommonConstants.TEN; j++) {
-            if (!props.isNull("cldCvg" + j)) {
-                final Cloud cloud = new Cloud();
-                cloud.setCode(props.getString("cldCvg" + j));
-                cloud.setBaseFeetAgl(Double.parseDouble(props.getString("cldBas" + j))
-                        * CommonConstants.ONE_HUNDRED);
-                clouds.add(cloud);
-            }
+        metar.setIcao(props.getString(WeatherConstants.ID));
+        metar.setObserved(props.getString(WeatherConstants.OBSERVED_TIME));
+        if (props.has(WeatherConstants.TEMPERATURE)) {
+            final Temperature temperature = new Temperature();
+            temperature.setCelsius(Math.round(Float.parseFloat(props.getString(WeatherConstants.TEMPERATURE))));
+            metar.setTemperature(temperature);
         }
-        metar.setClouds(clouds);
-        final Visibility visibility = new Visibility();
-        visibility.setMiles(props.getString("visib"));
-        metar.setVisibility(visibility);
-        metar.setFlightCategory(props.getString("fltcat"));
-        final Barometer barometer = new Barometer();
-        barometer.setMb(props.getDouble("altim"));
-        metar.setBarometer(barometer);
-        metar.setRawText(props.getString("rawOb"));
+        if (props.has(WeatherConstants.DEWPOINT)) {
+            final Dewpoint dewpoint = new Dewpoint();
+            dewpoint.setCelsius(Math.round(Float.parseFloat(props.getString(WeatherConstants.DEWPOINT))));
+            metar.setDewpoint(dewpoint);
+        }
+        if (props.has(WeatherConstants.WIND_SPEED)) {
+            final Wind wind = new Wind();
+            wind.setSpeedKt(props.getInt(WeatherConstants.WIND_SPEED));
+            wind.setDegrees(props.getInt(WeatherConstants.WIND_DIRECTION));
+            metar.setWind(wind);
+        }
+        if (props.has(WeatherConstants.CEILING)) {
+            final Ceiling ceiling = new Ceiling();
+            ceiling.setFeet(props.getDouble(WeatherConstants.CEILING));
+            ceiling.setCode(props.getString(WeatherConstants.COVER));
+            metar.setCeiling(ceiling);
+        }
+        if (props.has(WeatherConstants.CLOUD_COVER + "1")) {
+            final List<Cloud> clouds = new ArrayList<>();
+            for (int j = 1; j < CommonConstants.TEN; j++) {
+                if (props.has(WeatherConstants.CLOUD_COVER + j)) {
+                    final Cloud cloud = new Cloud();
+                    cloud.setCode(props.getString(WeatherConstants.CLOUD_COVER + j));
+                    if (props.has(WeatherConstants.CLOUD_BASE + j)) {
+                        cloud.setBaseFeetAgl(Double.parseDouble(props.getString(WeatherConstants.CLOUD_BASE + j))
+                                * CommonConstants.ONE_HUNDRED);
+                    }
+                    clouds.add(cloud);
+                }
+            }
+            metar.setClouds(clouds);
+        }
+        if (props.has(WeatherConstants.VISIBILITY)) {
+            final Visibility visibility = new Visibility();
+            visibility.setMiles(props.getString(WeatherConstants.VISIBILITY));
+            metar.setVisibility(visibility);
+        }
+        if (props.has(WeatherConstants.FLIGHT_CATEGORY)) {
+            metar.setFlightCategory(props.getString(WeatherConstants.FLIGHT_CATEGORY));
+        }
+        if (props.has(WeatherConstants.ALTIMETER)) {
+            final Barometer barometer = new Barometer();
+            barometer.setMb(props.getDouble(WeatherConstants.ALTIMETER));
+            metar.setBarometer(barometer);
+        }
+        metar.setRawText(props.getString(WeatherConstants.RAW_OBSERVATION));
         metar.setCreatedAt(new Date());
         metar.setUpdatedAt(new Date());
         return metar;

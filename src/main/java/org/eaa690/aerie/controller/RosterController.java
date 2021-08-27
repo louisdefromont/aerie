@@ -121,7 +121,7 @@ public class RosterController {
      * @return FindByRFIDResponse
      * @throws ResourceNotFoundException when RFID is not found
      */
-    @PostMapping(path = {"/find-by-id"})
+    @PostMapping(path = {"/find-by-rfid"})
     public FindByRFIDResponse findByRFID(@RequestBody final RFIDRequest rfidRequest) throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRFID(rfidRequest.getRfid());
         final FindByRFIDResponse rfidResponse = new FindByRFIDResponse();

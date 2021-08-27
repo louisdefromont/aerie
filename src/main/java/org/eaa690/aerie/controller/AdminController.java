@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -130,10 +131,10 @@ public class AdminController {
      * @param rosterId RosterId of member.
      * @param textBody SMS Body to be sent.
      */
-    @PostMapping(path = {"/sms/{rosterId}/{textBody}"})
+    @PostMapping(path = {"/sms/{rosterId}"})
     public void sendSMS(
             @PathVariable("rosterId") final Long rosterId,
-            @PathVariable("textBody") final String textBody) {
+            @RequestBody final String textBody) {
         try {
             final Member member = rosterService.getMemberByRosterID(rosterId);
             final QueuedMessage queuedMessage = new QueuedMessage();
@@ -171,7 +172,7 @@ public class AdminController {
      * @throws ResourceNotFoundException when member is not found
      */
     @PostMapping(path = {"/{rosterId}/renew-membership"})
-    public void testRenewMembershipSMS(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
+    public void testRenewMembership(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRosterID(rosterId);
         LOGGER.info(String.format(SEND_MSG_MESSAGE, "renew-membership", "sms",
                 member.getFirstName(), member.getLastName(), member.getCellPhone()));
@@ -185,7 +186,7 @@ public class AdminController {
      * @throws ResourceNotFoundException when member is not found
      */
     @PostMapping(path = {"/{rosterId}/new-membership"})
-    public void testNewMembershipSMS(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
+    public void testNewMembership(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRosterID(rosterId);
         LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "sms",
                 member.getFirstName(), member.getLastName(), member.getCellPhone()));

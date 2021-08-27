@@ -17,10 +17,10 @@
 spring:
   datasource:
     username: aerie
-    password: aerie
-    url: jdbc:mysql://aerie-mysql:33061/aerie?serverTimezone=America/New_York
+    password: ${AERIE_DB_PASS}
+    url: jdbc:mysql://localhost:3306/aerie?serverTimezone=America/New_York
   jpa:
     database-platform: org.hibernate.dialect.MySQL57Dialect
-    show-sql: false
+    show-sql: true
     hibernate:
       ddl-auto: update

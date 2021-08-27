@@ -93,3 +93,27 @@ Feature: membership
     Given I am not a chapter member
     When I check the membership status for member with ID 42648
     Then A not found exception should be thrown
+
+  @unsubscribe @email @disabled
+  Scenario: Email recipient wishes to un-subscribe from future emails
+    Given I am a chapter member
+    When I unsubscribe from receiving email messages
+    Then The request should be successful
+    And I should see a message stating that I have been unsubscribed
+    And I have an emailEnabled status of false
+
+  @unsubscribe @sms @disabled
+  Scenario: SMS/Text message recipient wishes to un-subscribe from future SMS/Text messages
+    Given I am a chapter member
+    When I unsubscribe from receiving sms messages
+    Then The request should be successful
+    And I should see a message stating that I have been unsubscribed
+    And I have an smsEnabled status of false
+
+  @unsubscribe @slack @disabled
+  Scenario: Slack message recipient wishes to un-subscribe from future Slack messages
+    Given I am a chapter member
+    When I unsubscribe from receiving slack messages
+    Then The request should be successful
+    And I should see a message stating that I have been unsubscribed
+    And I have an slackEnabled status of false

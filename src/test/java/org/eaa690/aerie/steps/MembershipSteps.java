@@ -139,6 +139,18 @@ public class MembershipSteps extends BaseSteps {
                 .then());
     }
 
+    @When("^I (.*)subscribe (.*) receiving (.*) messages$")
+    public void iChangeMySMSSubscriptionStatus(final String action,
+                                               final String ignored,
+                                               final String messageType) {
+        if ("un".equalsIgnoreCase(action)) {
+            // Do unsubscribe action
+        } else {
+            // Do resubscribe action
+        }
+        throw new PendingException();
+    }
+
     @Then("^I should have a record in the roster management system$")
     public void iShouldHaveARecordInTheRosterManagementSystem() {
         throw new PendingException();
@@ -196,6 +208,21 @@ public class MembershipSteps extends BaseSteps {
 
     @Then("^I should receive my membership details$")
     public void iShouldReceiveMyMembershipDetails() {
+        throw new PendingException();
+    }
+
+    @Then("^I have an (.*)Enabled status of (.*)$")
+    public void iHaveMessageStatus(final String messageType, final String value) {
+        throw new PendingException();
+    }
+
+    @Then("^I should see a message stating that I have been (.*)subscribed$")
+    public void iReceiveSubscriptionStatusMessage(final String action) {
+        if ("un".equalsIgnoreCase(action)) {
+            // Verify unsubscribe message
+        } else {
+            // Verify resubscribe message
+        }
         throw new PendingException();
     }
 

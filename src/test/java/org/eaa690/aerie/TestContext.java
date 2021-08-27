@@ -28,9 +28,9 @@ import lombok.Setter;
 public class TestContext {
 
     /**
-     * Member ID.
+     * Roster ID.
      */
-    private String memberId;
+    private String rosterId;
 
     /**
      * ValidatableResponse.

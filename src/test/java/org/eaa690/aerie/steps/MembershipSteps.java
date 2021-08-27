@@ -47,7 +47,7 @@ public class MembershipSteps extends BaseSteps {
 
     @Given("^I am not a chapter member$")
     public void iAmNotAChapterMember() {
-        testContext.setMemberId(null);
+        testContext.setRosterId(null);
     }
 
     @Given("^I am a new chapter member$")
@@ -58,7 +58,7 @@ public class MembershipSteps extends BaseSteps {
 
     @Given("^I am a chapter member$")
     public void iAmAnExistingMember() {
-        testContext.setMemberId("42648");
+        testContext.setRosterId("42648");
     }
 
     @Given("^I have a record in the roster management system$")
@@ -141,7 +141,7 @@ public class MembershipSteps extends BaseSteps {
         testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()
-                .get(ROSTER + testContext.getMemberId() + "/expiration")
+                .get(ROSTER + testContext.getRosterId() + "/expiration")
                 .then());
     }
 

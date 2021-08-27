@@ -21,6 +21,6 @@ spring:
     url: jdbc:mysql://localhost:3306/aerie?serverTimezone=America/New_York
   jpa:
     database-platform: org.hibernate.dialect.MySQL57Dialect
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: update

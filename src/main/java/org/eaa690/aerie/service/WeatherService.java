@@ -51,7 +51,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -280,12 +279,12 @@ public class WeatherService {
         metar.setObserved(props.getString(WeatherConstants.OBSERVED_TIME));
         if (props.has(WeatherConstants.TEMPERATURE)) {
             final Temperature temperature = new Temperature();
-            temperature.setCelsius(Math.round(((BigDecimal) props.get(WeatherConstants.TEMPERATURE)).floatValue()));
+            temperature.setCelsius(Math.round(props.getDouble(WeatherConstants.TEMPERATURE)));
             metar.setTemperature(temperature);
         }
         if (props.has(WeatherConstants.DEWPOINT)) {
             final Dewpoint dewpoint = new Dewpoint();
-            dewpoint.setCelsius(Math.round(((BigDecimal) props.get(WeatherConstants.DEWPOINT)).floatValue()));
+            dewpoint.setCelsius(Math.round(props.getDouble(WeatherConstants.DEWPOINT)));
             metar.setDewpoint(dewpoint);
         }
         if (props.has(WeatherConstants.WIND_SPEED)) {

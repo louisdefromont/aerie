@@ -24,6 +24,7 @@ import io.restassured.http.ContentType;
 import org.eaa690.aerie.TestContext;
 import org.eaa690.aerie.TestDataFactory;
 import org.eaa690.aerie.model.Member;
+import org.hamcrest.Matchers;
 
 /**
  * Membership test steps.
@@ -45,6 +46,11 @@ public class MembershipSteps extends BaseSteps {
     }
 
     @Given("^I am not a chapter member$")
+    public void iAmNotAChapterMember() {
+        testContext.setRosterId(null);
+    }
+
+    @Given("^I am a new chapter member$")
     public void iAmANewMember() {
         final Member member = TestDataFactory.getMember();
         throw new PendingException();
@@ -52,7 +58,7 @@ public class MembershipSteps extends BaseSteps {
 
     @Given("^I am a chapter member$")
     public void iAmAnExistingMember() {
-        throw new PendingException();
+        testContext.setRosterId("42648");
     }
 
     @Given("^I have a record in the roster management system$")
@@ -130,13 +136,25 @@ public class MembershipSteps extends BaseSteps {
         throw new PendingException();
     }
 
-    @When("^I check the membership status for member with ID (.*)$")
-    public void iCheckMyMembershipStatus(final String memberId) {
+    @When("^I check my membership status$")
+    public void iCheckMyMembershipStatus() {
         testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()
-                .get(ROSTER + memberId + "/expiration")
+                .get(ROSTER + testContext.getRosterId() + "/expiration")
                 .then());
+    }
+
+    @When("^I (.*)subscribe (.*) receiving (.*) messages$")
+    public void iChangeMySMSSubscriptionStatus(final String action,
+                                               final String ignored,
+                                               final String messageType) {
+        if ("un".equalsIgnoreCase(action)) {
+            // Do unsubscribe action
+        } else {
+            // Do resubscribe action
+        }
+        throw new PendingException();
     }
 
     @Then("^I should have a record in the roster management system$")
@@ -196,6 +214,26 @@ public class MembershipSteps extends BaseSteps {
 
     @Then("^I should receive my membership details$")
     public void iShouldReceiveMyMembershipDetails() {
+        testContext.getValidatableResponse()
+                .assertThat()
+                .body("id", Matchers.notNullValue())
+                .body("name", Matchers.notNullValue())
+                .body("expirationDate", Matchers.notNullValue())
+                .body("rfid", Matchers.notNullValue());
+    }
+
+    @Then("^I have an (.*)Enabled status of (.*)$")
+    public void iHaveMessageStatus(final String messageType, final String value) {
+        throw new PendingException();
+    }
+
+    @Then("^I should see a message stating that I have been (.*)subscribed$")
+    public void iReceiveSubscriptionStatusMessage(final String action) {
+        if ("un".equalsIgnoreCase(action)) {
+            // Verify unsubscribe message
+        } else {
+            // Verify resubscribe message
+        }
         throw new PendingException();
     }
 

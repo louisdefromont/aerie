@@ -134,9 +134,32 @@ Feature: admin
     When I request non-member 0 be added to the MailChimp non-member list
     Then A not found exception should be thrown
 
+  @resubscribe @email @disabled
+  Scenario: Former email recipient wishes to re-subscribe to future emails
+    Given I am a chapter member
+    When I resubscribe to receiving email messages
+    Then The request should be successful
+    And I should see a message stating that I have been resubscribed
+    And I have an emailEnabled status of true
+
+  @resubscribe @sms @disabled
+  Scenario: Former SMS/Text message recipient wishes to re-subscribe to future SMS/Text messages
+    Given I am a chapter member
+    When I resubscribe to receiving sms messages
+    Then The request should be successful
+    And I should see a message stating that I have been resubscribed
+    And I have an smsEnabled status of true
+
+  @resubscribe @slack @disabled
+  Scenario: Former Slack message recipient wishes to re-subscribe to future Slack messages
+    Given I am a chapter member
+    When I resubscribe to receiving slack messages
+    Then The request should be successful
+    And I should see a message stating that I have been resubscribed
+    And I have an slackEnabled status of true
+
   @weather @update
   Scenario: Update weather data from AviationWeather.gov
     Given I am an unauthenticated user
     When I request the weather data to be updated
     Then The request should be successful
-

@@ -16,6 +16,14 @@
 
 package org.eaa690.aerie.model;
 
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Table;
+
+import io.github.bsmichael.rostermanagement.model.CellPhoneProvider;
 import io.github.bsmichael.rostermanagement.model.Country;
 import io.github.bsmichael.rostermanagement.model.Gender;
 import io.github.bsmichael.rostermanagement.model.MemberType;
@@ -24,13 +32,6 @@ import io.github.bsmichael.rostermanagement.model.Status;
 import io.github.bsmichael.rostermanagement.model.WebAdminAccess;
 import lombok.Getter;
 import lombok.Setter;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.util.Date;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-
-import org.eaa690.aerie.model.roster.CellPhoneProvider;
 
 /**
  * Member.

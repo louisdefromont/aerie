@@ -16,6 +16,14 @@
 
 package org.eaa690.aerie.model;
 
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Table;
+
+import io.github.bsmichael.rostermanagement.model.CellPhoneProvider;
 import io.github.bsmichael.rostermanagement.model.Country;
 import io.github.bsmichael.rostermanagement.model.Gender;
 import io.github.bsmichael.rostermanagement.model.MemberType;
@@ -24,13 +32,6 @@ import io.github.bsmichael.rostermanagement.model.Status;
 import io.github.bsmichael.rostermanagement.model.WebAdminAccess;
 import lombok.Getter;
 import lombok.Setter;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.util.Date;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-
-import org.eaa690.aerie.model.roster.CellPhoneProvider;
 
 /**
  * Member.
@@ -279,41 +280,5 @@ public class Member extends BaseEntity {
      * Slack Enabled Flag.
      */
     private boolean slackEnabled = false;
-
-    /**
-     * Sets Slack.
-     *
-     * @param value Slack username
-     */
-    public void setSlack(final String value) {
-        this.slack = value;
-        if (value != null) {
-            slackEnabled = true;
-        }
-    }
-
-    /**
-     * Set email.
-     *
-     * @param value Email address
-     */
-    public void setEmail(final String value) {
-        this.email = value;
-        if (value != null) {
-            emailEnabled = true;
-        }
-    }
-
-    /**
-     * Gets NumOfFamily.
-     *
-     * @return numOfFamily
-     */
-    public Long getNumOfFamily() {
-        if (numOfFamily == null) {
-            return 0L;
-        }
-        return numOfFamily;
-    }
 
 }

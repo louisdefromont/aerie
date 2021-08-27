@@ -24,7 +24,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * WeatherProduct.
@@ -33,7 +32,7 @@ import java.util.Objects;
 @Table(name = "WEATHER_PRODUCT")
 @Getter
 @Setter
-public class WeatherProduct extends BaseEntity implements Comparable<WeatherProduct> {
+public class WeatherProduct extends BaseEntity {
 
     /**
      * Default SerialVersionUID.
@@ -58,44 +57,6 @@ public class WeatherProduct extends BaseEntity implements Comparable<WeatherProd
     public WeatherProduct() {
         super.setCreatedAt(new Date());
         super.setUpdatedAt(new Date());
-    }
-
-    /**
-     * {@inheritDoc} Required implementation.
-     */
-    @Override
-    public int compareTo(final WeatherProduct other) {
-        if (equals(other)) {
-            return 0;
-        }
-        return 1;
-    }
-
-    /**
-     * {@inheritDoc} Required implementation.
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(key, value);
-    }
-
-    /**
-     * {@inheritDoc} Required implementation.
-     */
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final WeatherProduct other = (WeatherProduct) obj;
-        return Objects.equals(key, other.key)
-                && Objects.equals(value, other.value);
     }
 
 }

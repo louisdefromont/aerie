@@ -30,16 +30,26 @@ Feature: weather
   @metar
   Scenario Outline: Retrieve specific METAR information for a single station
     Given I am an unauthenticated user
-    And I want <field> information
-    When I request the <icao> METAR
+    When I request the <icao> METAR wanting only <field> information
     Then The request should be successful
     And I should receive the <field> data
 
     Examples:
-      | icao  | field           |
-      | KATL  | flight_category |
-      | KLZU  | raw_text        |
-      | KFFC  | observed        |
+      | icao  | field            |
+      | KATL  | flight_category  |
+      | KFFC  | observed         |
+      | KLZU  | raw_text         |
+      | KLZU  | name             |
+      | KLZU  | observed         |
+      | KLZU  | barometer        |
+      | KLZU  | ceiling          |
+      | KLZU  | clouds           |
+      | KLZU  | dewpoint         |
+      | KLZU  | elevation        |
+      | KLZU  | humidity_percent |
+      | KLZU  | temperature      |
+      | KLZU  | visibility       |
+      | KLZU  | wind             |
 
   @metar
   Scenario Outline: Retrieve METAR information for an invalid station

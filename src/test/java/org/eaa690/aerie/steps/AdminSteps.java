@@ -129,4 +129,13 @@ public class AdminSteps extends BaseSteps {
                 .then());
     }
 
+    @When("^I request the weather data to be updated$")
+    public void iRequestWeatherUpdated() {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "weather/update")
+                .then());
+    }
+
 }

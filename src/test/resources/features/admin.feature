@@ -157,3 +157,9 @@ Feature: admin
     Then The request should be successful
     And I should see a message stating that I have been resubscribed
     And I have an slackEnabled status of true
+
+  @weather @update
+  Scenario: Update weather data from AviationWeather.gov
+    Given I am an unauthenticated user
+    When I request the weather data to be updated
+    Then The request should be successful

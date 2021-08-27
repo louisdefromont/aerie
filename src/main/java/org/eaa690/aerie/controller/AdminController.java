@@ -32,6 +32,7 @@ import org.eaa690.aerie.model.QueuedMessage;
 import org.eaa690.aerie.service.CommunicationService;
 import org.eaa690.aerie.service.MailChimpService;
 import org.eaa690.aerie.service.RosterService;
+import org.eaa690.aerie.service.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -69,6 +70,11 @@ public class AdminController {
     private RosterService rosterService;
 
     /**
+     * WeatherService.
+     */
+    private WeatherService weatherService;
+
+    /**
      * EmailService.
      */
     private CommunicationService communicationService;
@@ -86,6 +92,16 @@ public class AdminController {
     @Autowired
     public void setRosterService(final RosterService value) {
         rosterService = value;
+    }
+
+    /**
+     * Sets WeatherService.
+     *
+     * @param value WeatherService
+     */
+    @Autowired
+    public void setWeatherService(final WeatherService value) {
+        weatherService = value;
     }
 
     /**
@@ -219,5 +235,14 @@ public class AdminController {
             throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRosterID(rosterId);
         mailChimpService.addOrUpdateNonMember(member.getFirstName(), member.getLastName(), member.getEmail());
+    }
+
+    /**
+     * Updates weather information from AviationWeather.gov.
+     * Note: normally this is run automatically every 10 minutes
+     */
+    @PostMapping(path = {"/weather/update"})
+    public void updateWeather() {
+        weatherService.update();
     }
 }

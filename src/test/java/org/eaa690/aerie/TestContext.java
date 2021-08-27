@@ -20,10 +20,21 @@ import io.restassured.response.ValidatableResponse;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * TestContext used in BDD tests.
+ */
 @Getter
 @Setter
 public class TestContext {
 
+    /**
+     * Member ID.
+     */
+    private String memberId;
+
+    /**
+     * ValidatableResponse.
+     */
     private ValidatableResponse validatableResponse;
 
 }

@@ -4,7 +4,7 @@ Feature: membership
 
   @newmember @disabled
   Scenario: New chapter member providing only a cell phone number as a contact method.
-    Given I am not a chapter member
+    Given I am a new chapter member
     And I do not provide an email address
     And I provide a cell phone number
     And I do not provide a Slack name
@@ -18,7 +18,7 @@ Feature: membership
 
   @newmember @disabled
   Scenario: New chapter member providing only an email address as a contact method.
-    Given I am not a chapter member
+    Given I am a new chapter member
     And I provide an email address
     And I do not provide a cell phone number
     And I do not provide a Slack name
@@ -70,7 +70,8 @@ Feature: membership
 
   @newmember @disabled
   Scenario: New member submits a renew membership Jot Form.
-    Given I do not have a record in the roster management system
+    Given I am a new chapter member
+    And I do not have a record in the roster management system
     And I provide an email address
     And I do not provide a cell phone number
     And I do not provide a Slack name
@@ -82,17 +83,17 @@ Feature: membership
     And I should not receive a new member SMS/Text message
     And I should not receive a new member Slack message
 
-  @status @disabled
+  @status
   Scenario: Chapter member checks their membership status
     Given I am a chapter member
-    When I check the membership status for member with ID 42648
+    When I check my membership status
     Then I should receive my membership details
 
-  @status @disabled
+  @status
   Scenario: Non-member checks their membership status
     Given I am not a chapter member
-    When I check the membership status for member with ID 42648
-    Then A not found exception should be thrown
+    When I check my membership status
+    Then A bad request exception should be thrown
 
   @unsubscribe @email @disabled
   Scenario: Email recipient wishes to un-subscribe from future emails

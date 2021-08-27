@@ -65,7 +65,19 @@ public class RosterService {
      * EmailService.
      */
     @Autowired
-    private CommunicationService communicationService;
+    private EmailService emailService;
+
+    /**
+     * SMSService.
+     */
+    @Autowired
+    private SMSService smsService;
+
+    /**
+     * SlackService.
+     */
+    @Autowired
+    private SlackService slackService;
 
     /**
      * MemberRepository.
@@ -97,8 +109,30 @@ public class RosterService {
      * @param value EmailService
      */
     @Autowired
-    public void setCommunicationService(final CommunicationService value) {
-        communicationService = value;
+    public void setEmailService(final EmailService value) {
+        emailService = value;
+    }
+
+    /**
+     * Sets SMSService.
+     * Note: mostly used for unit test mocks
+     *
+     * @param value SMSService
+     */
+    @Autowired
+    public void setSMSService(final SMSService value) {
+        smsService = value;
+    }
+
+    /**
+     * Sets SlackService.
+     * Note: mostly used for unit test mocks
+     *
+     * @param value SlackService
+     */
+    @Autowired
+    public void setSlackService(final SlackService value) {
+        slackService = value;
     }
 
     /**
@@ -173,15 +207,21 @@ public class RosterService {
                                                         DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                                 if (expirationDate.equals(
                                         getFutureDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_FIRST_MSG_DAYS_KEY))) {
-                                    communicationService.sendRenewMembershipMsg(member);
+                                    emailService.sendRenewMembershipMsg(member);
+                                    smsService.sendRenewMembershipMsg(member);
+                                    slackService.sendRenewMembershipMsg(member);
                                 }
                                 if (expirationDate.equals(getFutureDateStr(
                                                 PropertyKeyConstants.MEMBERSHIP_RENEWAL_SECOND_MSG_DAYS_KEY))) {
-                                    communicationService.sendRenewMembershipMsg(member);
+                                    emailService.sendRenewMembershipMsg(member);
+                                    smsService.sendRenewMembershipMsg(member);
+                                    slackService.sendRenewMembershipMsg(member);
                                 }
                                 if (expirationDate.equals(
                                         getFutureDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_THIRD_MSG_DAYS_KEY))) {
-                                    communicationService.sendRenewMembershipMsg(member);
+                                    emailService.sendRenewMembershipMsg(member);
+                                    smsService.sendRenewMembershipMsg(member);
+                                    slackService.sendRenewMembershipMsg(member);
                                 }
                                 if (expirationDate.equals(ZonedDateTime.ofInstant(Instant.now(),
                                         ZoneId.systemDefault()).format(

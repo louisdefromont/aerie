@@ -51,6 +51,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -279,12 +280,12 @@ public class WeatherService {
         metar.setObserved(props.getString(WeatherConstants.OBSERVED_TIME));
         if (props.has(WeatherConstants.TEMPERATURE)) {
             final Temperature temperature = new Temperature();
-            temperature.setCelsius(Math.round(Float.parseFloat(props.getString(WeatherConstants.TEMPERATURE))));
+            temperature.setCelsius(Math.round(((BigDecimal) props.get(WeatherConstants.TEMPERATURE)).floatValue()));
             metar.setTemperature(temperature);
         }
         if (props.has(WeatherConstants.DEWPOINT)) {
             final Dewpoint dewpoint = new Dewpoint();
-            dewpoint.setCelsius(Math.round(Float.parseFloat(props.getString(WeatherConstants.DEWPOINT))));
+            dewpoint.setCelsius(Math.round(((BigDecimal) props.get(WeatherConstants.DEWPOINT)).floatValue()));
             metar.setDewpoint(dewpoint);
         }
         if (props.has(WeatherConstants.WIND_SPEED)) {
@@ -316,7 +317,7 @@ public class WeatherService {
         }
         if (props.has(WeatherConstants.VISIBILITY)) {
             final Visibility visibility = new Visibility();
-            visibility.setMiles(props.getString(WeatherConstants.VISIBILITY));
+            visibility.setMiles(props.get(WeatherConstants.VISIBILITY).toString());
             metar.setVisibility(visibility);
         }
         if (props.has(WeatherConstants.FLIGHT_CATEGORY)) {

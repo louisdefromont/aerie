@@ -134,18 +134,14 @@ public class AdminController {
     @PostMapping(path = {"/sms/{rosterId}"})
     public void sendSMS(
             @PathVariable("rosterId") final Long rosterId,
-            @RequestBody final String textBody) {
-        try {
-            final Member member = rosterService.getMemberByRosterID(rosterId);
-            final QueuedMessage queuedMessage = new QueuedMessage();
-            queuedMessage.setRecipientAddress(member.getCellPhone());
-            queuedMessage.setMemberId(member.getId());
-            queuedMessage.setBody(textBody);
-            queuedMessage.setMessageType(MessageType.SMS);
-            communicationService.queueMsg(queuedMessage);
-        } catch (ResourceNotFoundException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
+            @RequestBody final String textBody) throws ResourceNotFoundException {
+        final Member member = rosterService.getMemberByRosterID(rosterId);
+        final QueuedMessage queuedMessage = new QueuedMessage();
+        queuedMessage.setRecipientAddress(member.getCellPhone());
+        queuedMessage.setMemberId(member.getId());
+        queuedMessage.setBody(textBody);
+        queuedMessage.setMessageType(MessageType.SMS);
+        communicationService.queueMsg(queuedMessage);
     }
 
     /**
@@ -191,6 +187,15 @@ public class AdminController {
         LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "sms",
                 member.getFirstName(), member.getLastName(), member.getCellPhone()));
         communicationService.sendNewMembershipMsg(member);
+    }
+
+    /**
+     * Processes membership renewals and send out notices to members close to or needed to renew their membership.
+     * Note: Typically this is run automatically every day at 6am, noon, 6pm, and midnight.
+     */
+    @PostMapping(path = {"/roster/process-membership-renewals"})
+    public void processMembershipRenewals() {
+        rosterService.sendMembershipRenewalMessages();
     }
 
     /**

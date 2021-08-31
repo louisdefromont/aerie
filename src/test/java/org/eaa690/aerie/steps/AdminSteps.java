@@ -104,6 +104,15 @@ public class AdminSteps extends BaseSteps {
                 .then());
     }
 
+    @When("^I request membership renewal messages be sent$")
+    public void iRequestMembershipRenewalMessageBeSent() {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "roster/process-membership-renewals")
+                .then());
+    }
+
     @When("^I send a SMS/Text message to myself with the following message:$")
     public void iSendSMSMessageWithProvidedBody(final List<String> messages) {
         testContext.setValidatableResponse(requestSpecification()

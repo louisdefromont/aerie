@@ -26,13 +26,13 @@ Feature: admin
     When I request a message be sent to member 42648 to renew their membership
     Then The request should be successful
 
-  @mailchimp @member @disabled
+  @mailchimp @member
   Scenario: Add a new member to MailChimp with an invalid rosterId
     Given I am an unauthenticated user
     When I request member 42648 be added to the MailChimp member list
     Then The request should be successful
 
-  @mailchimp @nonmember @disabled
+  @mailchimp @nonmember
   Scenario: Add a non member to MailChimp with an invalid rosterId
     Given I am an unauthenticated user
     When I request non-member 42648 be added to the MailChimp non-member list
@@ -91,4 +91,10 @@ Feature: admin
   Scenario: Update weather data from AviationWeather.gov
     Given I am an unauthenticated user
     When I request the weather data to be updated
+    Then The request should be successful
+
+  @membership @auto @renewmember
+  Scenario: Force run of automated send membership renewal messages
+    Given I am an unauthenticated user
+    When I request membership renewal messages be sent
     Then The request should be successful

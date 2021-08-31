@@ -36,7 +36,6 @@ import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
-import org.eaa690.aerie.exception.ResourceExistsException;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
@@ -255,9 +254,8 @@ public class RosterService {
      *
      * @param member Member to be saved
      * @return saved member
-     * @throws ResourceExistsException when member is not found
      */
-    public Member saveNewMember(final Member member) throws ResourceExistsException {
+    public Member saveNewMember(final Member member) {
         LOGGER.info("Saving new member: " + member);
         mapperFactory.classMap(Member.class, Person.class);
         MapperFacade mapper = mapperFactory.getMapperFacade();

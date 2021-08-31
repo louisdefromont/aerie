@@ -105,6 +105,7 @@ public class ServiceConfig {
      *
      * @param propertyService PropertyService
      * @return RosterManager
+     * @throws ResourceNotFoundException when things go wrong
      */
     @Bean
     public RosterManager rosterManager(final PropertyService propertyService) throws ResourceNotFoundException {
@@ -128,6 +129,7 @@ public class ServiceConfig {
      *
      * @param propertyService PropertyService
      * @return MailChimpConnection
+     * @throws ResourceNotFoundException when things go wrong
      */
     @Bean
     public MailChimpConnection mailChimpConnection(final PropertyService propertyService)
@@ -141,6 +143,7 @@ public class ServiceConfig {
      *
      * @param propertyService PropertyService
      * @return SendGrid
+     * @throws ResourceNotFoundException when things go wrong
      */
     @Bean
     public SendGrid sendGrid(final PropertyService propertyService) throws ResourceNotFoundException {
@@ -204,6 +207,8 @@ public class ServiceConfig {
      * @param propertyService PropertyService
      * @param communicationService SlackService
      * @return SlackSession
+     * @throws IOException when things go wrong
+     * @throws ResourceNotFoundException when things go wrong
      */
     @Bean
     public SlackSession slackSession(final PropertyService propertyService,

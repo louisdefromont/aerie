@@ -130,6 +130,7 @@ public class AdminController {
      *
      * @param rosterId RosterId of member.
      * @param textBody SMS Body to be sent.
+     * @throws ResourceNotFoundException when member is not found
      */
     @PostMapping(path = {"/sms/{rosterId}"})
     public void sendSMS(

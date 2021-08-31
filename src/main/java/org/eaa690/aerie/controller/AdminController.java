@@ -16,6 +16,12 @@
 
 package org.eaa690.aerie.controller;
 
+import com.ullink.slack.simpleslackapi.SlackBot;
+import com.ullink.slack.simpleslackapi.SlackChannel;
+import com.ullink.slack.simpleslackapi.SlackSession;
+import com.ullink.slack.simpleslackapi.SlackUser;
+import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
+import com.ullink.slack.simpleslackapi.impl.SlackPersonaImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -86,6 +92,11 @@ public class AdminController {
     private MailChimpService mailChimpService;
 
     /**
+     * SlackSession.
+     */
+    private SlackSession slackSession;
+
+    /**
      * Sets RosterService.
      *
      * @param value RosterService
@@ -123,6 +134,16 @@ public class AdminController {
     @Autowired
     public void setMailChimpService(final MailChimpService value) {
         mailChimpService = value;
+    }
+
+    /**
+     * Sets SlackSession.
+     *
+     * @param value SlackSession
+     */
+    @Autowired
+    public void setSlackSession(final SlackSession value) {
+        slackSession = value;
     }
 
     /**
@@ -197,6 +218,34 @@ public class AdminController {
     @PostMapping(path = {"/roster/process-membership-renewals"})
     public void processMembershipRenewals() {
         rosterService.sendMembershipRenewalMessages();
+    }
+
+    /**
+     * Processes queued messages.
+     * Note: Typically this is run automatically every 10 minutes.
+     */
+    @PostMapping(path = {"/process-message-queue"})
+    public void processMessageQueue() {
+        communicationService.processQueue();
+    }
+
+    /**
+     * Processes response from Slack.
+     * Note: Typically only Slack would call this routine.
+     *
+     * @param user User sending Slack message
+     * @param textBody Body of message to be sent
+     */
+    @PostMapping(path = {"/slack/{slackUser}/response"})
+    public void processSlackResponse(@PathVariable("slackUser") final String user,
+                                     @RequestBody final String textBody) {
+        SlackBot slackBot = SlackPersonaImpl.builder().id("unknown").userName("unknown").build();
+        SlackUser slackUser = SlackPersonaImpl.builder().id(user).userName(user).build();
+        SlackChannel slackChannel = SlackChannel.builder().id("random").name("random").build();
+        String timestamp = "";
+        SlackMessagePosted messagePosted = new SlackMessagePosted(textBody, slackBot, slackUser,
+                slackChannel, timestamp, SlackMessagePosted.MessageSubType.MESSAGE_REPLIED);
+        communicationService.onEvent(messagePosted, slackSession);
     }
 
     /**

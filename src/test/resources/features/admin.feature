@@ -98,3 +98,20 @@ Feature: admin
     Given I am an unauthenticated user
     When I request membership renewal messages be sent
     Then The request should be successful
+
+  @messagequeue
+  Scenario: Manual kick-off of processing of message queue
+    Given I am an unauthenticated user
+    When I request the message queue be processed
+    Then The request should be successful
+
+  @slack @response
+  Scenario Outline: Process a Slack response from a user
+    Given I am an unauthenticated user
+    When I respond to a Slack message as <user> with <response>
+    Then The request should be successful
+
+    Examples:
+    | user      | response              |
+    | brian     | This is a test        |
+    | UGHFARZK2 | This is a bot message |

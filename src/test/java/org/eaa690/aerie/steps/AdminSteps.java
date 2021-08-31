@@ -77,6 +77,25 @@ public class AdminSteps extends BaseSteps {
                 .then());
     }
 
+    @When("^I respond to a Slack message as (.*) with (.*)$")
+    public void iRespondToASlackMessage(final String user, final String msg) {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .body(msg)
+                .post(ADMIN + "slack/" + user + "/response")
+                .then());
+    }
+
+    @When("^I request the message queue be processed$")
+    public void iRequestProcessingOfMessageQueue() {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "process-message-queue")
+                .then());
+    }
+
     @When("^I request member (.*) be added to the MailChimp member list$")
     public void iRequestMemberAddedToMailChimpMemberList(final String rosterId) {
         testContext.setValidatableResponse(requestSpecification()

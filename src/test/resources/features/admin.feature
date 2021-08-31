@@ -14,59 +14,17 @@ Feature: admin
     When I request the email queue count
     Then The request should be successful
 
-  @email @newmember @disabled
+  @email @newmember
   Scenario: Send new membership email
     Given I am an unauthenticated user
     When I request an email be sent to new member 42648
     Then The request should be successful
 
-  @email @renewmember @disabled
-  Scenario Outline: Send renew membership email
+  @email @renewmember
+  Scenario: Send renew membership email
     Given I am an unauthenticated user
-    When I request a <order> email be sent to member <rosterId> to renew their membership
+    When I request a message be sent to member 42648 to renew their membership
     Then The request should be successful
-
-    Examples:
-      | order  | rosterId |
-      | first  | 42648    |
-      | second | 42648    |
-      | third  | 42648    |
-
-  @sms @newmember @disabled
-  Scenario: Send new membership SMS/Text
-    Given I am an unauthenticated user
-    When I request a text be sent to new member 42648
-    Then The request should be successful
-
-  @sms @renewmember @disabled
-  Scenario Outline: Send renew membership SMS/Text
-    Given I am an unauthenticated user
-    When I request a text be sent to member <rosterId> to renew their membership
-    Then The request should be successful
-
-    Examples:
-      | order  | rosterId |
-      | first  | 42648    |
-      | second | 42648    |
-      | third  | 42648    |
-
-  @slack @newmember @disabled
-  Scenario: Send new membership Slack message
-    Given I am an unauthenticated user
-    When I request a Slack message be sent to new member 42648
-    Then The request should be successful
-
-  @slack @renewmember @disabled
-  Scenario Outline: Send renew membership Slack message
-    Given I am an unauthenticated user
-    When I request a Slack message be sent to member <rosterId> to renew their membership
-    Then The request should be successful
-
-    Examples:
-      | order  | rosterId |
-      | first  | 42648    |
-      | second | 42648    |
-      | third  | 42648    |
 
   @mailchimp @member @disabled
   Scenario: Add a new member to MailChimp with an invalid rosterId
@@ -86,41 +44,12 @@ Feature: admin
     When I request an email be sent to new member 0
     Then A not found exception should be thrown
 
-  @email @renewmember @invaliddata
-  Scenario Outline: Send renew membership email to an invalid member
-    Given I am an unauthenticated user
-    When I request a <order> email be sent to member <rosterId> to renew their membership
-    Then A not found exception should be thrown
-
-    Examples:
-      | order  | rosterId |
-      | first  | 0        |
-      | second | 0        |
-      | third  | 0        |
-
-  @sms @newmember @invaliddata @disabled
-  Scenario: Send new membership SMS/Text to an invalid member
-    Given I am an unauthenticated user
-    When I request a text be sent to new member 0
-    Then A not found exception should be thrown
-
-  @sms @renewmember @invaliddata @disabled
-  Scenario: Send renew membership SMS/Text to an invalid member
-    Given I am an unauthenticated user
-    When I request a text be sent to member 0 to renew their membership
-    Then A not found exception should be thrown
-
-  @slack @newmember @invaliddata
-  Scenario: Send new membership Slack message to an invalid member
-    Given I am an unauthenticated user
-    When I request a Slack message be sent to new member 0
-    Then A not found exception should be thrown
-
-  @slack @renewmember @invaliddata
-  Scenario: Send renew membership Slack message to an invalid member
-    Given I am an unauthenticated user
-    When I request a Slack message be sent to member 0 to renew their membership
-    Then A not found exception should be thrown
+  @sms
+  Scenario:
+    Given I am a chapter member
+    When I send a SMS/Text message to myself with the following message:
+       | This is a test of the Aerie broadcast system, this is only a test |
+    Then The request should be successful
 
   @mailchimp @member @invaliddata
   Scenario: Add a new member to MailChimp with an invalid rosterId

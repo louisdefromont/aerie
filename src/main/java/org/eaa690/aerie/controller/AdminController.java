@@ -109,6 +109,14 @@ public class AdminController {
     }
 
     /**
+     * Updates Member Repository.
+     */
+    @PostMapping(path = {"/member/update"})
+    public void updateMemberRespository() {
+        rosterService.update();
+    }
+
+    /**
      * Sends SMS Message to a member.
      *
      * @param rosterId RosterId of member.

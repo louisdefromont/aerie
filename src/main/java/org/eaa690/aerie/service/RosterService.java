@@ -207,21 +207,21 @@ public class RosterService {
                                                         DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                                 if (expirationDate.equals(
                                         getFutureDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_FIRST_MSG_DAYS_KEY))) {
-                                    emailService.sendRenewMembershipMsg(member);
-                                    smsService.sendRenewMembershipMsg(member);
-                                    slackService.sendRenewMembershipMsg(member);
+                                    emailService.buildRenewMembershipMsg(member);
+                                    smsService.buildRenewMembershipMsg(member);
+                                    slackService.buildRenewMembershipMsg(member);
                                 }
                                 if (expirationDate.equals(getFutureDateStr(
                                                 PropertyKeyConstants.MEMBERSHIP_RENEWAL_SECOND_MSG_DAYS_KEY))) {
-                                    emailService.sendRenewMembershipMsg(member);
-                                    smsService.sendRenewMembershipMsg(member);
-                                    slackService.sendRenewMembershipMsg(member);
+                                    emailService.buildRenewMembershipMsg(member);
+                                    smsService.buildRenewMembershipMsg(member);
+                                    slackService.buildRenewMembershipMsg(member);
                                 }
                                 if (expirationDate.equals(
                                         getFutureDateStr(PropertyKeyConstants.MEMBERSHIP_RENEWAL_THIRD_MSG_DAYS_KEY))) {
-                                    emailService.sendRenewMembershipMsg(member);
-                                    smsService.sendRenewMembershipMsg(member);
-                                    slackService.sendRenewMembershipMsg(member);
+                                    emailService.buildRenewMembershipMsg(member);
+                                    smsService.buildRenewMembershipMsg(member);
+                                    slackService.buildRenewMembershipMsg(member);
                                 }
                                 if (expirationDate.equals(ZonedDateTime.ofInstant(Instant.now(),
                                         ZoneId.systemDefault()).format(

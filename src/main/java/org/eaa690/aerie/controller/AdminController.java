@@ -16,22 +16,19 @@
 
 package org.eaa690.aerie.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
-import org.eaa690.aerie.model.MessageType;
-import org.eaa690.aerie.model.QueuedMessage;
+import org.eaa690.aerie.model.communication.Email;
+import org.eaa690.aerie.model.communication.SMS;
+import org.eaa690.aerie.model.communication.SlackMessage;
 import org.eaa690.aerie.service.CommunicationService;
 import org.eaa690.aerie.service.MailChimpService;
 import org.eaa690.aerie.service.RosterService;
+import org.eaa690.aerie.service.SlackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +37,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * AdminController.
@@ -69,14 +72,27 @@ public class AdminController {
     private RosterService rosterService;
 
     /**
-     * EmailService.
-     */
-    private CommunicationService communicationService;
-
-    /**
      * MailChimpService.
      */
     private MailChimpService mailChimpService;
+
+    /**
+     * SMSService.
+     */
+    @Autowired
+    private CommunicationService<SMS> smsService;
+
+    /**
+     * EmailService.
+     */
+    @Autowired
+    private CommunicationService<Email> emailService;
+
+    /**
+     * SlackService.
+     */
+    @Autowired
+    private SlackService slackService;
 
     /**
      * Sets RosterService.
@@ -86,16 +102,6 @@ public class AdminController {
     @Autowired
     public void setRosterService(final RosterService value) {
         rosterService = value;
-    }
-
-    /**
-     * Sets EmailService.
-     *
-     * @param value EmailService
-     */
-    @Autowired
-    public void setCommunicationService(final CommunicationService value) {
-        communicationService = value;
     }
 
     /**
@@ -120,12 +126,8 @@ public class AdminController {
             @PathVariable("textBody") final String textBody) {
         try {
             final Member member = rosterService.getMemberByRosterID(rosterId);
-            final QueuedMessage queuedMessage = new QueuedMessage();
-            queuedMessage.setRecipientAddress(member.getCellPhone());
-            queuedMessage.setMemberId(member.getId());
-            queuedMessage.setBody(textBody);
-            queuedMessage.setMessageType(MessageType.SMS);
-            communicationService.queueMsg(queuedMessage);
+            final SMS sms = new SMS(textBody, member.getId(), member.getCellPhone());
+            smsService.queueMsg(sms);
         } catch (ResourceNotFoundException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -145,7 +147,7 @@ public class AdminController {
     })
     @GetMapping(path = {"/email/queue-count"})
     public int getQueuedEmailCount() {
-        return communicationService.getQueuedMsgCount();
+        return emailService.getQueuedMsgCount();
     }
 
     /**
@@ -159,7 +161,7 @@ public class AdminController {
         final Member member = rosterService.getMemberByRosterID(rosterId);
         LOGGER.info(String.format(SEND_MSG_MESSAGE, "renew-membership", "sms",
                 member.getFirstName(), member.getLastName(), member.getCellPhone()));
-        communicationService.sendRenewMembershipMsg(member);
+        smsService.buildRenewMembershipMsg(member);
     }
 
     /**
@@ -173,7 +175,7 @@ public class AdminController {
         final Member member = rosterService.getMemberByRosterID(rosterId);
         LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "sms",
                 member.getFirstName(), member.getLastName(), member.getCellPhone()));
-        communicationService.sendNewMembershipMsg(member);
+        smsService.buildNewMembershipMsg(member);
     }
 
     /**
@@ -192,7 +194,7 @@ public class AdminController {
     })
     @GetMapping(path = {"/slack/users"})
     public List<String> getAllSlackUsers() throws ResourceNotFoundException {
-        return communicationService.allSlackUsers();
+        return slackService.allSlackUsers();
     }
 
     /**

@@ -19,52 +19,43 @@ package org.eaa690.aerie.service;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
-import com.sendgrid.SendGrid;
-import com.ullink.slack.simpleslackapi.SlackSession;
-import lombok.Getter;
-import org.eaa690.aerie.communication.AcceptsEmailPredicate;
-import org.eaa690.aerie.communication.AcceptsSMSPredicate;
-import org.eaa690.aerie.communication.AcceptsSlackPredicate;
+import org.eaa690.aerie.communication.MessageSender;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
-import org.eaa690.aerie.model.QueuedMessage;
-import org.eaa690.aerie.model.QueuedMessageRepository;
+import org.eaa690.aerie.model.communication.Message;
+import org.eaa690.aerie.model.communication.MessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import lombok.Getter;
+
 /**
  * CommunicationService.
+ * @param <T> Type of Message sent by this Commuinication Service.
  */
 @Getter
-public abstract class CommunicationService {
+public abstract class CommunicationService<T extends Message> {
 
+    /**
+     * MessageSender used to send Messages.
+     */
+    private MessageSender<T> messageSender;
     /**
      * Logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(CommunicationService.class);
 
     /**
-     * SendGrid API.
-     */
-    @Autowired
-    private SendGrid sendGrid;
-
-    /**
      * PropertyService.
      */
     @Autowired
     private PropertyService propertyService;
-
-    /**
-     * SlackSession.
-     */
-    @Autowired
-    private SlackSession slackSession;
 
     /**
      * JotFormService.
@@ -79,39 +70,16 @@ public abstract class CommunicationService {
     private MemberRepository memberRepository;
 
     /**
-     * QueuedMessageRepository.
+     * MessageRepository.
      */
     @Autowired
-    private QueuedMessageRepository queuedMessageRepository;
+    private MessageRepository<T> messageRepository;
 
     /**
-     * AcceptsEmailPredicate.
+     * AcceptsMessagePredicate.
      */
     @Autowired
-    private AcceptsEmailPredicate acceptsEmailPredicate;
-
-    /**
-     * AcceptsSMSPredicate.
-     */
-    @Autowired
-    private AcceptsSMSPredicate acceptsSMSPredicate;
-
-    /**
-     * AcceptsSlackPredicate.
-     */
-    @Autowired
-    private AcceptsSlackPredicate acceptsSlackPredicate;
-
-    /**
-     * Sets SlackSession.
-     * Note: mostly used for unit test mocks
-     *
-     * @param value SlackSession
-     */
-    @Autowired
-    public void setSlackSession(final SlackSession value) {
-        slackSession = value;
-    }
+    private Predicate<Member> acceptsMessagePredicate;
 
     /**
      * Sets PropertyService.
@@ -122,17 +90,6 @@ public abstract class CommunicationService {
     @Autowired
     public void setPropertyService(final PropertyService value) {
         propertyService = value;
-    }
-
-    /**
-     * Sets JotFormService.
-     * Note: mostly used for unit test mocks
-     *
-     * @param value JotFormService
-     */
-    @Autowired
-    public void setJotFormService(final JotFormService value) {
-        jotFormService = value;
     }
 
     /**
@@ -153,17 +110,35 @@ public abstract class CommunicationService {
      * @param qeRepository QueuedEmailRepository
      */
     @Autowired
-    public void setQueuedMessageRepository(final QueuedMessageRepository qeRepository) {
-        queuedMessageRepository = qeRepository;
+    public void setMessageRepository(final MessageRepository<T> input) {
+        messageRepository = input;
     }
 
     /**
      * Queues message to be sent.  Slack only messages are sent immediately.
      *
-     * @param queuedMessage QueuedMessage
+     * @param message QueuedMessage
+     * @throws ResourceNotFoundException
      */
-    public void queueMsg(final QueuedMessage queuedMessage) {
-        queuedMessageRepository.save(queuedMessage);
+    public void queueMsg(final T message) throws ResourceNotFoundException {
+        Optional<Member> foundMember = memberRepository.findById(message.getRecipientMemberId());
+        if (foundMember.isPresent()) {
+            Member recipientMember = foundMember.get();
+            if (messageSender.getAcceptsMessagePredicate().test(recipientMember)) {
+                LOGGER.info(String.format(
+                    "Queuing %s to member of id: %d",
+                    messageSender.getMessageType(),
+                    recipientMember.getId()));
+                    messageRepository.save(message);
+            } else {
+                LOGGER.info(
+                    String.format(
+                        "The specified memeber is not accepting messages of type %s",
+                        messageSender.getMessageType()));
+            }
+        } else {
+            throw new ResourceNotFoundException(String.format("No member found with id %d", message.getRecipientMemberId()));
+        }
     }
 
     /**
@@ -172,25 +147,7 @@ public abstract class CommunicationService {
      * @return queued message count
      */
     public int getQueuedMsgCount() {
-        return queuedMessageRepository.findAll().map(List::size).orElse(0);
-    }
-
-    /**
-     * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
-     */
-    public abstract void processQueue();
-
-    /**
-     * Gets all Slack users.
-     *
-     * @return list of users
-     */
-    public List<String> allSlackUsers() {
-        final List<String> users = new ArrayList<>();
-        slackSession
-                .getUsers()
-                .forEach(user -> users.add(user.getRealName() + "|" + user.getUserName()));
-        return users;
+        return messageRepository.findAll().map(List::size).orElse(0);
     }
 
     /**
@@ -223,24 +180,69 @@ public abstract class CommunicationService {
     }
 
     /**
-     * Sends a message.
-     *
-     * @param queuedMessage QueuedMessage
+     * Sends a message with the configured MessageSender.
+     * @param message The message to be sent
+     * @return response from the MessageSender sending the message.
+     * @throws ResourceNotFoundException if no Member is found associated with the message.
      */
-    public abstract void sendMessage(QueuedMessage queuedMessage);
+    public String sendMessage(final T message) throws ResourceNotFoundException {
+        String response = null;
+
+        Optional<Member> foundMember = memberRepository.findById(message.getRecipientMemberId());
+        if (foundMember.isPresent()) {
+            Member recipientMember = foundMember.get();
+            if (messageSender.getAcceptsMessagePredicate().test(recipientMember)) {
+                LOGGER.info(String.format(
+                    "Sending %s to member of id: %d",
+                    messageSender.getMessageType(),
+                    recipientMember.getId()));
+                    response = messageSender.sendMessage(message, recipientMember);
+                    LOGGER.info(response);
+            } else {
+                LOGGER.info(
+                    String.format(
+                        "The specified memeber is not accepting messages of type %s",
+                        messageSender.getMessageType()));
+            }
+        } else {
+            throw new ResourceNotFoundException(String.format("No member found with id %d", message.getRecipientMemberId()));
+        }
+        return response;
+    }
 
     /**
      * Sends new member message.
      *
      * @param member Member
      */
-    public abstract void sendNewMembershipMsg(Member member);
+    public abstract T buildNewMembershipMsg(Member member);
 
     /**
      * Sends membership renewal message.
      *
      * @param member Member
      */
-    public abstract void sendRenewMembershipMsg(Member member);
+    public abstract T buildRenewMembershipMsg(Member member);
+
+    /**
+     * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
+     */
+    public void processQueue(Long maxMessagesSent) {
+        final Optional<List<T>> allQueuedMessages = messageRepository.findAll();
+        if (allQueuedMessages.isPresent()) {
+            allQueuedMessages
+                    .get()
+                    .stream()
+                    .limit(maxMessagesSent)
+                    .forEach(queuedMessage -> {
+                        try {
+                            sendMessage(queuedMessage);
+                        } catch (ResourceNotFoundException e) {
+                            LOGGER.error("ERROR", e);
+                        }
+                        messageRepository.delete(queuedMessage);
+                    });
+        }
+    }
 
 }

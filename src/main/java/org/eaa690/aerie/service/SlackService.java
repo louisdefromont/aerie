@@ -16,28 +16,32 @@
 
 package org.eaa690.aerie.service;
 
-import com.ullink.slack.simpleslackapi.SlackSession;
-import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
-import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener;
-import org.eaa690.aerie.constant.PropertyKeyConstants;
-import org.eaa690.aerie.exception.ResourceNotFoundException;
-import org.eaa690.aerie.model.Member;
-import org.eaa690.aerie.model.MessageType;
-import org.eaa690.aerie.model.QueuedMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import com.ullink.slack.simpleslackapi.SlackSession;
+import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
+import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener;
+
+import org.eaa690.aerie.constant.PropertyKeyConstants;
+import org.eaa690.aerie.exception.ResourceNotFoundException;
+import org.eaa690.aerie.model.Member;
+import org.eaa690.aerie.model.communication.SlackMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import io.cucumber.messages.internal.com.google.protobuf.Extension.MessageType;
+import io.cucumber.messages.internal.com.google.protobuf.Message;
 
 /**
  * SlackService.
  */
 @Service("aerieSlackService")
-public class SlackService extends CommunicationService implements SlackMessagePostedListener {
+public class SlackService extends CommunicationService<SlackMessage> implements SlackMessagePostedListener {
 
     /**
      * Logger.
@@ -45,28 +49,19 @@ public class SlackService extends CommunicationService implements SlackMessagePo
     private static final Logger LOGGER = LoggerFactory.getLogger(SlackService.class);
 
     /**
-     * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
+     * SlackSession.
+     */
+    @Autowired
+    private SlackSession slackSession;
+
+    /**
+     * {@inheritDoc}
      */
     @Override
-    @Scheduled(cron = "0 0 10 * * *")
-    public void processQueue() {
-        final Optional<List<QueuedMessage>> allQueuedMessages = getQueuedMessageRepository().findAll();
-        if (allQueuedMessages.isPresent()) {
-            try {
-                allQueuedMessages
-                        .get()
-                        .stream()
-                        .filter(qm -> qm.getMessageType() == MessageType.Slack)
-                        .limit(Long.parseLong(
-                                getPropertyService().get(PropertyKeyConstants.SEND_GRID_LIMIT).getValue()))
-                        .forEach(qe -> {
-                            sendMessage(qe);
-                            getQueuedMessageRepository().delete(qe);
-                        });
-            } catch (ResourceNotFoundException e) {
-                LOGGER.error("Error", e);
-            }
-        }
+    public void queueMsg(final SlackMessage message) throws ResourceNotFoundException {
+        super.queueMsg(message);
+        // TODO: Immediately processes queue, inefficient
+        processQueue((long) 1);
     }
 
     /**
@@ -97,29 +92,10 @@ public class SlackService extends CommunicationService implements SlackMessagePo
      */
     public List<String> allSlackUsers() {
         final List<String> users = new ArrayList<>();
-        getSlackSession()
+        slackSession
                 .getUsers()
                 .forEach(user -> users.add(user.getRealName() + "|" + user.getUserName()));
         return users;
-    }
-
-    /**
-     * Sends a message via the Slack bot.
-     *
-     * @param queuedMessage QueuedMessage
-     */
-    @Override
-    public void sendMessage(final QueuedMessage queuedMessage) {
-        if (queuedMessage.getMessageType() == MessageType.Slack) {
-            Optional<Member> memberOpt = getMemberRepository().findById(queuedMessage.getMemberId());
-            if (memberOpt.isPresent() && getAcceptsSlackPredicate().test(memberOpt.get())) {
-                LOGGER.info(String.format("Sending Slack message [%s] to [%s]", queuedMessage.getBody(),
-                        queuedMessage.getRecipientAddress()));
-                getSlackSession().sendMessageToUser(
-                        getSlackSession().findUserByUserName(queuedMessage.getRecipientAddress()),
-                        queuedMessage.getBody(), null);
-            }
-        }
     }
 
     /**
@@ -128,19 +104,18 @@ public class SlackService extends CommunicationService implements SlackMessagePo
      * @param member Member
      */
     @Override
-    public void sendNewMembershipMsg(final Member member) {
-        if (member != null && member.getSlack() != null && member.isSlackEnabled()) {
-            try {
-                final QueuedMessage queuedSlackMessage = new QueuedMessage();
-                queuedSlackMessage.setMemberId(member.getId());
-                queuedSlackMessage.setBody(getSMSOrSlackMessage(member, PropertyKeyConstants.SLACK_NEW_MEMBER_MSG_KEY));
-                queuedSlackMessage.setMessageType(MessageType.Slack);
-                queuedSlackMessage.setRecipientAddress(getSlackName(member));
-                queueMsg(queuedSlackMessage);
-            } catch (ResourceNotFoundException ex) {
-                LOGGER.error(ex.getMessage());
-            }
+    public SlackMessage buildNewMembershipMsg(final Member member) {
+        try {
+            final SlackMessage newMembershipMessage = new SlackMessage(
+                getSlackName(member),
+                member.getId(),
+                getSMSOrSlackMessage(member, PropertyKeyConstants.SLACK_NEW_MEMBER_MSG_KEY));
+            return newMembershipMessage;
+
+        } catch (ResourceNotFoundException ex) {
+            LOGGER.error(ex.getMessage());
         }
+        return null;
     }
 
     /**
@@ -149,20 +124,18 @@ public class SlackService extends CommunicationService implements SlackMessagePo
      * @param member Member
      */
     @Override
-    public void sendRenewMembershipMsg(final Member member) {
-        if (member != null && member.getSlack() != null && member.isSlackEnabled()) {
-            try {
-                final QueuedMessage queuedSlackMessage = new QueuedMessage();
-                queuedSlackMessage.setMemberId(member.getId());
-                queuedSlackMessage.setBody(getSMSOrSlackMessage(member,
-                        PropertyKeyConstants.SLACK_RENEW_MEMBER_MSG_KEY));
-                queuedSlackMessage.setMessageType(MessageType.Slack);
-                queuedSlackMessage.setRecipientAddress(getSlackName(member));
-                queueMsg(queuedSlackMessage);
-            } catch (ResourceNotFoundException ex) {
-                LOGGER.error(ex.getMessage());
-            }
+    public SlackMessage buildRenewMembershipMsg(final Member member) {
+        try {
+            SlackMessage renewMembershipMessage = new SlackMessage(
+                getSlackName(member),
+                member.getId(),
+                getSMSOrSlackMessage(member,PropertyKeyConstants.SLACK_RENEW_MEMBER_MSG_KEY));
+            return renewMembershipMessage;
+
+        } catch (ResourceNotFoundException e) {
+            LOGGER.error(e.getMessage());
         }
+        return null;
     }
 
     /**

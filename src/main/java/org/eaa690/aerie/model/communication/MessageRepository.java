@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.eaa690.aerie.model;
+package org.eaa690.aerie.model.communication;
 
 import org.springframework.data.repository.Repository;
 
@@ -22,31 +22,32 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * QueuedMessageRepository.
+ * MessageRepository.
+ * @param <T> type of Messages the repository persists.
  */
-public interface QueuedMessageRepository extends Repository<QueuedMessage, Long> {
+public interface MessageRepository<T extends Message> extends Repository<Message, Long> {
 
     /**
-     * Gets all QueuedMessage.
+     * Gets all Message.
      *
-     * @return all QueuedMessage
+     * @return all Messages
      */
-    Optional<List<QueuedMessage>> findAll();
+    Optional<List<T>> findAll();
 
     /**
-     * Saves a QueuedMessage.
+     * Saves a Message.
      *
-     * @param queuedMessage QueuedMessage
-     * @return QueuedMessage
+     * @param message Message
+     * @return Message
      */
-    QueuedMessage save(QueuedMessage queuedMessage);
+    Message save(T message);
 
     /**
-     * Saves a QueuedMessage.
+     * Saves a Message.
      *
-     * @param queuedMessage QueuedMessage
-     * @return QueuedMessage
+     * @param message Message
+     * @return Message
      */
-    QueuedMessage delete(QueuedMessage queuedMessage);
+    Message delete(T message);
 
 }

@@ -263,7 +263,7 @@ public class JotFormService {
                     try {
                         final Member member = rosterService.saveNewMember(entry.getValue());
                         SUBMISSIONS_CACHE.put(key, key);
-                        communicationService.sendNewMembershipMsg(member);
+                        communicationService.buildNewMembershipMsg(member);
                     } catch (ResourceExistsException e) {
                         LOGGER.error("Error", e);
                     }

@@ -16,25 +16,27 @@
 
 package org.eaa690.aerie.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
-import org.eaa690.aerie.model.MessageType;
-import org.eaa690.aerie.model.QueuedMessage;
+import org.eaa690.aerie.model.communication.SMS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import io.cucumber.messages.internal.com.google.protobuf.Message;
+import io.cucumber.messages.internal.com.google.protobuf.Extension.MessageType;
 
 /**
  * SMSService.
  */
 @Service
-public class SMSService extends CommunicationService {
+public class SMSService extends CommunicationService<SMS> {
 
     /**
      * Logger.
@@ -61,46 +63,16 @@ public class SMSService extends CommunicationService {
     /**
      * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
      */
-    @Override
     @Scheduled(cron = "0 0 10 * * *")
     public void processQueue() {
-        final Optional<List<QueuedMessage>> allQueuedMessages = getQueuedMessageRepository().findAll();
-        if (allQueuedMessages.isPresent()) {
-            try {
-                allQueuedMessages
-                        .get()
-                        .stream()
-                        .filter(qm -> qm.getMessageType() == MessageType.SMS)
-                        .limit(Long.parseLong(
-                                getPropertyService().get(PropertyKeyConstants.SEND_GRID_LIMIT).getValue()))
-                        .forEach(qe -> {
-                            sendMessage(qe);
-                            getQueuedMessageRepository().delete(qe);
-                        });
-            } catch (ResourceNotFoundException e) {
-                LOGGER.error("Error", e);
-            }
-        }
-    }
-
-    /**
-     * Sends an SMS message via SendGrid.
-     *
-     * @param queuedMessage QueuedMessage
-     */
-    @Override
-    public void sendMessage(final QueuedMessage queuedMessage) {
-        if (queuedMessage.getMessageType() == MessageType.SMS) {
-            final Optional<Member> memberOpt = getMemberRepository().findById(queuedMessage.getMemberId());
-            if (memberOpt.isPresent()) {
-                final Member member = memberOpt.get();
-                if (getAcceptsSMSPredicate().test(member)) {
-                    queuedMessage.setRecipientAddress(String.format("%s@%s",
-                            queuedMessage.getRecipientAddress(),
-                            member.getCellPhoneProvider().getCellPhoneProviderEmailDomain()));
-                    emailService.sendMessage(queuedMessage);
-                }
-            }
+        try {
+            // TODO: Currently shares message rates with emails but doesn't take that into account!
+            super.processQueue(Long.parseLong(
+                getPropertyService().get(PropertyKeyConstants.SEND_GRID_LIMIT).getValue()));
+        } catch (NumberFormatException e) {
+            LOGGER.error("ERROR", e);
+        } catch (ResourceNotFoundException e) {
+            LOGGER.error("ERROR", e);
         }
     }
 
@@ -110,15 +82,12 @@ public class SMSService extends CommunicationService {
      * @param member Member
      */
     @Override
-    public void sendNewMembershipMsg(final Member member) {
-        if (member != null && member.getSlack() != null && member.isSlackEnabled()) {
-            final QueuedMessage queuedSMSMessage = new QueuedMessage();
-            queuedSMSMessage.setMemberId(member.getId());
-            queuedSMSMessage.setBody(getSMSOrSlackMessage(member, PropertyKeyConstants.SMS_NEW_MEMBER_MSG_KEY));
-            queuedSMSMessage.setMessageType(MessageType.SMS);
-            queuedSMSMessage.setRecipientAddress(member.getCellPhone());
-            queueMsg(queuedSMSMessage);
-        }
+    public SMS buildNewMembershipMsg(final Member member) {
+        final SMS newMembershipMessage = new SMS(
+            member.getCellPhone(),
+            member.getId(),
+            getSMSOrSlackMessage(member, PropertyKeyConstants.SMS_NEW_MEMBER_MSG_KEY));
+        return newMembershipMessage;
     }
 
     /**
@@ -127,15 +96,12 @@ public class SMSService extends CommunicationService {
      * @param member Member
      */
     @Override
-    public void sendRenewMembershipMsg(final Member member) {
-        if (member != null && member.getSlack() != null && member.isSlackEnabled()) {
-            final QueuedMessage queuedSMSMessage = new QueuedMessage();
-            queuedSMSMessage.setMemberId(member.getId());
-            queuedSMSMessage.setBody(getSMSOrSlackMessage(member, PropertyKeyConstants.SMS_RENEW_MEMBER_MSG_KEY));
-            queuedSMSMessage.setMessageType(MessageType.SMS);
-            queuedSMSMessage.setRecipientAddress(member.getCellPhone());
-            queueMsg(queuedSMSMessage);
-        }
+    public void buildRenewMembershipMsg(final Member member) {
+        final SMS newMembershipMessage = new SMS(
+            member.getCellPhone(),
+            member.getId(),
+            getSMSOrSlackMessage(member, PropertyKeyConstants.SMS_NEW_MEMBER_MSG_KEY));
+        return newMembershipMessage;
     }
 
 }

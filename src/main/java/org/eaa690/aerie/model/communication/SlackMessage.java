@@ -14,53 +14,27 @@
  *  limitations under the License.
  */
 
-package org.eaa690.aerie.model;
+package org.eaa690.aerie.model.communication;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import javax.persistence.Entity;
-import javax.persistence.Table;
 
 /**
- * QueuedMessage.
+ * Slack Message.
  */
-@Entity
-@Table(name = "QUEUED_MESSAGE")
 @Getter
-@Setter
-@NoArgsConstructor
-public class QueuedMessage extends BaseEntity {
-
-    /**
-     * MessageType.
-     */
-    private MessageType messageType;
-
-    /**
-     * Recipient Address.
-     */
-    private String recipientAddress;
-
-    /**
-     * Email template ID.
-     */
-    private String templateIdKey;
-
-    /**
-     * Email Subject.
-     */
-    private String subjectKey;
-
-    /**
-     * Member ID.
-     */
-    private Long memberId;
+public class SlackMessage extends Message {
 
     /**
      * Body.
      */
     private String body;
+
+    /**
+     * SlackMessage.
+     */
+    public SlackMessage(String recipientAddress, Long recipientMemberId, String bodyInput) {
+        super(recipientAddress, recipientMemberId);
+        this.body = bodyInput;
+    }
 
 }

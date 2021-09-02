@@ -147,7 +147,7 @@ public class JotFormService {
      *
      * second, minute, hour, day of month, month, day(s) of week
      */
-    @Scheduled(cron = "0 0 * * * *")
+    // @Scheduled(cron = "0 0 * * * *")
     public void getSubmissions() {
         try {
             final String dateStr = simpleDateFormat.format(new Date());

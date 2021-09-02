@@ -197,7 +197,7 @@ public class CommunicationService implements SlackMessagePostedListener {
     /**
      * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
      */
-    @Scheduled(cron = "0 0 10 * * *")
+    // @Scheduled(cron = "0 0 10 * * *")
     public void processQueue() {
         final Optional<List<QueuedMessage>> allQueuedMessages = queuedMessageRepository.findAll();
         if (allQueuedMessages.isPresent()) {

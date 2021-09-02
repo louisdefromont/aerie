@@ -157,7 +157,7 @@ public class WeatherService {
      *
      * second, minute, hour, day of month, month, day(s) of week
      */
-    @Scheduled(cron = "0 0,10,20,30,40,50 * * * *")
+    // @Scheduled(cron = "0 0,10,20,30,40,50 * * * *")
     public void update() {
         getMETARsFromAviationWeather();
         // https://www.aviationweather.gov/cgi-bin/json/TafJSON.php?density=all&bbox=-85.6898,30.1588,-80.8209,35.1475

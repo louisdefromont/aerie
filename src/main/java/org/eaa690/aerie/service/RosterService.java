@@ -133,7 +133,7 @@ public class RosterService {
      *
      * second, minute, hour, day of month, month, day(s) of week
      */
-    @Scheduled(cron = "0 0 0,6,12,18 * * *")
+//     @Scheduled(cron = "0 0 0,6,12,18 * * *")
     public void update() {
         mapperFactory.classMap(Person.class, Member.class).byDefault();
         MapperFacade mapper = mapperFactory.getMapperFacade();

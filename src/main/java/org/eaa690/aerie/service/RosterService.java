@@ -26,13 +26,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import io.github.bsmichael.rostermanagement.RosterManager;
-import io.github.bsmichael.rostermanagement.model.MemberType;
-import io.github.bsmichael.rostermanagement.model.Person;
-import io.github.bsmichael.rostermanagement.model.Status;
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
@@ -42,7 +35,14 @@ import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
 import org.eaa690.aerie.model.MembershipReport;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
+
+import io.github.bsmichael.rostermanagement.RosterManager;
+import io.github.bsmichael.rostermanagement.model.MemberType;
+import io.github.bsmichael.rostermanagement.model.Person;
+import io.github.bsmichael.rostermanagement.model.Status;
+import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
 
 /**
  * Logs into EAA's roster management system, downloads the EAA 690 records as an Excel spreadsheet.
@@ -156,7 +156,7 @@ public class RosterService {
     /**
      * Sends membership renewal messages on a scheduled basis.
      */
-    @Scheduled(cron = "0 0 9 * * *")
+//     @Scheduled(cron = "0 0 9 * * *")
     public void sendMembershipRenewalMessages() {
         memberRepository
                 .findAll()

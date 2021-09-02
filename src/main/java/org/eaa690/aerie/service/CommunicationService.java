@@ -36,6 +36,7 @@ import com.sendgrid.helpers.mail.objects.Personalization;
 import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
 import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener;
+
 import org.eaa690.aerie.communication.AcceptsEmailPredicate;
 import org.eaa690.aerie.communication.AcceptsSMSPredicate;
 import org.eaa690.aerie.communication.AcceptsSlackPredicate;
@@ -49,7 +50,6 @@ import org.eaa690.aerie.model.QueuedMessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**

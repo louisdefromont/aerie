@@ -117,6 +117,15 @@ public class AdminController {
     }
 
     /**
+     * Sends Membership Renewal Messages.
+     */
+    @PostMapping(path = {"/member/renew"})
+    public void sendMembershipRenewalMessages() {
+        rosterService.sendMembershipRenewalMessages();
+        communicationService.processQueue();
+    }
+
+    /**
      * Sends SMS Message to a member.
      *
      * @param rosterId RosterId of member.

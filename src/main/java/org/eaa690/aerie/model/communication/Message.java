@@ -16,17 +16,25 @@
 
 package org.eaa690.aerie.model.communication;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 import org.eaa690.aerie.model.BaseEntity;
-import org.eaa690.aerie.model.Member;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Message.
  */
+@Entity
+@Table
 @Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public abstract class Message extends BaseEntity {
     /**
      * Recipient Address.

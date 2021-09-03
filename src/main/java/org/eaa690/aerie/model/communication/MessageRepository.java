@@ -40,14 +40,14 @@ public interface MessageRepository<T extends Message> extends Repository<Message
      * @param message Message
      * @return Message
      */
-    Message save(T message);
+    T save(T message);
 
     /**
-     * Saves a Message.
+     * Deletes a Message.
      *
      * @param message Message
      * @return Message
      */
-    Message delete(T message);
+    Message delete(Message message);
 
 }

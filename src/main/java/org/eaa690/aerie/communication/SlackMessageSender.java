@@ -25,7 +25,9 @@ import com.ullink.slack.simpleslackapi.replies.SlackMessageReply;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.communication.SlackMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SlackMessageSender extends MessageSender<SlackMessage> {
 
     /**

@@ -24,6 +24,7 @@ import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
 import com.ullink.slack.simpleslackapi.listeners.SlackMessagePostedListener;
 
+import org.eaa690.aerie.communication.SlackMessageSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
@@ -53,6 +54,11 @@ public class SlackService extends CommunicationService<SlackMessage> implements 
      */
     @Autowired
     private SlackSession slackSession;
+
+    @Autowired
+    public SlackService(SlackMessageSender messageSender) {
+        super(messageSender);
+    }
 
     /**
      * {@inheritDoc}

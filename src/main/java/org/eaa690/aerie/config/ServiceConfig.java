@@ -218,14 +218,14 @@ public class ServiceConfig {
      * @return SlackSession
      */
     @Bean
-    public SlackSession slackSession(final PropertyService propertyService,
-                                     final SlackService slackService) {
+    public SlackSession slackSession(final PropertyService propertyService) {
         try {
             final SlackSession slackSession = SlackSessionFactory
                     .createWebSocketSlackSession(
                             propertyService.get(PropertyKeyConstants.SLACK_TOKEN_KEY).getValue());
             slackSession.connect();
-            slackSession.addMessagePostedListener(slackService);
+            // Create seperate service for listening to slack messages
+            //slackSession.addMessagePostedListener();
             return slackSession;
         } catch (IOException | ResourceNotFoundException e) {
             return null;

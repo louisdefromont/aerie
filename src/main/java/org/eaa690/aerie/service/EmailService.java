@@ -21,12 +21,15 @@ import java.util.Optional;
 
 import com.sendgrid.helpers.mail.objects.Email;
 
+import org.eaa690.aerie.communication.AcceptsEmailPredicate;
+import org.eaa690.aerie.communication.SendGridEmailSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.communication.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +46,11 @@ public class EmailService extends CommunicationService<org.eaa690.aerie.model.co
      * Logger.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
+
+    @Autowired
+    public EmailService(SendGridEmailSender messageSender) {
+        super(messageSender);
+    }
 
     /**
      * {@inheritDoc}
@@ -66,7 +74,7 @@ public class EmailService extends CommunicationService<org.eaa690.aerie.model.co
      */
     @Override
     public org.eaa690.aerie.model.communication.Email buildNewMembershipMsg(final Member member) {
-        if (getAcceptsEmailPredicate().test(member)) {
+        if (getAcceptsMessagePredicate().test(member)) {
 
             final org.eaa690.aerie.model.communication.Email newMembershipEmail =
                 new org.eaa690.aerie.model.communication.Email(

@@ -19,6 +19,7 @@ package org.eaa690.aerie.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.eaa690.aerie.communication.EmailSMSSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
@@ -48,6 +49,11 @@ public class SMSService extends CommunicationService<SMS> {
      */
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    public SMSService(EmailSMSSender messageSender) {
+        super(messageSender);
+    }
 
     /**
      * Sets EmailService.
@@ -96,7 +102,7 @@ public class SMSService extends CommunicationService<SMS> {
      * @param member Member
      */
     @Override
-    public void buildRenewMembershipMsg(final Member member) {
+    public SMS buildRenewMembershipMsg(final Member member) {
         final SMS newMembershipMessage = new SMS(
             member.getCellPhone(),
             member.getId(),

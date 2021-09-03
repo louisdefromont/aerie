@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.Getter;
 
 /**
- * CommunicationService.
+ * CommuincationService
  * @param <T> Type of Message sent by this Commuinication Service.
  */
 @Getter
@@ -75,11 +75,9 @@ public abstract class CommunicationService<T extends Message> {
     @Autowired
     private MessageRepository<T> messageRepository;
 
-    /**
-     * AcceptsMessagePredicate.
-     */
-    @Autowired
-    private Predicate<Member> acceptsMessagePredicate;
+    public CommunicationService(MessageSender<T> messageSenderInput) {
+        this.messageSender = messageSenderInput;
+    }
 
     /**
      * Sets PropertyService.
@@ -112,6 +110,10 @@ public abstract class CommunicationService<T extends Message> {
     @Autowired
     public void setMessageRepository(final MessageRepository<T> input) {
         messageRepository = input;
+    }
+
+    public Predicate<Member> getAcceptsMessagePredicate() {
+        return getMessageSender().getAcceptsMessagePredicate();
     }
 
     /**

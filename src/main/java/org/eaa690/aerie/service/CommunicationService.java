@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -118,8 +119,7 @@ public class CommunicationService implements SlackMessagePostedListener {
     private AcceptsSlackPredicate acceptsSlackPredicate;
 
     /**
-     * Sets SlackSession.
-     * Note: mostly used for unit test mocks
+     * Sets SlackSession. Note: mostly used for unit test mocks
      *
      * @param value SlackSession
      */
@@ -129,8 +129,7 @@ public class CommunicationService implements SlackMessagePostedListener {
     }
 
     /**
-     * Sets PropertyService.
-     * Note: mostly used for unit test mocks
+     * Sets PropertyService. Note: mostly used for unit test mocks
      *
      * @param value PropertyService
      */
@@ -140,8 +139,7 @@ public class CommunicationService implements SlackMessagePostedListener {
     }
 
     /**
-     * Sets JotFormService.
-     * Note: mostly used for unit test mocks
+     * Sets JotFormService. Note: mostly used for unit test mocks
      *
      * @param value JotFormService
      */
@@ -151,8 +149,7 @@ public class CommunicationService implements SlackMessagePostedListener {
     }
 
     /**
-     * Sets MemberRepository.
-     * Note: mostly used for unit test mocks
+     * Sets MemberRepository. Note: mostly used for unit test mocks
      *
      * @param mRepository MemberRepository
      */
@@ -162,8 +159,7 @@ public class CommunicationService implements SlackMessagePostedListener {
     }
 
     /**
-     * Sets QueuedEmailRepository.
-     * Note: mostly used for unit test mocks
+     * Sets QueuedEmailRepository. Note: mostly used for unit test mocks
      *
      * @param qeRepository QueuedEmailRepository
      */
@@ -173,7 +169,7 @@ public class CommunicationService implements SlackMessagePostedListener {
     }
 
     /**
-     * Queues message to be sent.  Slack only messages are sent immediately.
+     * Queues message to be sent. Slack only messages are sent immediately.
      *
      * @param queuedMessage QueuedMessage
      */
@@ -195,18 +191,16 @@ public class CommunicationService implements SlackMessagePostedListener {
     }
 
     /**
-     * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
+     * Looks for any messages in the send queue, and sends up to X (see
+     * configuration) messages per day.
      */
     // @Scheduled(cron = "0 0 10 * * *")
     public void processQueue() {
         final Optional<List<QueuedMessage>> allQueuedMessages = queuedMessageRepository.findAll();
         if (allQueuedMessages.isPresent()) {
             try {
-                allQueuedMessages
-                        .get()
-                        .stream()
-                        .limit(Long.parseLong(
-                                propertyService.get(PropertyKeyConstants.SEND_GRID_LIMIT).getValue()))
+                allQueuedMessages.get().stream()
+                        .limit(Long.parseLong(propertyService.get(PropertyKeyConstants.SEND_GRID_LIMIT).getValue()))
                         .forEach(qe -> {
                             sendSlackMessage(qe);
                             sendSMSMessage(qe);
@@ -222,7 +216,7 @@ public class CommunicationService implements SlackMessagePostedListener {
     /**
      * Processes messages received by membership slack bot.
      *
-     * @param event SlackMessagePosted
+     * @param event   SlackMessagePosted
      * @param session SlackSession
      */
     @Override
@@ -233,10 +227,7 @@ public class CommunicationService implements SlackMessagePostedListener {
         }
         final String message = event.getMessageContent();
         final String user = event.getUser().getUserName();
-        final String msg = String.format(
-                "Slack message received: user [%s]; message [%s]",
-                user,
-                message);
+        final String msg = String.format("Slack message received: user [%s]; message [%s]", user, message);
         LOGGER.info(msg);
     }
 
@@ -247,9 +238,7 @@ public class CommunicationService implements SlackMessagePostedListener {
      */
     public List<String> allSlackUsers() {
         final List<String> users = new ArrayList<>();
-        slackSession
-                .getUsers()
-                .forEach(user -> users.add(user.getRealName() + "|" + user.getUserName()));
+        slackSession.getUsers().forEach(user -> users.add(user.getRealName() + "|" + user.getUserName()));
         return users;
     }
 
@@ -264,15 +253,12 @@ public class CommunicationService implements SlackMessagePostedListener {
         try {
             final String expiration;
             if (member.getExpiration() != null) {
-                expiration = ZonedDateTime.ofInstant(member.getExpiration().toInstant(),
-                        ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
+                expiration = ZonedDateTime.ofInstant(member.getExpiration().toInstant(), ZoneId.systemDefault())
+                        .format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
             } else {
                 expiration = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("MMM d, yyyy"));
             }
-            return propertyService
-                    .get(msgKey)
-                    .getValue()
-                    .replaceAll("\\{\\{firstName\\}\\}", member.getFirstName())
+            return propertyService.get(msgKey).getValue().replaceAll("\\{\\{firstName\\}\\}", member.getFirstName())
                     .replaceAll("\\{\\{lastName\\}\\}", member.getLastName())
                     .replaceAll("\\{\\{expirationDate\\}\\}", expiration)
                     .replaceAll("\\{\\{url\\}\\}", jotFormService.buildRenewMembershipUrl(member));
@@ -310,8 +296,7 @@ public class CommunicationService implements SlackMessagePostedListener {
             if (memberOpt.isPresent()) {
                 final Member member = memberOpt.get();
                 if (acceptsSMSPredicate.test(member)) {
-                    queuedMessage.setRecipientAddress(String.format("%s@%s",
-                            queuedMessage.getRecipientAddress(),
+                    queuedMessage.setRecipientAddress(String.format("%s@%s", queuedMessage.getRecipientAddress(),
                             member.getCellPhoneProvider().getCellPhoneProviderEmailDomain()));
                     sendEmailMessage(queuedMessage);
                 }
@@ -331,14 +316,14 @@ public class CommunicationService implements SlackMessagePostedListener {
                 if (memberOpt.isPresent()) {
                     final Member member = memberOpt.get();
                     if (acceptsEmailPredicate.test(member)) {
-                        Email from = new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY)
-                                .getValue());
+                        Email from = new Email(
+                                propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue());
                         String subject = propertyService.get(queuedMessage.getSubjectKey()).getValue();
                         Email to = new Email(queuedMessage.getRecipientAddress());
                         if (Boolean.parseBoolean(
                                 propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_ENABLED_KEY).getValue())) {
-                            to = new Email(propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY)
-                                    .getValue());
+                            to = new Email(
+                                    propertyService.get(PropertyKeyConstants.EMAIL_TEST_MODE_RECIPIENT_KEY).getValue());
                         }
 
                         final Mail mail;
@@ -349,8 +334,7 @@ public class CommunicationService implements SlackMessagePostedListener {
                             mail.addPersonalization(personalize(member, to));
                             mail.setFrom(from);
                         } else {
-                            mail = new Mail(from, subject, to, new Content("text/plain",
-                                    queuedMessage.getBody()));
+                            mail = new Mail(from, subject, to, new Content("text/plain", queuedMessage.getBody()));
                         }
 
                         final Request request = new Request();
@@ -372,7 +356,7 @@ public class CommunicationService implements SlackMessagePostedListener {
      * Personalizes an email to the member.
      *
      * @param member Member
-     * @param to address
+     * @param to     address
      * @return Personalization
      * @throws ResourceNotFoundException when property is not found
      */
@@ -384,14 +368,13 @@ public class CommunicationService implements SlackMessagePostedListener {
         personalization.addDynamicTemplateData("lastName", member.getLastName());
         personalization.addDynamicTemplateData("url", jotFormService.buildRenewMembershipUrl(member));
         if (member.getExpiration() == null) {
-            personalization.addDynamicTemplateData("expirationDate", ZonedDateTime.ofInstant(Instant.now(),
-                    ZoneId.systemDefault()).format(
-                    DateTimeFormatter.ofPattern("MMM d, yyyy")));
+            personalization.addDynamicTemplateData("expirationDate",
+                    ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault())
+                            .format(DateTimeFormatter.ofPattern("MMM d, yyyy")));
         } else {
-            personalization.addDynamicTemplateData("expirationDate", ZonedDateTime.ofInstant(
-                    member.getExpiration().toInstant(),
-                    ZoneId.systemDefault()).format(
-                    DateTimeFormatter.ofPattern("MMM d, yyyy")));
+            personalization.addDynamicTemplateData("expirationDate",
+                    ZonedDateTime.ofInstant(member.getExpiration().toInstant(), ZoneId.systemDefault())
+                            .format(DateTimeFormatter.ofPattern("MMM d, yyyy")));
         }
         return personalization;
     }
@@ -437,33 +420,37 @@ public class CommunicationService implements SlackMessagePostedListener {
      * @param member Member
      */
     public void sendRenewMembershipMsg(final Member member) {
-        if (member != null && member.getSlack() != null && member.isSlackEnabled()) {
-            try {
-                final QueuedMessage queuedSlackMessage = new QueuedMessage();
-                queuedSlackMessage.setMemberId(member.getId());
-                queuedSlackMessage.setBody(getSMSOrSlackMessage(member,
-                        PropertyKeyConstants.SLACK_RENEW_MEMBER_MSG_KEY));
-                queuedSlackMessage.setMessageType(MessageType.Slack);
-                queuedSlackMessage.setRecipientAddress(getSlackName(member));
-                queueMsg(queuedSlackMessage);
+        try {
+            final QueuedMessage queuedSlackMessage = new QueuedMessage();
+            queuedSlackMessage.setMemberId(member.getId());
+            queuedSlackMessage.setBody(getSMSOrSlackMessage(member, PropertyKeyConstants.SLACK_RENEW_MEMBER_MSG_KEY));
+            queuedSlackMessage.setMessageType(MessageType.Slack);
+            queuedSlackMessage.setRecipientAddress(getSlackName(member));
+            queuedSlackMessage.setCreatedAt(new Date());
+            queuedSlackMessage.setUpdatedAt(new Date());
+            queueMsg(queuedSlackMessage);
 
-                final QueuedMessage queuedSMSMessage = new QueuedMessage();
-                queuedSMSMessage.setMemberId(member.getId());
-                queuedSMSMessage.setBody(getSMSOrSlackMessage(member, PropertyKeyConstants.SMS_RENEW_MEMBER_MSG_KEY));
-                queuedSMSMessage.setMessageType(MessageType.SMS);
-                queuedSMSMessage.setRecipientAddress(member.getCellPhone());
-                queueMsg(queuedSMSMessage);
+            final QueuedMessage queuedSMSMessage = new QueuedMessage();
+            queuedSMSMessage.setMemberId(member.getId());
+            queuedSMSMessage.setBody(getSMSOrSlackMessage(member, PropertyKeyConstants.SMS_RENEW_MEMBER_MSG_KEY));
+            queuedSMSMessage.setMessageType(MessageType.SMS);
+            queuedSMSMessage.setRecipientAddress(member.getCellPhone());
+            queuedSMSMessage.setCreatedAt(new Date());
+            queuedSMSMessage.setUpdatedAt(new Date());
+            queueMsg(queuedSMSMessage);
 
-                final QueuedMessage queuedEmailMessage = new QueuedMessage();
-                queuedEmailMessage.setMemberId(member.getId());
-                queuedEmailMessage.setSubjectKey(PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_SUBJECT_KEY);
-                queuedEmailMessage.setTemplateIdKey(PropertyKeyConstants.SEND_GRID_NEW_MEMBERSHIP_EMAIL_TEMPLATE_ID);
-                queuedEmailMessage.setRecipientAddress(member.getEmail());
-                queuedEmailMessage.setMessageType(MessageType.Email);
-                queueMsg(queuedEmailMessage);
-            } catch (ResourceNotFoundException ex) {
-                LOGGER.error(ex.getMessage());
-            }
+            final QueuedMessage queuedEmailMessage = new QueuedMessage();
+            queuedEmailMessage.setMemberId(member.getId());
+            queuedEmailMessage.setSubjectKey(PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY);
+            queuedEmailMessage.setTemplateIdKey(
+                PropertyKeyConstants.SEND_GRID_THIRD_MEMBERSHIP_RENEWAL_EMAIL_TEMPLATE_ID);
+            queuedEmailMessage.setRecipientAddress(member.getEmail());
+            queuedEmailMessage.setMessageType(MessageType.Email);
+            queuedEmailMessage.setCreatedAt(new Date());
+            queuedEmailMessage.setUpdatedAt(new Date());
+            queueMsg(queuedEmailMessage);
+        } catch (ResourceNotFoundException ex) {
+            LOGGER.error(ex.getMessage());
         }
     }
 
@@ -476,8 +463,7 @@ public class CommunicationService implements SlackMessagePostedListener {
      */
     private String getSlackName(final Member member) throws ResourceNotFoundException {
         String to = member.getSlack();
-        if (Boolean.parseBoolean(
-                propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_ENABLED_KEY).getValue())) {
+        if (Boolean.parseBoolean(propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_ENABLED_KEY).getValue())) {
             to = propertyService.get(PropertyKeyConstants.SLACK_TEST_MODE_RECIPIENT_KEY).getValue();
         }
         return to;

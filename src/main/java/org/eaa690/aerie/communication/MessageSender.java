@@ -43,6 +43,7 @@ public abstract class MessageSender<T extends Message> {
     /**
      * Sends a message of type T.
      * @param message The message to be sent.
+     * @param recipientMember The member that recieves the message
      * @return Response of sending the message.
      */
     public abstract String sendMessage(T message, Member recipientMember);

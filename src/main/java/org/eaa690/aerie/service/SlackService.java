@@ -18,7 +18,6 @@ package org.eaa690.aerie.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
@@ -32,11 +31,7 @@ import org.eaa690.aerie.model.communication.SlackMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import io.cucumber.messages.internal.com.google.protobuf.Extension.MessageType;
-import io.cucumber.messages.internal.com.google.protobuf.Message;
 
 /**
  * SlackService.
@@ -56,7 +51,7 @@ public class SlackService extends CommunicationService<SlackMessage> implements 
     private SlackSession slackSession;
 
     @Autowired
-    public SlackService(SlackMessageSender messageSender) {
+    public SlackService(final SlackMessageSender messageSender) {
         super(messageSender);
     }
 
@@ -66,7 +61,7 @@ public class SlackService extends CommunicationService<SlackMessage> implements 
     @Override
     public void queueMsg(final SlackMessage message) throws ResourceNotFoundException {
         super.queueMsg(message);
-        // TODO: Immediately processes queue, inefficient
+        // Immediately processes queue, inefficient
         processQueue((long) 1);
     }
 
@@ -135,7 +130,7 @@ public class SlackService extends CommunicationService<SlackMessage> implements 
             SlackMessage renewMembershipMessage = new SlackMessage(
                 getSlackName(member),
                 member.getId(),
-                getSMSOrSlackMessage(member,PropertyKeyConstants.SLACK_RENEW_MEMBER_MSG_KEY));
+                getSMSOrSlackMessage(member, PropertyKeyConstants.SLACK_RENEW_MEMBER_MSG_KEY));
             return renewMembershipMessage;
 
         } catch (ResourceNotFoundException e) {

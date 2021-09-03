@@ -16,8 +16,6 @@
 
 package org.eaa690.aerie.model.communication;
 
-import org.eaa690.aerie.model.Member;
-
 import lombok.Getter;
 
 /**
@@ -33,7 +31,7 @@ public class SMS extends Message {
     /**
      * SMS.
      * @param recipientAddress {@inheritDoc}
-     * @param recipientMember {@inheritDoc}
+     * @param recipientMemberId {@inheritDoc}
      * @param bodyInput Body
      */
     public SMS(final String recipientAddress, final Long recipientMemberId, final String bodyInput) {

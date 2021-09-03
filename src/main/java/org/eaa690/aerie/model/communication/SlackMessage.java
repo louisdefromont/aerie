@@ -31,8 +31,11 @@ public class SlackMessage extends Message {
 
     /**
      * SlackMessage.
+     * @param recipientAddress recipientAddress
+     * @param recipientMemberId recipientMemberId
+     * @param bodyInput bodyInput
      */
-    public SlackMessage(String recipientAddress, Long recipientMemberId, String bodyInput) {
+    public SlackMessage(final String recipientAddress, final Long recipientMemberId, final String bodyInput) {
         super(recipientAddress, recipientMemberId);
         this.body = bodyInput;
     }

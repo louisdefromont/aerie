@@ -16,8 +16,6 @@
 
 package org.eaa690.aerie.model.communication;
 
-import org.eaa690.aerie.model.Member;
-
 import lombok.Getter;
 
 /**
@@ -42,7 +40,7 @@ public class Email extends Message {
     /**
      * Email.
      * @param recipientAddressInput {@inheritDoc}
-     * @param recipientMemberInput {@inheritDoc}
+     * @param recipientMemberIdInput {@inheritDoc}
      * @param subjectInput Email Subject
      * @param templateIDInput Email templateID
      * @param bodyInput Email Body

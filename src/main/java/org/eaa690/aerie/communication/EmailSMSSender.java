@@ -16,17 +16,12 @@
 
 package org.eaa690.aerie.communication;
 
-import java.util.MissingResourceException;
-import java.util.Optional;
-
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
 import org.eaa690.aerie.model.communication.Email;
 import org.eaa690.aerie.model.communication.SMS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import clover.org.apache.velocity.exception.ResourceNotFoundException;
 
 /**
  * Sends Emails as SMS messages using a Member's phone carrier.
@@ -67,7 +62,7 @@ public class EmailSMSSender extends MessageSender<SMS> {
      * {@inheritDoc}
      */
     @Override
-    public String sendMessage(final SMS message, Member recipientMember) {
+    public String sendMessage(final SMS message, final Member recipientMember) {
         String recipientAddress = String.format(
         "%s@%s",
         message.getRecipientAddress(),

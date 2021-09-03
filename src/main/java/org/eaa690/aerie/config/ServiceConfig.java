@@ -16,12 +16,16 @@
 
 package org.eaa690.aerie.config;
 
+import java.io.IOException;
+import java.net.http.HttpClient;
+import java.time.Duration;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.alexanderwe.bananaj.connection.MailChimpConnection;
 import com.sendgrid.SendGrid;
 import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.impl.SlackSessionFactory;
-import io.github.bsmichael.rostermanagement.RosterManager;
+
 import org.eaa690.aerie.constant.CommonConstants;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
@@ -30,7 +34,6 @@ import org.eaa690.aerie.service.JotFormService;
 import org.eaa690.aerie.service.MailChimpService;
 import org.eaa690.aerie.service.PropertyService;
 import org.eaa690.aerie.service.RosterService;
-import org.eaa690.aerie.service.SlackService;
 import org.eaa690.aerie.service.TinyURLService;
 import org.eaa690.aerie.service.WeatherService;
 import org.eaa690.aerie.ssl.SSLUtilities;
@@ -40,9 +43,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.net.http.HttpClient;
-import java.time.Duration;
+import io.github.bsmichael.rostermanagement.RosterManager;
 
 /**
  * ServiceConfig.
@@ -214,7 +215,6 @@ public class ServiceConfig {
      * SlackSession.
      *
      * @param propertyService PropertyService
-     * @param slackService SlackService
      * @return SlackSession
      */
     @Bean

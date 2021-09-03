@@ -16,9 +16,6 @@
 
 package org.eaa690.aerie.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.eaa690.aerie.communication.EmailSMSSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
@@ -29,9 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import io.cucumber.messages.internal.com.google.protobuf.Message;
-import io.cucumber.messages.internal.com.google.protobuf.Extension.MessageType;
 
 /**
  * SMSService.
@@ -51,7 +45,7 @@ public class SMSService extends CommunicationService<SMS> {
     private EmailService emailService;
 
     @Autowired
-    public SMSService(EmailSMSSender messageSender) {
+    public SMSService(final EmailSMSSender messageSender) {
         super(messageSender);
     }
 
@@ -72,7 +66,7 @@ public class SMSService extends CommunicationService<SMS> {
     @Scheduled(cron = "0 0 10 * * *")
     public void processQueue() {
         try {
-            // TODO: Currently shares message rates with emails but doesn't take that into account!
+            // Currently shares message rates with emails but doesn't take that into account!
             super.processQueue(Long.parseLong(
                 getPropertyService().get(PropertyKeyConstants.SEND_GRID_LIMIT).getValue()));
         } catch (NumberFormatException e) {

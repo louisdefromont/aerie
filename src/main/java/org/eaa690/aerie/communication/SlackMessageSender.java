@@ -16,8 +16,6 @@
 
 package org.eaa690.aerie.communication;
 
-import java.util.function.Predicate;
-
 import com.ullink.slack.simpleslackapi.SlackMessageHandle;
 import com.ullink.slack.simpleslackapi.SlackSession;
 import com.ullink.slack.simpleslackapi.replies.SlackMessageReply;
@@ -41,8 +39,11 @@ public class SlackMessageSender extends MessageSender<SlackMessage> {
         super("Slack Message", acceptsMessagePredicate);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String sendMessage(SlackMessage message, Member recipientMember) {
+    public String sendMessage(final SlackMessage message, final Member recipientMember) {
         SlackMessageHandle<SlackMessageReply> reply = slackSession.sendMessageToUser(
                         slackSession.findUserByUserName(message.getRecipientAddress()),
                         message.getBody(), null);

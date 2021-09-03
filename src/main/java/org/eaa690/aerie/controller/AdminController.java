@@ -24,7 +24,6 @@ import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.communication.Email;
 import org.eaa690.aerie.model.communication.SMS;
-import org.eaa690.aerie.model.communication.SlackMessage;
 import org.eaa690.aerie.service.CommunicationService;
 import org.eaa690.aerie.service.MailChimpService;
 import org.eaa690.aerie.service.RosterService;

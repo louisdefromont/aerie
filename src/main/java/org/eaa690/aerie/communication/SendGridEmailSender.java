@@ -92,7 +92,7 @@ public class SendGridEmailSender extends MessageSender<org.eaa690.aerie.model.co
     /**
      * {@inheritDoc}
      */
-    public String sendMessage(final org.eaa690.aerie.model.communication.Email message, Member recipientMember) {
+    public String sendMessage(final org.eaa690.aerie.model.communication.Email message, final Member recipientMember) {
         try {
             Email from = new Email(propertyService.get(PropertyKeyConstants.SEND_GRID_FROM_ADDRESS_KEY).getValue());
             String subject = message.getSubject();

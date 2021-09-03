@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.Getter;
 
 /**
- * CommuincationService
+ * CommuincationService.
  * @param <T> Type of Message sent by this Commuinication Service.
  */
 @Getter
@@ -75,7 +75,11 @@ public abstract class CommunicationService<T extends Message> {
     @Autowired
     private MessageRepository<T> messageRepository;
 
-    public CommunicationService(MessageSender<T> messageSenderInput) {
+    /**
+     * CommunicationService.
+     * @param messageSenderInput MessageSender
+     */
+    public CommunicationService(final MessageSender<T> messageSenderInput) {
         this.messageSender = messageSenderInput;
     }
 
@@ -105,13 +109,17 @@ public abstract class CommunicationService<T extends Message> {
      * Sets QueuedEmailRepository.
      * Note: mostly used for unit test mocks
      *
-     * @param qeRepository QueuedEmailRepository
+     * @param input QueuedEmailRepository
      */
     @Autowired
     public void setMessageRepository(final MessageRepository<T> input) {
         messageRepository = input;
     }
 
+    /**
+     * Gets acceptsMessagePredicate.
+     * @return acceptsMessagePredicate.
+     */
     public Predicate<Member> getAcceptsMessagePredicate() {
         return getMessageSender().getAcceptsMessagePredicate();
     }
@@ -139,7 +147,8 @@ public abstract class CommunicationService<T extends Message> {
                         messageSender.getMessageType()));
             }
         } else {
-            throw new ResourceNotFoundException(String.format("No member found with id %d", message.getRecipientMemberId()));
+            throw new ResourceNotFoundException(
+                String.format("No member found with id %d", message.getRecipientMemberId()));
         }
     }
 
@@ -207,7 +216,8 @@ public abstract class CommunicationService<T extends Message> {
                         messageSender.getMessageType()));
             }
         } else {
-            throw new ResourceNotFoundException(String.format("No member found with id %d", message.getRecipientMemberId()));
+            throw new ResourceNotFoundException(
+                String.format("No member found with id %d", message.getRecipientMemberId()));
         }
         return response;
     }
@@ -216,6 +226,7 @@ public abstract class CommunicationService<T extends Message> {
      * Sends new member message.
      *
      * @param member Member
+     * @return Message for new members.
      */
     public abstract T buildNewMembershipMsg(Member member);
 
@@ -223,13 +234,15 @@ public abstract class CommunicationService<T extends Message> {
      * Sends membership renewal message.
      *
      * @param member Member
+     * @return Message to remind members to renew membership.
      */
     public abstract T buildRenewMembershipMsg(Member member);
 
     /**
      * Looks for any messages in the send queue, and sends up to X (see configuration) messages per day.
+     * @param maxMessagesSent The maximum amount of messages to be sent.
      */
-    public void processQueue(Long maxMessagesSent) {
+    public void processQueue(final Long maxMessagesSent) {
         final Optional<List<T>> allQueuedMessages = messageRepository.findAll();
         if (allQueuedMessages.isPresent()) {
             allQueuedMessages

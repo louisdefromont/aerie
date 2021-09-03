@@ -16,24 +16,15 @@
 
 package org.eaa690.aerie.service;
 
-import java.util.List;
-import java.util.Optional;
-
-import com.sendgrid.helpers.mail.objects.Email;
-
-import org.eaa690.aerie.communication.AcceptsEmailPredicate;
 import org.eaa690.aerie.communication.SendGridEmailSender;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.Member;
-import org.eaa690.aerie.model.communication.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import io.cucumber.messages.internal.com.google.protobuf.Extension.MessageType;
 
 
 /**
@@ -48,7 +39,7 @@ public class EmailService extends CommunicationService<org.eaa690.aerie.model.co
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
     @Autowired
-    public EmailService(SendGridEmailSender messageSender) {
+    public EmailService(final SendGridEmailSender messageSender) {
         super(messageSender);
     }
 

@@ -307,10 +307,12 @@ public class CommunicationService implements SlackMessagePostedListener {
                             member.getCellPhoneProvider().getCellPhoneProviderEmailDomain()));
                         queuedMessage.setMessageType(MessageType.Email);
                         // Sets an arbitrary message key in order to comply with sending an email message
-                        queuedMessage.setSubjectKey(PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY);
+                        queuedMessage.setSubjectKey(
+                            PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY);
                         sendEmailMessage(queuedMessage);
                     }
-                    LOGGER.error("Could not send SMS Message because recipient does not have a cellphone provider selected!");
+                    LOGGER.error(
+                        "Could not send SMS Message because recipient does not have a cellphone provider selected!");
                 }
             }
         }
@@ -435,7 +437,8 @@ public class CommunicationService implements SlackMessagePostedListener {
         // try {
             // final QueuedMessage queuedSlackMessage = new QueuedMessage();
             // queuedSlackMessage.setMemberId(member.getId());
-            // queuedSlackMessage.setBody(getSMSOrSlackMessage(member, PropertyKeyConstants.SLACK_RENEW_MEMBER_MSG_KEY));
+            // queuedSlackMessage.
+                // setBody(getSMSOrSlackMessage(member, PropertyKeyConstants.SLACK_RENEW_MEMBER_MSG_KEY));
             // queuedSlackMessage.setMessageType(MessageType.Slack);
             // queuedSlackMessage.setRecipientAddress(getSlackName(member));
             // queuedSlackMessage.setCreatedAt(new Date());

@@ -31,7 +31,7 @@ Feature: Roster functions
     When I update member 42648's RFID with ABC123
     Then The request should be successful
 
-  @rfid @findByID @disabled
+  @rfid @findByID
   Scenario: Find a member by their RFID data
     Given I am an unauthenticated user
     When I find a member by their RFID ABC123

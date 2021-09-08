@@ -34,7 +34,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.constant.CommonConstants;
 import org.eaa690.aerie.constant.PropertyKeyConstants;
-import org.eaa690.aerie.exception.ResourceExistsException;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
 import org.eaa690.aerie.model.JotForm;
 import org.eaa690.aerie.model.Member;
@@ -261,13 +260,9 @@ public class JotFormService {
             for (final Map.Entry<String, Member> entry : newMembersMap.entrySet()) {
                 final String key = entry.getKey();
                 if (SUBMISSIONS_CACHE.getIfPresent(key) == null) {
-                    try {
-                        final Member member = rosterService.saveNewMember(entry.getValue());
-                        SUBMISSIONS_CACHE.put(key, key);
-                        communicationService.sendNewMembershipMsg(member);
-                    } catch (ResourceExistsException e) {
-                        LOGGER.error("Error", e);
-                    }
+                    final Member member = rosterService.saveNewMember(entry.getValue());
+                    SUBMISSIONS_CACHE.put(key, key);
+                    communicationService.sendNewMembershipMsg(member);
                 }
             }
         }

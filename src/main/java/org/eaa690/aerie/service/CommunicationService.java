@@ -174,6 +174,12 @@ public class CommunicationService implements SlackMessagePostedListener {
      * @param queuedMessage QueuedMessage
      */
     public void queueMsg(final QueuedMessage queuedMessage) {
+        if (queuedMessage.getCreatedAt() == null) {
+            queuedMessage.setCreatedAt(new Date());
+        }
+        if (queuedMessage.getUpdatedAt() == null) {
+            queuedMessage.setUpdatedAt(new Date());
+        }
         if (queuedMessage.getMessageType() == MessageType.Slack) {
             sendSlackMessage(queuedMessage);
         } else {

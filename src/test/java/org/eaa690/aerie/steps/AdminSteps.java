@@ -20,6 +20,8 @@ import io.cucumber.java.en.When;
 import io.restassured.http.ContentType;
 import org.eaa690.aerie.TestContext;
 
+import java.util.List;
+
 /**
  * Admin test steps.
  */
@@ -62,52 +64,35 @@ public class AdminSteps extends BaseSteps {
         testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()
-                .post(ADMIN + "email/" + rosterId + "/new-membership")
+                .post(ADMIN + rosterId + "/new-membership")
                 .then());
     }
 
-    @When("^I request a (.*) email be sent to member (.*) to renew their membership$")
-    public void iRequestEmailToRenewMember(final String order, final String rosterId) {
+    @When("^I request a message be sent to member (.*) to renew their membership$")
+    public void iRequestAMessageToRenewMember(final String rosterId) {
         testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()
-                .post(ADMIN + "email/" + rosterId + "/renew-membership/" + order)
+                .post(ADMIN + rosterId + "/renew-membership")
                 .then());
     }
 
-    @When("^I request a text be sent to new member (.*)$")
-    public void iRequestTextToNewMember(final String rosterId) {
+    @When("^I respond to a Slack message as (.*) with (.*)$")
+    public void iRespondToASlackMessage(final String user, final String msg) {
         testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()
-                .post(ADMIN + "sms/" + rosterId + "/new-membership")
+                .body(msg)
+                .post(ADMIN + "slack/" + user + "/response")
                 .then());
     }
 
-    @When("^I request a text be sent to member (.*) to renew their membership$")
-    public void iRequestTextToRenewMember(final String rosterId) {
+    @When("^I request the message queue be processed$")
+    public void iRequestProcessingOfMessageQueue() {
         testContext.setValidatableResponse(requestSpecification()
                 .contentType(ContentType.JSON)
                 .when()
-                .post(ADMIN + "sms/" + rosterId + "/renew-membership")
-                .then());
-    }
-
-    @When("^I request a Slack message be sent to new member (.*)$")
-    public void iRequestSlackToNewMember(final String rosterId) {
-        testContext.setValidatableResponse(requestSpecification()
-                .contentType(ContentType.JSON)
-                .when()
-                .post(ADMIN + "slack/" + rosterId + "/new-membership")
-                .then());
-    }
-
-    @When("^I request a Slack message be sent to member (.*) to renew their membership$")
-    public void iRequestSlackToRenewMember(final String rosterId) {
-        testContext.setValidatableResponse(requestSpecification()
-                .contentType(ContentType.JSON)
-                .when()
-                .post(ADMIN + "slack/" + rosterId + "/renew-membership")
+                .post(ADMIN + "process-message-queue")
                 .then());
     }
 
@@ -129,4 +114,31 @@ public class AdminSteps extends BaseSteps {
                 .then());
     }
 
+    @When("^I request the weather data to be updated$")
+    public void iRequestWeatherUpdated() {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "weather/update")
+                .then());
+    }
+
+    @When("^I request membership renewal messages be sent$")
+    public void iRequestMembershipRenewalMessageBeSent() {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ADMIN + "roster/process-membership-renewals")
+                .then());
+    }
+
+    @When("^I send a SMS/Text message to myself with the following message:$")
+    public void iSendSMSMessageWithProvidedBody(final List<String> messages) {
+        testContext.setValidatableResponse(requestSpecification()
+                .contentType(ContentType.TEXT)
+                .when()
+                .body(messages.get(0))
+                .post(ADMIN + "sms/" + testContext.getRosterId())
+                .then());
+    }
 }

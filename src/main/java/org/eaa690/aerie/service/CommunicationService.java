@@ -302,9 +302,15 @@ public class CommunicationService implements SlackMessagePostedListener {
             if (memberOpt.isPresent()) {
                 final Member member = memberOpt.get();
                 if (acceptsSMSPredicate.test(member)) {
-                    queuedMessage.setRecipientAddress(String.format("%s@%s", queuedMessage.getRecipientAddress(),
+                    if (member.getCellPhoneProvider() != null) {
+                        queuedMessage.setRecipientAddress(String.format("%s@%s", queuedMessage.getRecipientAddress(),
                             member.getCellPhoneProvider().getCellPhoneProviderEmailDomain()));
-                    sendEmailMessage(queuedMessage);
+                        queuedMessage.setMessageType(MessageType.Email);
+                        // Sets an arbitrary message key in order to comply with sending an email message
+                        queuedMessage.setSubjectKey(PropertyKeyConstants.SEND_GRID_FIRST_MEMBERSHIP_RENEWAL_EMAIL_SUBJECT_KEY);
+                        sendEmailMessage(queuedMessage);
+                    }
+                    LOGGER.error("Could not send SMS Message because recipient does not have a cellphone provider selected!");
                 }
             }
         }
@@ -426,15 +432,15 @@ public class CommunicationService implements SlackMessagePostedListener {
      * @param member Member
      */
     public void sendRenewMembershipMsg(final Member member) {
-        try {
-            final QueuedMessage queuedSlackMessage = new QueuedMessage();
-            queuedSlackMessage.setMemberId(member.getId());
-            queuedSlackMessage.setBody(getSMSOrSlackMessage(member, PropertyKeyConstants.SLACK_RENEW_MEMBER_MSG_KEY));
-            queuedSlackMessage.setMessageType(MessageType.Slack);
-            queuedSlackMessage.setRecipientAddress(getSlackName(member));
-            queuedSlackMessage.setCreatedAt(new Date());
-            queuedSlackMessage.setUpdatedAt(new Date());
-            queueMsg(queuedSlackMessage);
+        // try {
+            // final QueuedMessage queuedSlackMessage = new QueuedMessage();
+            // queuedSlackMessage.setMemberId(member.getId());
+            // queuedSlackMessage.setBody(getSMSOrSlackMessage(member, PropertyKeyConstants.SLACK_RENEW_MEMBER_MSG_KEY));
+            // queuedSlackMessage.setMessageType(MessageType.Slack);
+            // queuedSlackMessage.setRecipientAddress(getSlackName(member));
+            // queuedSlackMessage.setCreatedAt(new Date());
+            // queuedSlackMessage.setUpdatedAt(new Date());
+            // queueMsg(queuedSlackMessage);
 
             final QueuedMessage queuedSMSMessage = new QueuedMessage();
             queuedSMSMessage.setMemberId(member.getId());
@@ -455,9 +461,9 @@ public class CommunicationService implements SlackMessagePostedListener {
             queuedEmailMessage.setCreatedAt(new Date());
             queuedEmailMessage.setUpdatedAt(new Date());
             queueMsg(queuedEmailMessage);
-        } catch (ResourceNotFoundException ex) {
-            LOGGER.error(ex.getMessage());
-        }
+        // } catch (ResourceNotFoundException ex) {
+        //     LOGGER.error(ex.getMessage());
+        // }
     }
 
     /**

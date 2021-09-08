@@ -60,8 +60,7 @@ public class ServiceConfig {
      * @return Rest Template with request, read, and connection timeouts set
      */
     @Bean
-    public RestTemplate restTemplate(
-            final RestTemplateBuilder restTemplateBuilder) {
+    public RestTemplate restTemplate(final RestTemplateBuilder restTemplateBuilder) {
         return restTemplateBuilder
                 .setConnectTimeout(Duration.ofMillis(CommonConstants.ONE_THOUSAND))
                 .setReadTimeout(Duration.ofMillis(CommonConstants.TEN_THOUSAND))
@@ -107,16 +106,13 @@ public class ServiceConfig {
      *
      * @param propertyService PropertyService
      * @return RosterManager
+     * @throws ResourceNotFoundException when things go wrong
      */
     @Bean
-    public RosterManager rosterManager(final PropertyService propertyService) {
-        try {
-            return new RosterManager(
-                    propertyService.get(PropertyKeyConstants.ROSTER_USER_KEY).getValue(),
-                    propertyService.get(PropertyKeyConstants.ROSTER_PASS_KEY).getValue());
-        } catch (ResourceNotFoundException e) {
-            return null;
-        }
+    public RosterManager rosterManager(final PropertyService propertyService) throws ResourceNotFoundException {
+        return new RosterManager(
+                propertyService.get(PropertyKeyConstants.ROSTER_USER_KEY).getValue(),
+                propertyService.get(PropertyKeyConstants.ROSTER_PASS_KEY).getValue());
     }
 
     /**
@@ -134,15 +130,13 @@ public class ServiceConfig {
      *
      * @param propertyService PropertyService
      * @return MailChimpConnection
+     * @throws ResourceNotFoundException when things go wrong
      */
     @Bean
-    public MailChimpConnection mailChimpConnection(final PropertyService propertyService) {
-        try {
-            return new MailChimpConnection(propertyService
-                    .get(PropertyKeyConstants.MAILCHIMP_API_KEY).getValue());
-        } catch (ResourceNotFoundException e) {
-            return null;
-        }
+    public MailChimpConnection mailChimpConnection(final PropertyService propertyService)
+            throws ResourceNotFoundException {
+        return new MailChimpConnection(propertyService
+                .get(PropertyKeyConstants.MAILCHIMP_API_KEY).getValue());
     }
 
     /**
@@ -150,15 +144,12 @@ public class ServiceConfig {
      *
      * @param propertyService PropertyService
      * @return SendGrid
+     * @throws ResourceNotFoundException when things go wrong
      */
     @Bean
-    public SendGrid sendGrid(final PropertyService propertyService) {
-        try {
-            return new SendGrid(propertyService
-                    .get(PropertyKeyConstants.SEND_GRID_EMAIL_API_KEY).getValue());
-        } catch (ResourceNotFoundException e) {
-            return null;
-        }
+    public SendGrid sendGrid(final PropertyService propertyService) throws ResourceNotFoundException {
+        return new SendGrid(propertyService
+                .get(PropertyKeyConstants.SEND_GRID_EMAIL_API_KEY).getValue());
     }
 
     /**
@@ -216,10 +207,12 @@ public class ServiceConfig {
      *
      * @param propertyService PropertyService
      * @return SlackSession
+     * @throws IOException when things go wrong
+     * @throws ResourceNotFoundException when things go wrong
      */
     @Bean
-    public SlackSession slackSession(final PropertyService propertyService) {
-        try {
+    public SlackSession slackSession(final PropertyService propertyService)
+        throws IOException, ResourceNotFoundException {
             final SlackSession slackSession = SlackSessionFactory
                     .createWebSocketSlackSession(
                             propertyService.get(PropertyKeyConstants.SLACK_TOKEN_KEY).getValue());
@@ -227,9 +220,6 @@ public class ServiceConfig {
             // Create seperate service for listening to slack messages
             //slackSession.addMessagePostedListener();
             return slackSession;
-        } catch (IOException | ResourceNotFoundException e) {
-            return null;
-        }
     }
 
 }

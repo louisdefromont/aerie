@@ -62,6 +62,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.vaadin.external.google</groupId>
+					<artifactId>android-json</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -363,7 +369,7 @@
 				<dependency>
 					<groupId>com.puppycrawl.tools</groupId>
 					<artifactId>checkstyle</artifactId>
-					<version>8.45.1</version>
+					<version>9.0</version>
 				</dependency>
 			</dependencies>
 			<configuration>
@@ -480,7 +486,7 @@
 				<version>4.4.1</version>
 				<configuration>
 					<!--includesTestSourceRoots>false</includesTestSourceRoots-->
-					<targetPercentage>21%</targetPercentage>
+					<targetPercentage>49%</targetPercentage>
 					<generatePdf>true</generatePdf>
 					<generateHtml>true</generateHtml>
 					<!-- Verify that we can specify the JDK version for Clover's instrumentation -->

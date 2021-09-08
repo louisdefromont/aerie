@@ -19,6 +19,7 @@ package org.eaa690.aerie.service;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -131,6 +132,13 @@ public abstract class CommunicationService<T extends Message> {
      * @throws ResourceNotFoundException
      */
     public void queueMsg(final T message) throws ResourceNotFoundException {
+        if (message.getCreatedAt() == null) {
+            message.setCreatedAt(new Date());
+        }
+        if (message.getUpdatedAt() == null) {
+            message.setUpdatedAt(new Date());
+        }
+
         Optional<Member> foundMember = memberRepository.findById(message.getRecipientMemberId());
         if (foundMember.isPresent()) {
             Member recipientMember = foundMember.get();

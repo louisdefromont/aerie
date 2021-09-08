@@ -281,40 +281,4 @@ public class Member extends BaseEntity {
      */
     private boolean slackEnabled = false;
 
-    /**
-     * Sets Slack.
-     *
-     * @param value Slack username
-     */
-    public void setSlack(final String value) {
-        this.slack = value;
-        if (value != null) {
-            slackEnabled = true;
-        }
-    }
-
-    /**
-     * Set email.
-     *
-     * @param value Email address
-     */
-    public void setEmail(final String value) {
-        this.email = value;
-        if (value != null) {
-            emailEnabled = true;
-        }
-    }
-
-    /**
-     * Gets NumOfFamily.
-     *
-     * @return numOfFamily
-     */
-    public Long getNumOfFamily() {
-        if (numOfFamily == null) {
-            return 0L;
-        }
-        return numOfFamily;
-    }
-
 }

@@ -18,6 +18,19 @@ package org.eaa690.aerie.controller;
 
 import java.util.List;
 
+import com.ullink.slack.simpleslackapi.SlackBot;
+import com.ullink.slack.simpleslackapi.SlackChannel;
+import com.ullink.slack.simpleslackapi.SlackSession;
+import com.ullink.slack.simpleslackapi.SlackUser;
+import com.ullink.slack.simpleslackapi.events.SlackMessagePosted;
+import com.ullink.slack.simpleslackapi.impl.SlackPersonaImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eaa690.aerie.exception.ResourceNotFoundException;
@@ -28,11 +41,13 @@ import org.eaa690.aerie.service.CommunicationService;
 import org.eaa690.aerie.service.MailChimpService;
 import org.eaa690.aerie.service.RosterService;
 import org.eaa690.aerie.service.SlackService;
+import org.eaa690.aerie.service.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -82,6 +97,11 @@ public class AdminController {
     private CommunicationService<SMS> smsService;
 
     /**
+     * WeatherService.
+     */
+    private WeatherService weatherService;
+
+    /**
      * EmailService.
      */
     @Autowired
@@ -94,6 +114,11 @@ public class AdminController {
     private SlackService slackService;
 
     /**
+     * SlackSession.
+     */
+    private SlackSession slackSession;
+
+    /**
      * Sets RosterService.
      *
      * @param value RosterService
@@ -101,6 +126,16 @@ public class AdminController {
     @Autowired
     public void setRosterService(final RosterService value) {
         rosterService = value;
+    }
+
+    /**
+     * Sets WeatherService.
+     *
+     * @param value WeatherService
+     */
+    @Autowired
+    public void setWeatherService(final WeatherService value) {
+        weatherService = value;
     }
 
     /**
@@ -114,15 +149,26 @@ public class AdminController {
     }
 
     /**
+     * Sets SlackSession.
+     *
+     * @param value SlackSession
+     */
+    @Autowired
+    public void setSlackSession(final SlackSession value) {
+        slackSession = value;
+    }
+
+    /**
      * Sends SMS Message to a member.
      *
      * @param rosterId RosterId of member.
      * @param textBody SMS Body to be sent.
+     * @throws ResourceNotFoundException when member is not found
      */
-    @PostMapping(path = {"/sms/{rosterId}/{textBody}"})
+    @PostMapping(path = {"/sms/{rosterId}"})
     public void sendSMS(
             @PathVariable("rosterId") final Long rosterId,
-            @PathVariable("textBody") final String textBody) {
+            @RequestBody final String textBody) {
         try {
             final Member member = rosterService.getMemberByRosterID(rosterId);
             final SMS sms = new SMS(textBody, member.getId(), member.getCellPhone());
@@ -156,7 +202,7 @@ public class AdminController {
      * @throws ResourceNotFoundException when member is not found
      */
     @PostMapping(path = {"/{rosterId}/renew-membership"})
-    public void testRenewMembershipSMS(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
+    public void testRenewMembership(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRosterID(rosterId);
         LOGGER.info(String.format(SEND_MSG_MESSAGE, "renew-membership", "sms",
                 member.getFirstName(), member.getLastName(), member.getCellPhone()));
@@ -170,12 +216,49 @@ public class AdminController {
      * @throws ResourceNotFoundException when member is not found
      */
     @PostMapping(path = {"/{rosterId}/new-membership"})
-    public void testNewMembershipSMS(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
+    public void testNewMembership(@PathVariable("rosterId") final Long rosterId) throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRosterID(rosterId);
         LOGGER.info(String.format(SEND_MSG_MESSAGE, "new-membership", "sms",
                 member.getFirstName(), member.getLastName(), member.getCellPhone()));
         smsService.buildNewMembershipMsg(member);
     }
+
+    /**
+     * Processes membership renewals and send out notices to members close to or needed to renew their membership.
+     * Note: Typically this is run automatically every day at 6am, noon, 6pm, and midnight.
+     */
+    @PostMapping(path = {"/roster/process-membership-renewals"})
+    public void processMembershipRenewals() {
+        rosterService.sendMembershipRenewalMessages();
+    }
+
+    /**
+     * Processes queued messages.
+     * Note: Typically this is run automatically every 10 minutes.
+     */
+    // @PostMapping(path = {"/process-message-queue"})
+    // public void processMessageQueue() {
+    //     communicationService.processQueue();
+    // }
+
+    /**
+     * Processes response from Slack.
+     * Note: Typically only Slack would call this routine.
+     *
+     * @param user User sending Slack message
+     * @param textBody Body of message to be sent
+     */
+    // @PostMapping(path = {"/slack/{slackUser}/response"})
+    // public void processSlackResponse(@PathVariable("slackUser") final String user,
+    //                                  @RequestBody final String textBody) {
+    //     SlackBot slackBot = SlackPersonaImpl.builder().id("unknown").userName("unknown").build();
+    //     SlackUser slackUser = SlackPersonaImpl.builder().id(user).userName(user).build();
+    //     SlackChannel slackChannel = SlackChannel.builder().id("random").name("random").build();
+    //     String timestamp = "";
+    //     SlackMessagePosted messagePosted = new SlackMessagePosted(textBody, slackBot, slackUser,
+    //             slackChannel, timestamp, SlackMessagePosted.MessageSubType.MESSAGE_REPLIED);
+    //     communicationService.onEvent(messagePosted, slackSession);
+    // }
 
     /**
      * Gets all Slack users.
@@ -220,5 +303,14 @@ public class AdminController {
             throws ResourceNotFoundException {
         final Member member = rosterService.getMemberByRosterID(rosterId);
         mailChimpService.addOrUpdateNonMember(member.getFirstName(), member.getLastName(), member.getEmail());
+    }
+
+    /**
+     * Updates weather information from AviationWeather.gov.
+     * Note: normally this is run automatically every 10 minutes
+     */
+    @PostMapping(path = {"/weather/update"})
+    public void updateWeather() {
+        weatherService.update();
     }
 }

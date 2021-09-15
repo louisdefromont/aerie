@@ -41,6 +41,7 @@ import org.eaa690.aerie.model.OtherInfoBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import io.github.bsmichael.rostermanagement.model.State;
 
@@ -147,7 +148,7 @@ public class JotFormService {
      *
      * second, minute, hour, day of month, month, day(s) of week
      */
-    // @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void getSubmissions() {
         try {
             final String dateStr = simpleDateFormat.format(new Date());

@@ -35,6 +35,7 @@ import org.eaa690.aerie.model.Member;
 import org.eaa690.aerie.model.MemberRepository;
 import org.eaa690.aerie.model.MembershipReport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import io.github.bsmichael.rostermanagement.RosterManager;
 import io.github.bsmichael.rostermanagement.model.MemberType;
@@ -130,7 +131,7 @@ public class RosterService {
          *
          * second, minute, hour, day of month, month, day(s) of week
          */
-        // @Scheduled(cron = "0 0 0,6,12,18 * * *")
+        @Scheduled(cron = "0 0 0,6,12,18 * * *")
         public void update() {
                 mapperFactory.classMap(Person.class, Member.class).byDefault();
                 MapperFacade mapper = mapperFactory.getMapperFacade();
@@ -149,7 +150,7 @@ public class RosterService {
         /**
          * Sends membership renewal messages on a scheduled basis.
          */
-        // @Scheduled(cron = "0 0 9 * * *")
+        @Scheduled(cron = "0 0 9 * * *")
         public void sendMembershipRenewalMessages() {
                 Optional<List<Member>> membersOptional = memberRepository.findAll();
                 if (membersOptional.isPresent()) {

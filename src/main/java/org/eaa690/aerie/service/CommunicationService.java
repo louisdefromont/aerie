@@ -51,6 +51,7 @@ import org.eaa690.aerie.model.QueuedMessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**
@@ -200,7 +201,7 @@ public class CommunicationService implements SlackMessagePostedListener {
      * Looks for any messages in the send queue, and sends up to X (see
      * configuration) messages per day.
      */
-    // @Scheduled(cron = "0 0 10 * * *")
+    @Scheduled(cron = "0 0 10 * * *")
     public void processQueue() {
         final Optional<List<QueuedMessage>> allQueuedMessages = queuedMessageRepository.findAll();
         if (allQueuedMessages.isPresent()) {

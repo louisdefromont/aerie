@@ -434,16 +434,16 @@ public class CommunicationService implements SlackMessagePostedListener {
      * @param member Member
      */
     public void sendRenewMembershipMsg(final Member member) {
-        // try {
-            // final QueuedMessage queuedSlackMessage = new QueuedMessage();
-            // queuedSlackMessage.setMemberId(member.getId());
-            // queuedSlackMessage.
-                // setBody(getSMSOrSlackMessage(member, PropertyKeyConstants.SLACK_RENEW_MEMBER_MSG_KEY));
-            // queuedSlackMessage.setMessageType(MessageType.Slack);
-            // queuedSlackMessage.setRecipientAddress(getSlackName(member));
-            // queuedSlackMessage.setCreatedAt(new Date());
-            // queuedSlackMessage.setUpdatedAt(new Date());
-            // queueMsg(queuedSlackMessage);
+        try {
+            final QueuedMessage queuedSlackMessage = new QueuedMessage();
+            queuedSlackMessage.setMemberId(member.getId());
+            queuedSlackMessage.
+                setBody(getSMSOrSlackMessage(member, PropertyKeyConstants.SLACK_RENEW_MEMBER_MSG_KEY));
+            queuedSlackMessage.setMessageType(MessageType.Slack);
+            queuedSlackMessage.setRecipientAddress(getSlackName(member));
+            queuedSlackMessage.setCreatedAt(new Date());
+            queuedSlackMessage.setUpdatedAt(new Date());
+            queueMsg(queuedSlackMessage);
 
             final QueuedMessage queuedSMSMessage = new QueuedMessage();
             queuedSMSMessage.setMemberId(member.getId());
@@ -464,9 +464,9 @@ public class CommunicationService implements SlackMessagePostedListener {
             queuedEmailMessage.setCreatedAt(new Date());
             queuedEmailMessage.setUpdatedAt(new Date());
             queueMsg(queuedEmailMessage);
-        // } catch (ResourceNotFoundException ex) {
-        //     LOGGER.error(ex.getMessage());
-        // }
+        } catch (ResourceNotFoundException ex) {
+            LOGGER.error(ex.getMessage());
+        }
     }
 
     /**

@@ -16,12 +16,17 @@
 
 package org.eaa690.aerie.controller;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.eaa690.aerie.exception.ResourceNotFoundException;
-import org.eaa690.aerie.model.MemberData;
+import org.eaa690.aerie.model.CheckDoorPermissionResponse;
 import org.eaa690.aerie.model.FindByRFIDResponse;
 import org.eaa690.aerie.model.Member;
-import org.eaa690.aerie.model.RFIDRequest;
+import org.eaa690.aerie.model.MemberData;
 import org.eaa690.aerie.model.MembershipReport;
+import org.eaa690.aerie.model.RFIDRequest;
 import org.eaa690.aerie.service.RosterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -32,9 +37,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * RosterController.
@@ -149,5 +151,35 @@ public class RosterController {
             records.add(record);
         }
         return records;
+    }
+
+    /**
+     * Gets a member's permission to open a door
+     * based on membership status and requested door.
+     * @param rfid rfid of requesting member's card
+     * @param duid door unique id
+     *
+     * @return CheckRFIDPermissionResponse
+     */
+    @GetMapping(path = {"/door-permission/{rfid}/{duid}"})
+    public CheckDoorPermissionResponse checkDoorPermission(@PathVariable("rfid") final String rfid, @PathVariable("duid") final String duid) {
+        RFIDRequest rfidRequest = new RFIDRequest();
+        rfidRequest.setRfid(rfid);
+        MemberData memberData;
+        try {
+            memberData = getMemberData(findByRFID(rfidRequest).getRosterId());
+
+            CheckDoorPermissionResponse response = new CheckDoorPermissionResponse();
+            response.setName(memberData.getName());
+            response.setMembershipCurrentlyActive(memberData.getExpirationDate().after(new Date()));
+            response.setExpirationDate(memberData.getExpirationDate().toString());
+            response.setHasPermissionToOpenDoor(true);
+            return response;
+        } catch (ResourceNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

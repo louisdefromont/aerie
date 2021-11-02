@@ -162,7 +162,8 @@ public class RosterController {
      * @return CheckRFIDPermissionResponse
      */
     @GetMapping(path = {"/door-permission/{rfid}/{duid}"})
-    public CheckDoorPermissionResponse checkDoorPermission(@PathVariable("rfid") final String rfid, @PathVariable("duid") final String duid) {
+    public CheckDoorPermissionResponse checkDoorPermission(
+        @PathVariable("rfid") final String rfid, @PathVariable("duid") final String duid) {
         RFIDRequest rfidRequest = new RFIDRequest();
         rfidRequest.setRfid(rfid);
         MemberData memberData;
